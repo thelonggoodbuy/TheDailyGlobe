@@ -4,7 +4,8 @@ from django.core.management.base import BaseCommand
 # import random
 
 
-# from users.models import User, Role
+# from admin_panel.core.models import User, Role
+# from django.contrib.auth import User
 
 
 # from faker import Faker
@@ -12,14 +13,36 @@ from django.core.management.base import BaseCommand
 # fake = Faker("ru")
 
 
-# class Command(BaseCommand):
-#     help = "Инициализация тестового пользователя"
+from django.contrib.auth import get_user_model
 
-#     def handle(self, *args, **kwargs):
-#         # print('*************************************************')
-#         # print('***********this is testing command***************')
-#         # print('***************all work!*************************')
-#         # print('*************************************************')
+
+class Command(BaseCommand):
+    help = "Инициализация тестового пользователя"
+
+    def handle(self, *args, **kwargs):
+        print('*************************************************')
+        print('***********this is testing command***************')
+        print('***************all work!*************************')
+        print('*************************************************')
+        User = get_user_model()
+        username = "admin"
+        email = "admin@example.com"
+        password = "some_password"
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(username=username, email=email, password=password)
+            print(f"Superuser {username} created successfully!")
+        else:
+            print(f"Superuser {username} already exists.")
+
+        all_users = User.objects.all()
+        for user in all_users:
+            print('=======================')
+            print(f'User with id {user.id}')
+            print((f'User with email {user.email}'))
+            print((f'User with username {user.username}'))
+            print('=======================')
+
+
 
 #         test_users_query = User.objects.filter(email="initial_simple_user_1@email.com")
 #         if test_users_query.exists():

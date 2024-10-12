@@ -33,7 +33,7 @@ config: AlembicCommandConfig = context.config  # noqa
 
 
 # Загружаем переменные окружения из .env
-# load_dotenv()
+load_dotenv()
 
 # config.set_main_option(
 #     'sqlalchemy.url',
@@ -62,6 +62,9 @@ target_metadata=metadata
 
 print("---> Registered Tables in Metadata <---")
 pprint.pprint(target_metadata.tables.keys())
+print("====config=====")
+print(config)
+print('===============')
 
 
 
@@ -143,3 +146,10 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     asyncio.run(run_migrations_online())
+
+
+print('===================================================================')
+
+print('MIGRATION SCIPT FINISHED!!!!!!!!!!!!')
+
+print('===================================================================')

@@ -25,10 +25,16 @@ run-docker:
 	uvicorn src.main.api:app --host 0.0.0.0 --port 8000
 
 
+
 run-migrator-docker:
+
+
 	alembic upgrade head
 
-	# python admin_panel/manage.py migrate --database=default
-	# admin_panel/django-admin collectstatic
+	python admin_panel/manage.py migrate --database=default
+	django-admin collectstatic --settings=admin_panel.config.settings
+	# python admin_panel/manage.py generate_initial_admin_user
 
 
+# run-initial-data:
+# 	python admin_panel/manage.py generate_initial_admin_user.py
