@@ -10,7 +10,10 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
+print('=======================')
+print('wsgi application!!')
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'admin_panel.config.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 application = get_wsgi_application()

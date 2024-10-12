@@ -28,8 +28,9 @@ email-validator = "^2.2.0"
 pyjwt = {extras = ["crypto"], version = "^2.9.0"}
 django-unfold = "^0.39.0"
 psycopg2-binary = "^2.9.9"
-django = "4.1"
+django = "^5.1.2"
 pillow = "^10.4.0"
+gunicorn = "^23.0.0"
 
 
 [build-system]

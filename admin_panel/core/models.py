@@ -80,7 +80,7 @@ class ArticleSectionWithVideoUnfold(models.Model):
 
 class ArticleSectionsWithPlainTextUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
-    # id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()

@@ -20,6 +20,9 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+print('***BASE_DIR***')
+print(BASE_DIR)
+print('**************')
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
@@ -33,7 +36,7 @@ SECRET_KEY = 'django-insecure-n1d^j=iwro__p0f6-ww6v^nvhhhzm-n-798%fya$2$hl&gbjps
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
 
 # Application definition
@@ -48,7 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core'
+    'admin_panel.core',
+    # 'core'
 ]
 
 MIDDLEWARE = [
@@ -61,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'admin_panel.config.urls'
 
 TEMPLATES = [
     {
@@ -79,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'admin_panel.config.wsgi.application'
 
 
 # Database
@@ -91,7 +95,7 @@ DATABASES = {
         "NAME": os.environ.get('POSTGRES_ADMIN_DB'),
         "USER": os.environ.get('POSTGRES_USER'),
         "PASSWORD": os.environ.get('POSTGRES_PASSWORD'),
-        "HOST": os.environ.get('POSTGRES_HOST'),
+        "HOST": os.environ.get('POSTGRES_ADMIN_HOST'),
         "PORT": os.environ.get('POSTGRES_PORT'),
     },
     'main_db': {
@@ -106,11 +110,23 @@ DATABASES = {
 }
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = Path(BASE_DIR, "staticfiles/")
+STATICFILES_DIRS = [
+    Path(BASE_DIR, "static"),
+]
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = Path(BASE_DIR, "media/")
+
+
 # print('***')
 # print(BASE_DIR)
 # print('***')
 # STATIC_ROOT = '/collectstatic/'
-DATABASE_ROUTERS = ["config.db_router.DatabaseRouter"]
+DATABASE_ROUTERS = ["admin_panel.config.db_router.DatabaseRouter"]
+
+
 
 
 # print('*****************************************************************')
@@ -154,7 +170,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

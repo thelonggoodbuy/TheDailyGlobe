@@ -72,26 +72,6 @@ mapper_registry.map_imperatively(
 )
 
 
-# # basic class of article section
-# print("Registering ArticleSectionTable...")
-
-# ArticleSectionTable = Table(
-#     "article_sections",
-#     mapper_registry.metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("article_id", ForeignKey("articles.id")),
-#     Column("text", Text, nullable=False),
-#     Column("intex_number_in_article", Integer, nullable=False),
-#     # Column("section_type", String(50)),
-# )
-
-# print("Mapping ArticleSectionTable...")
-# mapper_registry.map_imperatively(
-#     ArticleSectionEntity,
-#     ArticleSectionTable,
-#     # polymorphic_on=ArticleSectionTable.c.section_type,
-#     polymorphic_identity='section',
-# )
 
 
 # article section with plain text

@@ -16,34 +16,19 @@ from django import forms
 from django.urls import path
 
 
-from core.models import ArticlesUnfold, \
+# from admin_panel.core.models import ArticlesUnfold, \
+#                         ArticleSectionsWithPlainTextUnfold, \
+#                         ArticleSectionWithSlideShowUnfold, \
+#                         ArticleSectionWithVideoUnfold, \
+#                         CategoryUnfold
+
+
+from admin_panel.core.models import ArticlesUnfold, \
                         ArticleSectionsWithPlainTextUnfold, \
                         ArticleSectionWithSlideShowUnfold, \
                         ArticleSectionWithVideoUnfold, \
                         CategoryUnfold
 
-
-# @admin.register(Articles)
-# class ArticlesAdminClass(ModelAdmin):
-
-#     compressed_fields = True  # Default: False
-
-
-# @admin.register(ArticleSectionsWithPlainTextUnfold)
-# class ArticleSectionsWithPlainTextAdminClass(ModelAdmin):
-#     compressed_fields = True
-
-
-
-# @admin.register(ArticleSectionWithSlideShowUnfold)
-# class ArticleSectionWithSlideShowAdminClass(ModelAdmin):
-#     compressed_fields = True
-
-
-
-# @admin.register(ArticleSectionWithVideoUnfold)
-# class ArticleSectionWithVideoAdminClass(ModelAdmin):
-#     compressed_fields = True
 
 
 @admin.register(CategoryUnfold)
@@ -63,24 +48,15 @@ class ArticleSectionsWithPlainTextInline(StackedInline):
         }
     }
         # Здесь можно добавить обработку файлов
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        print(self.cleaned_data)
-        print('--->custom file saving<----')
+    # def save(self, commit=True):
+    #     instance = super().save(commit=False)
+    #     print(self.cleaned_data)
+    #     print('--->custom file saving<----')
 
-        # Если нужно обработать файлы, можно сделать это здесь
-        # Например, если у тебя в модели будет поле для файлов
-        # if self.cleaned_data['file_field']:
-        #     file_data = self.cleaned_data['file_field']
-        #     instance.file_field = json.dumps({
-        #         'filename': file_data.name,
-        #         'size': file_data.size,
-        #         'content_type': file_data.content_type,
-        #     })
 
-        if commit:
-            instance.save()
-        return instance
+    #     if commit:
+    #         instance.save()
+    #     return instance
 
 from django import forms
 # =============================================================================>>>

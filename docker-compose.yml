@@ -1,0 +1,63 @@
+version: "3.3"
+
+volumes:
+  local_postgres_data:
+  the_daily_globe_admin_db:
+  local_static_data:
+
+services:
+  postgres_db:
+    image: postgres:16.3
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data/
+    restart: always
+    env_file:
+      - ./.env
+
+
+  admin_db:
+    image: postgres:16.3
+    volumes:
+      - the_daily_globe_admin_db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+
+  api: &api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres_db
+    restart: always
+    command: make run-docker
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+
+
+  admin:
+    <<: *api
+    command: make unfold-docker
+    env_file:
+      ./.env
+    volumes:
+      - local_static_data:/usr/src/app/staticfiles
+    ports:
+      - "8001:8000"
+
+
+
+  migrator:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - admin_db
+    command: make run-migrator-docker
+    volumes:
+      - local_static_data:/usr/src/app/staticfiles
+    env_file:
+      - ./.env
+
