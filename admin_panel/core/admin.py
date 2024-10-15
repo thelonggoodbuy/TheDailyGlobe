@@ -10,7 +10,7 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 from unfold.contrib.forms.widgets import WysiwygWidget
 from django import forms
 
-
+from unfold.contrib.inlines.admin import NonrelatedStackedInline
 
 
 from django.urls import path
@@ -38,85 +38,100 @@ class CategoryAdminClass(ModelAdmin):
 
 
 
-class ArticleSectionsWithPlainTextInline(StackedInline):
+class ArticleSectionsWithPlainTextInline(NonrelatedStackedInline):
     model = ArticleSectionsWithPlainTextUnfold
     extra = 1
-    # exclude = ['id']
     formfield_overrides = {
         models.TextField: {
             "widget": WysiwygWidget,
         }
     }
-        # Здесь можно добавить обработку файлов
-    # def save(self, commit=True):
-    #     instance = super().save(commit=False)
-    #     print(self.cleaned_data)
-    #     print('--->custom file saving<----')
 
+    def get_form_queryset(self, obj):
+        return self.model.objects.all().distinct()
 
-    #     if commit:
-    #         instance.save()
-    #     return instance
+    def save_new_instance(self, parent, instance):
+        last_obj = self.model.objects.order_by('id').last()
+        next_id = last_obj.id + 1 if last_obj else 1
+        instance.id = next_id
+        print('=================================')
+
 
 from django import forms
 # =============================================================================>>>
-class ArticleSectionWithSlideShowForm(forms.ModelForm):
-    class Meta:
-        model = ArticleSectionsWithPlainTextUnfold
-        fields = '__all__'
-        exclude = ["id"]
-        formfield_overrides = {
-        # models.ImageField: {
-        #     "widget": forms.ImageField(),
-        # }
-    }
+# class ArticleSectionWithSlideShowForm(forms.ModelForm):
+#     class Meta:
+#         model = ArticleSectionsWithPlainTextUnfold
+#         fields = '__all__'
+#         exclude = ["id"]
+#         formfield_overrides = {
+#         # models.ImageField: {
+#         #     "widget": forms.ImageField(),
+#         # }
+#     }
         
-    # Здесь можно добавить обработку файлов
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        print(self.cleaned_data)
-        print('--->custom file saving<----')
+#     # Здесь можно добавить обработку файлов
+#     def save(self, commit=True):
+#         instance = super().save(commit=False)
+#         print(self.cleaned_data)
+#         print('--->custom file saving<----')
 
-        # Если нужно обработать файлы, можно сделать это здесь
-        # Например, если у тебя в модели будет поле для файлов
-        # if self.cleaned_data['file_field']:
-        #     file_data = self.cleaned_data['file_field']
-        #     instance.file_field = json.dumps({
-        #         'filename': file_data.name,
-        #         'size': file_data.size,
-        #         'content_type': file_data.content_type,
-        #     })
+#         # Если нужно обработать файлы, можно сделать это здесь
+#         # Например, если у тебя в модели будет поле для файлов
+#         # if self.cleaned_data['file_field']:
+#         #     file_data = self.cleaned_data['file_field']
+#         #     instance.file_field = json.dumps({
+#         #         'filename': file_data.name,
+#         #         'size': file_data.size,
+#         #         'content_type': file_data.content_type,
+#         #     })
 
-        if commit:
-            instance.save()
-        return instance
+#         if commit:
+#             instance.save()
+#         return instance
 # ------------------------------------------------------------------------------///
 
 
 
 
 
-class ArticleSectionWithSlideShowInline(StackedInline):
+class ArticleSectionWithSlideShowInline(NonrelatedStackedInline):
     model = ArticleSectionWithSlideShowUnfold
-    form = ArticleSectionWithSlideShowForm
     extra = 1
 
-    exclude = ["id"]
-    # formfield_overrides = {
-    #     models.TextField: {
-    #         "widget": WysiwygWidget,
-    #     }
-    # }
+    formfield_overrides = {
+        models.TextField: {
+            "widget": WysiwygWidget,
+        }
+    }
 
-class AArticleSectionWithVideoInline(TabularInline):
+    def get_form_queryset(self, obj):
+        return self.model.objects.all().distinct()
+
+    def save_new_instance(self, parent, instance):
+        last_obj = self.model.objects.order_by('id').last()
+        next_id = last_obj.id + 1 if last_obj else 1
+        instance.id = next_id
+        print('=================================')
+
+class ArticleSectionWithVideoInline(NonrelatedStackedInline):
     model = ArticleSectionWithVideoUnfold
     extra = 1
-    exclude = ["id"]
+    
+    def get_form_queryset(self, obj):
+        return self.model.objects.all().distinct()
+
+    def save_new_instance(self, parent, instance):
+        last_obj = self.model.objects.order_by('id').last()
+        next_id = last_obj.id + 1 if last_obj else 1
+        instance.id = next_id
+        print('=================================')
+
 
 @admin.register(ArticlesUnfold)
 class ArticlesAdmin(ModelAdmin):
     compressed_fields = True
-    inlines = [ArticleSectionsWithPlainTextInline, ArticleSectionWithSlideShowInline, AArticleSectionWithVideoInline]
+    inlines = [ArticleSectionsWithPlainTextInline, ArticleSectionWithSlideShowInline, ArticleSectionWithVideoInline]
 
     
 

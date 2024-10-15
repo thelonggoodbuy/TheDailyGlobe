@@ -15,6 +15,7 @@ from src.domain.entities.articles.articles_entities import ArticleWithPlainTextS
 from src.domain.entities.comments.comments_entities import CommentEntity
 
 from src.infrastructure.database.metadata import mapper_registry
+from src.infrastructure.database.utilities.save_file_field import SaveFileField
 
 
 # category table
@@ -27,7 +28,7 @@ CategortyTable = Table(
 )
 
 # mapper categories
-print("Mapping CategortyTable...")
+# print("Mapping CategortyTable...")
 mapper_registry.map_imperatively(
     CategoryEntity,
     CategortyTable,
@@ -36,7 +37,7 @@ mapper_registry.map_imperatively(
     }
 )
 
-print("Registering ArticleTable...")
+# print("Registering ArticleTable...")
 ArticleTable = Table(
     # Table name
     "articles",
@@ -60,7 +61,7 @@ ArticleTable = Table(
 )
 
 # Map the Category class to the category_table
-print("Mapping ArticleTable...")
+# print("Mapping ArticleTable...")
 
 mapper_registry.map_imperatively(
     ArticleEntity,
@@ -102,7 +103,7 @@ ArticleSectionSlideShowTable = Table(
     Column("article_id", ForeignKey("articles.id")),
     Column("text", Text, nullable=False),
     Column("intex_number_in_article", Integer, nullable=False),
-    Column("image", FileField, nullable=False)
+    Column("image", SaveFileField(length=255), nullable=False)
 )
 
 
@@ -140,5 +141,5 @@ mapper_registry.map_imperatively(
 
 
 
-print("Registered tables in Articles module:")
-print(mapper_registry.metadata.tables.keys())
+# print("Registered tables in Articles module:")
+# print(mapper_registry.metadata.tables.keys())

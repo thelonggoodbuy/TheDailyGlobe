@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from common.base.interactor import BaseInteractor
+from src.infrastructure.interfaces.uow import IDatabaseSession
+
 
 class ArtictleResponse(BaseModel):
     result: str
@@ -27,5 +29,4 @@ class ArticleInteractor(BaseInteractor):
         resp = ArtictleResponse(result = 'Articles!')
         # resp.
         return resp
-
-
+    

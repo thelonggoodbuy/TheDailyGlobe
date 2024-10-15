@@ -18,8 +18,8 @@ from src.infrastructure.database.metadata import mapper_registry
 
 # mapper_registry = registry(metadata=metadata)
 
-print('=======comment tables==============')
-print(f"Registry ID in {__name__}: {id(mapper_registry)}")
+# print('=======comment tables==============')
+# print(f"Registry ID in {__name__}: {id(mapper_registry)}")
 
 CommentTable = Table(
     # table name
@@ -44,5 +44,5 @@ mapper_registry.map_imperatively(
 
 
 
-print("Registered tables in Comments module:")
-print(mapper_registry.metadata.tables.keys())
+# print("Registered tables in Comments module:")
+# print(mapper_registry.metadata.tables.keys())

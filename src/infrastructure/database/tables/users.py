@@ -18,9 +18,9 @@ from src.infrastructure.database.metadata import mapper_registry
 
 # mapper_registry = registry(metadata=metadata)
 
-print('=======users tables==============')
-print("Registering UserTable...")
-print(f"Registry ID in {__name__}: {id(mapper_registry)}")
+# print('=======users tables==============')
+# print("Registering UserTable...")
+# print(f"Registry ID in {__name__}: {id(mapper_registry)}")
 
 UserTable = Table(
     # Table name
@@ -40,7 +40,7 @@ UserTable = Table(
     )
 
 # Map the User class to the user_table
-print("Mapping UserTable...")
+# print("Mapping UserTable...")
 
 mapper_registry.map_imperatively(
     UserEntity,
@@ -107,5 +107,5 @@ mapper_registry.map_imperatively(
 
 
 
-print("Registered tables in Users module:")
-print(mapper_registry.metadata.tables.keys())
+# print("Registered tables in Users module:")
+# print(mapper_registry.metadata.tables.keys())

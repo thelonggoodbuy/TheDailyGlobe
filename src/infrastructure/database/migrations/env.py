@@ -51,20 +51,20 @@ load_dotenv()
 
 
 
-for key, value in config.get_section(config.config_ini_section).items():
-    print('Context value:')
-    print(f"{key}: {value}")
+# for key, value in config.get_section(config.config_ini_section).items():
+#     print('Context value:')
+#     print(f"{key}: {value}")
 
 
 target_metadata=metadata
 
 
 
-print("---> Registered Tables in Metadata <---")
-pprint.pprint(target_metadata.tables.keys())
-print("====config=====")
-print(config)
-print('===============')
+# print("---> Registered Tables in Metadata <---")
+# pprint.pprint(target_metadata.tables.keys())
+# print("====config=====")
+# print(config)
+# print('===============')
 
 
 
@@ -148,8 +148,8 @@ else:
     asyncio.run(run_migrations_online())
 
 
-print('===================================================================')
+# print('===================================================================')
 
-print('MIGRATION SCIPT FINISHED!!!!!!!!!!!!')
+# print('MIGRATION SCIPT FINISHED!!!!!!!!!!!!')
 
-print('===================================================================')
+# print('===================================================================')

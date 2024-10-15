@@ -525,6 +525,17 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-cleanup"
+version = "9.0.0"
+description = "Deletes old files."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django_cleanup-9.0.0-py3-none-any.whl", hash = "sha256:19f8b0e830233f9f0f683b17181f414672a0f48afe3ea3cc80ba47ae40ad880c"},
+    {file = "django_cleanup-9.0.0.tar.gz", hash = "sha256:bb9fb560aaf62959c81e31fa40885c36bbd5854d5aa21b90df2c7e4ba633531e"},
+]
+
+[[package]]
 name = "django-unfold"
 version = "0.39.0"
 description = "Modern Django admin theme for seamless interface development"
@@ -2014,4 +2025,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "3.12.5"
-content-hash = "29f10f4910982a93ad95dc94c5e42b3b16caf2ab26a5a23f43d871f9955a7998"
+content-hash = "668f6a35473703a9c9cde7e37a70756e3b69f94f0466958dfb950cb72247ec7e"

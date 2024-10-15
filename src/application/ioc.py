@@ -44,6 +44,8 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST
     )
 
+
+
     login_regular_interactor = provide(
         source=LoginRegularInteractor,
         scope=Scope.REQUEST

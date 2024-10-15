@@ -5,8 +5,8 @@ from src.domain.entities.search.search_entities import SearchRequestEntity
 from src.infrastructure.database.metadata import mapper_registry
 
 
-print('=======search tables==============')
-print(f"Registry ID in {__name__}: {id(mapper_registry)}")
+# print('=======search tables==============')
+# print(f"Registry ID in {__name__}: {id(mapper_registry)}")
 
 SearchRequestTable = Table(
     # Table name
@@ -32,5 +32,5 @@ mapper_registry.map_imperatively(
 
 
 
-print("Registered tables in Search module:")
-print(mapper_registry.metadata.tables.keys())
+# print("Registered tables in Search module:")
+# print(mapper_registry.metadata.tables.keys())

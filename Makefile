@@ -33,7 +33,7 @@ run-migrator-docker:
 
 	python admin_panel/manage.py migrate --database=default
 	django-admin collectstatic --settings=admin_panel.config.settings
-	# python admin_panel/manage.py generate_initial_admin_user
+	python admin_panel/manage.py generate_initial_admin_user
 
 
 # run-initial-data:

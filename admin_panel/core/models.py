@@ -23,7 +23,7 @@ class AlembicVersion(models.Model):
 class ArticleSectionWithSlideShowUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
     # id = models.AutoField(primary_key=True)
-    image = models.JSONField()  # This field type is a guess.
+    image = models.ImageField(upload_to="galery/")
     article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
@@ -32,37 +32,6 @@ class ArticleSectionWithSlideShowUnfold(models.Model):
         managed = False
         db_table = 'article_section_with_slide_show'
 
-    def save(self, *args, **kwargs):
-        if self.image:
-            print('========================')
-            print(self.image)
-            print('=======================')
-            # file_id = str(uuid.uuid4())
-            # upload_storage = "default"
-            # file_path = f"{upload_storage}/{file_id}"
-            
-            
-            # saved_path = default_storage.save(file_path, self.file_field)
-            # file_url = default_storage.url(saved_path)
-
-            
-            # self.file_metadata = json.dumps({
-            #     "test_image_data": "some data",
-            #     "other_test_image_data": "other_some_data"
-                # "content_path": None,
-                # "filename": self.file_field.name,
-                # "content_type": self.file_field.file.content_type,
-                # "size": self.file_field.size,
-                # "files": [saved_path],
-                # "file_id": file_id,
-                # "upload_storage": upload_storage,
-                # "uploaded_at": now().isoformat(),
-                # "path": saved_path,
-                # "url": file_url,
-                # "saved": True
-            # })
-
-        super().save(*args, **kwargs)  # Вызываем стандартное сохранение
 
     
 class ArticleSectionWithVideoUnfold(models.Model):
@@ -81,6 +50,8 @@ class ArticleSectionWithVideoUnfold(models.Model):
 class ArticleSectionsWithPlainTextUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
     id = models.AutoField(primary_key=True)
+
+    
     article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()

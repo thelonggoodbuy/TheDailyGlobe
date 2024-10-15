@@ -3,7 +3,8 @@ version: "3.3"
 volumes:
   db_api:
   db_admin:
-  local_static_data:
+  static_volume:
+  media_volume:
 
 services:
   postgres_db:
@@ -36,6 +37,8 @@ services:
       - "8000:8000"
     env_file:
       - ./.env
+    volumes:
+      - media_volume:/usr/src/app/media
 
 
   admin:
@@ -47,7 +50,8 @@ services:
     env_file:
       ./.env
     volumes:
-      - local_static_data:/usr/src/app/staticfiles
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
     depends_on:
     - admin_db
     ports:
@@ -64,7 +68,8 @@ services:
       - postgres_db
     command: make run-migrator-docker
     volumes:
-      - local_static_data:/usr/src/app/staticfiles
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
     env_file:
       - ./.env
 
