@@ -45,12 +45,26 @@ class UserAlchemyRepository(IAlchemyRepository, BaseUserRepository):
         await self._session.commit()
         return new_user
     
-    
+
     async def delete_user(self, email):
         user = await self.get_user_by_email(user_email=email)
         user_id = user.id
         await self._session.delete(user)
         await self._session.commit()
         return {"result": f"Пользователь с id {user_id} був видалений з системи"}
+    
+
+    async def update_user(self, user_obj, **values_dict):
+        for obj_field in values_dict.keys():
+            match obj_field:
+                case 'password':
+                    password_value=get_password_hash(values_dict['password'])
+                    user_obj.password = password_value
+                case _:
+                    setattr(user_obj, obj_field, values_dict[obj_field])
+        # await self._session.update(user)
+        await self._session.commit()
+        return {"result": f"Користувач с id {user_obj.id} змінив данні."}        
+
 
         

@@ -27,7 +27,8 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
-                                            DeleteUserInteractor
+                                            DeleteUserInteractor,\
+                                            UpdatePasswordUserInteractor
 
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 
@@ -126,14 +127,18 @@ class UserProvider(Provider):
         scope=Scope.REQUEST
     )
 
+    update_password_user_interactor = provide(
+        source=UpdatePasswordUserInteractor,
+        scope=Scope.REQUEST
+    )
+
+
     # repositories
     user_repository = provide(
         source=UserAlchemyRepository,
         scope=Scope.APP,
         provides=IAlchemyRepository
     )
-
-
 
 
     @provide(scope=Scope.APP)

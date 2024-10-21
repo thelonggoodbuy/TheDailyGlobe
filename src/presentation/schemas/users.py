@@ -81,3 +81,44 @@ class RegisterData(BaseModel):
 class UserRegisterResponse(BaseModel):
     result: str
     jwt_access_token: str
+
+
+class DeleteUsersData(BaseModel):
+    password: str
+
+
+class ChangePasswordUsersData(BaseModel):
+    old_password: str
+    new_password: str
+    repeat_new_password: str
+
+    @field_validator("old_password")
+    def password_have_not_be_empty(cls, value):
+        if not value:
+            raise ValueError("Поле 'old_password' не повинно бути пустим")
+        return value
+    
+    @field_validator("new_password")
+    def password_have_not_be_empty(cls, value):
+        if not value:
+            raise ValueError("Поле 'new_password' не повинно бути пустим")
+        return value
+
+
+    @field_validator("repeat_new_password")
+    def validate_repeat_password_match(cls, value: str, values: FieldValidationInfo):
+        if "new_password" in values.data and value != values.data["new_password"]:
+            raise ValueError("Паролі не співпадають")
+        return value
+
+
+    # @model_validator(mode="before")
+    # def validate_password_and_repeat_password_not_empty(cls, data):
+    #     if ("password" in data and "repeat_password" not in data) or (
+    #         "password" not in data and "repeat_password" in data
+    #     ):
+    #         raise ValueError(
+    #             "Для зміни паролю потрібно ввести пароль, та повторити його. Одне з полів пусте."
+    #         )
+    #     else:
+    #         return data

@@ -6,9 +6,10 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
-                                            DeleteUserInteractor
+                                            DeleteUserInteractor,\
+                                            UpdatePasswordUserInteractor
 from src.application.ioc import ArticleProvider
-from src.presentation.schemas.users import LoginRequestData, RegisterData
+from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData
 from starlette.requests import Request
 from src.main.config.settings import Settings
 from src.infrastructure.openapi.openapi import bearer_scheme
@@ -63,11 +64,6 @@ async def registration(register_data: RegisterData,
     return result
 
 
-from pydantic import BaseModel
-class DeleteUsersData(BaseModel):
-    password: str
-    # token: str =  None
-
 
 
 
@@ -75,16 +71,19 @@ class DeleteUsersData(BaseModel):
 async def delete_user(delete_user_data: DeleteUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[DeleteUserInteractor]):
-    # delete_user_data.token = token.credentials
-# async def delete_user(delete_user_data: DeleteUsersData):
-    print('(((TOKEN!!!!!)))')
-    # print(delete_user_data)
-    # print(type(token))
-    # print(token.credentials)
-    print(delete_user_data)
-    print('================')
 
     result = await interactor(delete_user_data, token.credentials)
 
     return result
 
+
+
+
+@router.post("/users/change_password")
+async def delete_user(change_password_user_data: ChangePasswordUsersData, 
+                      token: Annotated[str, Depends(bearer_scheme)],
+                      interactor: FromDishka[UpdatePasswordUserInteractor]):
+
+    result = await interactor(change_password_user_data, token.credentials)
+
+    return result
