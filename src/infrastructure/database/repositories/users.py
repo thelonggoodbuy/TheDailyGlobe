@@ -26,7 +26,7 @@ class BaseUserRepository(ABC):
 
 
 
-class UserAlchemyRepository(IAlchemyRepository, BaseUserRepository):
+class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
     async def get_user_by_email(self, user_email: str):
         """get user from db with users email"""
         query = select(UserEntity).filter(UserEntity.email == user_email)

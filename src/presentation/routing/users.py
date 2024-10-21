@@ -7,9 +7,10 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
                                             DeleteUserInteractor,\
-                                            UpdatePasswordUserInteractor
+                                            UpdatePasswordUserInteractor,\
+                                            RefreshTokendUserInteractor
 from src.application.ioc import ArticleProvider
-from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData
+from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData, RefreshTokenUsersData
 from starlette.requests import Request
 from src.main.config.settings import Settings
 from src.infrastructure.openapi.openapi import bearer_scheme
@@ -68,6 +69,7 @@ async def registration(register_data: RegisterData,
 
 
 @router.post("/users/delete_user")
+@inject
 async def delete_user(delete_user_data: DeleteUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[DeleteUserInteractor]):
@@ -80,10 +82,22 @@ async def delete_user(delete_user_data: DeleteUsersData,
 
 
 @router.post("/users/change_password")
+@inject
 async def delete_user(change_password_user_data: ChangePasswordUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[UpdatePasswordUserInteractor]):
 
     result = await interactor(change_password_user_data, token.credentials)
+
+    return result
+
+
+
+@router.post("/users/refresh_token")
+@inject
+async def refresh_token(refresh_token: RefreshTokenUsersData,
+                      interactor: FromDishka[RefreshTokendUserInteractor]):
+
+    result = await interactor(refresh_token)
 
     return result

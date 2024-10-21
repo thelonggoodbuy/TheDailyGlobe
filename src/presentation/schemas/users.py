@@ -122,3 +122,7 @@ class ChangePasswordUsersData(BaseModel):
     #         )
     #     else:
     #         return data
+
+
+class RefreshTokenUsersData(BaseModel):
+    refresh_token: str

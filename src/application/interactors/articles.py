@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from common.base.interactor import BaseInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.infrastructure.database.repositories.users import IAlchemyRepository
+from src.infrastructure.database.repositories.articles import BaseArticleRepository
 from src.main.config.settings import Settings
 from src.application.interfaces.gateways import IWriteFileStorageGateway
 
@@ -44,7 +45,7 @@ class TestSaveObjectInteractor(BaseInteractor):
 
     def __init__(self,
                 db_session: IDatabaseSession,
-                article_repository: IAlchemyRepository,
+                article_repository: BaseArticleRepository,
                 settings: Settings,
                 write_file_gateway: IWriteFileStorageGateway):
 
@@ -62,29 +63,15 @@ class TestSaveObjectInteractor(BaseInteractor):
         
 
         upload_directory ="/galery/"
-        await self.article_repository.save_section_with_image(article_id=article_id,
+        stopped_session = await self.article_repository.save_section_with_image(article_id=article_id,
                                                               text=text,
                                                               intex_number_in_article=intex_number_in_article,
                                                               image=f"{upload_directory}{file.filename}")
-        await self.db_session.flush()
-
+        await stopped_session.flush()
         success: bool = await self.write_file_gateway.safe_file_in_storage(upload_directory, file)
-
         if not success:
             raise Exception("-----Проблема с сохранением файла-----")
-        
-        article_section = await self.db_session.commit()
-        print('=============================')
-        print(article_section)
-        # print(article_section.id)
-        print('=============================')
-
+        await stopped_session.commit()
         result = ArtictleResponse(result = 'sawing file work!!')
 
         return result
-
-    
-
-        # resp = ArtictleResponse(result = 'Articles!')
-        
-        # return resp

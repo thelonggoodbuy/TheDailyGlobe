@@ -17,17 +17,14 @@ from sqlalchemy import select
 
 
 # # TODO -> application interfaces
-# class BaseUserRepository(ABC):
-#     @abstractmethod
-#     async def get_user_by_email():
-#         raise NotImplementedError
+class BaseArticleRepository(ABC):
+    @abstractmethod
+    async def save_section_with_image():
+        raise NotImplementedError
 
-#     @abstractmethod
-#     async def register_user():
-#         raise NotImplementedError
 
-# class ArticleAlchemyRepository(IAlchemyRepository, BaseUserRepository):
-class ArticleAlchemyRepository(IAlchemyRepository):
+class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
+# class ArticleAlchemyRepository(IAlchemyRepository):
     async def save_section_with_image(self, 
                                     article_id,
                                     text,
@@ -35,5 +32,8 @@ class ArticleAlchemyRepository(IAlchemyRepository):
                                     image):
         new_article_sections_slide_show = ArticleSectionSlideShowEntity(article_id, text, intex_number_in_article, image)
         self._session.add(new_article_sections_slide_show)
+        return self._session
+    
+
 
         

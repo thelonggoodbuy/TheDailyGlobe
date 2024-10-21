@@ -10,6 +10,9 @@ from sqlalchemy import select
 from src.presentation.schemas.users import LoginRequestData, RegisterData, UserRegisterResponse
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 
+from src.infrastructure.database.repositories.users import BaseUserRepository
+
+
 from src.application.interfaces.services import ITokenService
 from src.main.config.settings import Settings
 
@@ -30,7 +33,7 @@ class LoginRegularInteractor(BaseInteractor):
 
     def __init__(self,
                  db_session: IDatabaseSession,
-                 user_repository: IAlchemyRepository,
+                 user_repository: BaseUserRepository,
                  token_service: ITokenService):
 
                  self.db_session = db_session
@@ -50,7 +53,8 @@ class LoginRegularInteractor(BaseInteractor):
             result = {'status': 'error', 'text': 'помилка в паролі'}
         else:
             jwt_token = await self.token_service.create_access_token(user_obj.email)
-            result = {'status': 'success', 'access_jwt_token': jwt_token}
+            refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
+            result = {'status': 'success', 'access_token': jwt_token, "refresh_token": refresh_token}
         resp = UserLoginResponse(result = result)
         return resp
     
@@ -94,7 +98,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
 
     def __init__(self,
                 db_session: IDatabaseSession,
-                user_repository: IAlchemyRepository,
+                user_repository: BaseUserRepository,
                 settings: Settings,
                  token_service: ITokenService
                 ):
@@ -130,7 +134,7 @@ class RegistrationInteractor(BaseInteractor):
 
     def __init__(self,
                 db_session: IDatabaseSession,
-                user_repository: IAlchemyRepository,
+                user_repository: BaseUserRepository,
                 settings: Settings,
                  token_service: ITokenService
                 ):
@@ -159,7 +163,7 @@ class DeleteUserInteractor(BaseInteractor):
     """ 
     def __init__(self,
                 db_session: IDatabaseSession,
-                user_repository: IAlchemyRepository,
+                user_repository: BaseUserRepository,
                 settings: Settings,
                 token_service: ITokenService
                 ):
@@ -198,7 +202,7 @@ class UpdatePasswordUserInteractor(BaseInteractor):
     """ 
     def __init__(self,
                 db_session: IDatabaseSession,
-                user_repository: IAlchemyRepository,
+                user_repository: BaseUserRepository,
                 settings: Settings,
                 token_service: ITokenService
                 ):
@@ -213,23 +217,6 @@ class UpdatePasswordUserInteractor(BaseInteractor):
                        update_password_users_data,
                        token):
 
-        print('===interactor update users password work!===')
-        print('update_password_users_data')
-        print(update_password_users_data)
-        print('token')
-        print(token)
-        print('============================================')
-
-
-        # user_obj = await self.token_service.get_user_by_token(token)
-        # if not user_obj.is_valid:
-        #     return {"error": user_obj.error_text}
-        # password_valid = self.verify_password(plain_password=delete_user_data.password, 
-        #                            hashed_password=user_obj.user_password)
-        # if not password_valid:
-        #     return {"error": "Помилка в паролі."}
-        # result = await self.user_repository.delete_user(user_obj.user_email)
-
         user_obj = await self.token_service.get_user_by_token(token)
         if not user_obj.is_valid:
             return {"error": user_obj.error_text}
@@ -241,11 +228,41 @@ class UpdatePasswordUserInteractor(BaseInteractor):
         result = await self.user_repository.update_user(user, **{"password": update_password_users_data.new_password})
         return result
 
-        # result={'result': 'success!'}
-        # return result
-
-
-
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password)
 
+
+
+
+
+class RefreshTokendUserInteractor(BaseInteractor):
+    """
+    Interactor for update access token by using refresh token
+    """ 
+    def __init__(self,
+                db_session: IDatabaseSession,
+                user_repository: BaseUserRepository,
+                settings: Settings,
+                token_service: ITokenService
+                ):
+        """initialize interactor"""
+        self.db_session = db_session
+        self.settings = settings
+        self.user_repository = user_repository
+        self.token_service = token_service
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+    async def __call__(self,
+                       refresh_token_obj):
+
+        user_obj = await self.token_service.get_user_by_token(refresh_token_obj.refresh_token)
+        if not user_obj.is_valid:
+            return {"error": user_obj.error_text}
+        
+        result = await self.token_service.refresh_token(refresh_token=refresh_token_obj.refresh_token)
+        
+        return result
+
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        return self.pwd_context.verify(plain_password, hashed_password)

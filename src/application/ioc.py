@@ -15,7 +15,7 @@ from src.application.interfaces.gateways import IWriteFileStorageGateway
 
 
 from src.infrastructure.database.repositories.users import UserAlchemyRepository
-from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository
+from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository, BaseArticleRepository
 
 from src.infrastructure.database.gateways.write_file_disc_storage_gateway import WriteFileDiscStorageGateway
 
@@ -28,9 +28,10 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
                                             DeleteUserInteractor,\
-                                            UpdatePasswordUserInteractor
+                                            UpdatePasswordUserInteractor,\
+                                            RefreshTokendUserInteractor
 
-from src.infrastructure.database.repositories.users import IAlchemyRepository
+from src.infrastructure.database.repositories.users import IAlchemyRepository, BaseUserRepository
 
 
 from src.main.config.settings import Settings
@@ -53,11 +54,11 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST
     )
 
-    # article_repository = provide(
-    #     source = ArticleAlchemyRepository,
-    #     scope=Scope.REQUEST,
-    #     provides=IAlchemyRepository
-    # )
+    article_repository = provide(
+        source = ArticleAlchemyRepository,
+        scope=Scope.REQUEST,
+        provides=AnyOf[BaseArticleRepository, IAlchemyRepository]
+    )
 
     # gateways
     write_file_gateway = provide(source=WriteFileDiscStorageGateway,
@@ -132,12 +133,17 @@ class UserProvider(Provider):
         scope=Scope.REQUEST
     )
 
+    refresh_token_user_interactor = provide(
+        source=RefreshTokendUserInteractor,
+        scope=Scope.REQUEST
+    )
+
 
     # repositories
     user_repository = provide(
         source=UserAlchemyRepository,
         scope=Scope.APP,
-        provides=IAlchemyRepository
+        provides=AnyOf[BaseUserRepository, IAlchemyRepository]
     )
 
 
