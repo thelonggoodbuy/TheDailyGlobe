@@ -69,8 +69,11 @@ services:
       context: ./nginx
     # volumes:
     #   - /home/demodev/web/shooter.demodev.cc/public_html/public/static:/usr/src/app/staticfiles
+    # ports:
     ports:
-      - 80:80
+      - "3003:80"
+      - "3004:80"
+      # - 80:80
       # - 80:80
     depends_on:
       - api
