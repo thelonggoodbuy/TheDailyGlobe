@@ -6,6 +6,9 @@ volumes:
   static_volume:
   media_volume:
 
+
+
+
 services:
   postgres_db:
     image: postgres:16.3
@@ -33,8 +36,10 @@ services:
       - postgres_db
     restart: always
     command: make run-docker
-    ports:
-      - "8000:8000"
+    # expose:
+    #   - "8000"
+    # ports:
+    #   - "8000:8000"
     env_file:
       - ./.env
     volumes:
@@ -54,8 +59,25 @@ services:
       - media_volume:/usr/src/app/media
     depends_on:
     - admin_db
+    # expose:
+    #   - "8001"
+    # ports:
+    #   - "8001:8001"
+
+  nginx:
+    build: 
+      context: ./nginx
+    # volumes:
+    #   - /home/demodev/web/shooter.demodev.cc/public_html/public/static:/usr/src/app/staticfiles
     ports:
-      - "8001:8000"
+      - 80:80
+      # - 80:80
+    depends_on:
+      - api
+      - admin
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
 
 
 

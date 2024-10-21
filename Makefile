@@ -15,14 +15,14 @@ implement_migration:
 
 
 unfold-docker:
-	gunicorn admin_panel.config.wsgi:application --bind 0.0.0.0:8000
+	gunicorn admin_panel.config.wsgi:application --bind 0.0.0.0:3004
 
 	# gunicorn admin_panel.config.wsgi:application --bind 0.0.0.0:8000
 	# uvicorn admin_panel.config.wsgi:application --host 0.0.0.0 --port 8000
 	# django-admin check
 
 run-docker:
-	uvicorn src.main.api:app --host 0.0.0.0 --port 8000
+	uvicorn src.main.api:app --host 0.0.0.0 --port 3003
 
 
 
