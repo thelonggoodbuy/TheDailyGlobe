@@ -28,7 +28,7 @@ CommentTable = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("text", Text),
-    # Column("user_id", ForeignKey("users.id")),
+    Column("user_id", ForeignKey("users.id")),
     Column("article_id", ForeignKey("articles.id")),
 )
 
@@ -36,8 +36,8 @@ mapper_registry.map_imperatively(
     CommentEntity,
     CommentTable,
     properties={
-        "user": relationship(UserEntity, back_populates="comment"),
-        "article": relationship(ArticleEntity, back_populates="comment")
+        "user": relationship(UserEntity, back_populates="comments"),
+        "article": relationship(ArticleEntity, back_populates="comments")
     }
 )
 

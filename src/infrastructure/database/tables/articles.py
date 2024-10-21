@@ -33,7 +33,7 @@ mapper_registry.map_imperatively(
     CategoryEntity,
     CategortyTable,
     properties={
-        "article": relationship(ArticleEntity, back_populates="article"),
+        "article": relationship(ArticleEntity, back_populates="category"),
     }
 )
 
@@ -68,7 +68,10 @@ mapper_registry.map_imperatively(
     ArticleTable,
     properties={
         "category": relationship(CategoryEntity, back_populates="article"),
-        "comments": relationship(CommentEntity, back_populates="article")
+        "comments": relationship(CommentEntity, back_populates="article"),
+        "article_section_with_plain_text": relationship(ArticleWithPlainTextSectionEntity, back_populates="article"),
+        "article_section_with_slide_show": relationship(ArticleSectionSlideShowEntity, back_populates="article"),
+        "article_section_with_video": relationship(ArticleWithVideoSectionEntity, back_populates="article"),
     }
 )
 
@@ -103,7 +106,7 @@ ArticleSectionSlideShowTable = Table(
     Column("article_id", ForeignKey("articles.id")),
     Column("text", Text, nullable=False),
     Column("intex_number_in_article", Integer, nullable=False),
-    Column("image", SaveFileField(length=255), nullable=False)
+    Column("image", String(length=255), nullable=False)
 )
 
 

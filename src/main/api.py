@@ -18,6 +18,9 @@ if TYPE_CHECKING:
 
 def create_app() -> FastAPI:
 
+    # from src.infrastructure.openapi.openapi import oauth2_scheme
+
+
     settings = Settings()
     
     alchemy_engine: AsyncEngine = get_alchemy_engine(db_settings=settings.db)

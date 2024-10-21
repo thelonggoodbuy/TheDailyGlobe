@@ -76,8 +76,7 @@ mapper_registry.map_imperatively(
     SubscriptionEntity,
     SubscriptionTable,
     properties={
-        "user": relationship(UserEntity, back_populates="subscription"),
-        "comments": relationship(CommentEntity, back_populates="article")
+        "user": relationship(UserEntity, back_populates="subscription")
     }
 )
 

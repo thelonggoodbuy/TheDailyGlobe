@@ -7,7 +7,7 @@ from starlette.requests import Request
 from dataclasses import dataclass
 from sqlalchemy import select
 
-from src.presentation.schemas.users import LoginRequestData
+from src.presentation.schemas.users import LoginRequestData, RegisterData, UserRegisterResponse
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 
 from src.application.interfaces.services import ITokenService
@@ -46,6 +46,7 @@ class LoginRegularInteractor(BaseInteractor):
         if user_obj is None:
             result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
         elif not self.verify_password(login_data.password, user_obj.password):
+
             result = {'status': 'error', 'text': 'помилка в паролі'}
         else:
             jwt_token = await self.token_service.create_access_token(user_obj.email)
@@ -120,3 +121,71 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
             result = {'status': 'success', 'access_jwt_token': jwt_token}
         resp = UserLoginResponse(result = result)
         return resp
+
+
+class RegistrationInteractor(BaseInteractor):
+    """
+    Interactor for user registration
+    """
+
+    def __init__(self,
+                db_session: IDatabaseSession,
+                user_repository: IAlchemyRepository,
+                settings: Settings,
+                 token_service: ITokenService
+                ):
+        """initialize interactor"""
+        self.db_session = db_session
+        self.settings = settings
+        self.user_repository = user_repository
+        self.token_service = token_service
+
+
+    async def __call__(self,
+                    register_data: RegisterData) -> UserRegisterResponse:
+        
+        user_obj = await self.user_repository.register_user(register_data)
+
+        jwt_token = await self.token_service.create_access_token(user_obj.email)
+        result = {'status': 'success', 'access_jwt_token': jwt_token}
+
+        # resp = {'status': 'success'}
+        return result
+    
+
+class DeleteUserInteractor(BaseInteractor):
+    """
+    Interactor for user registration
+    """ 
+    def __init__(self,
+                db_session: IDatabaseSession,
+                user_repository: IAlchemyRepository,
+                settings: Settings,
+                token_service: ITokenService
+                ):
+        """initialize interactor"""
+        self.db_session = db_session
+        self.settings = settings
+        self.user_repository = user_repository
+        self.token_service = token_service
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    async def __call__(self,
+                       delete_user_data,
+                       token):
+
+        user_obj = await self.token_service.get_user_by_token(token)
+        if not user_obj.is_valid:
+            return {"error": user_obj.error_text}
+        password_valid = self.verify_password(plain_password=delete_user_data.password, 
+                                   hashed_password=user_obj.user_password)
+        if not password_valid:
+            return {"error": "Помилка в паролі."}
+        result = await self.user_repository.delete_user(user_obj.user_email)
+        return result
+
+
+
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        return self.pwd_context.verify(plain_password, hashed_password)
+

@@ -83,19 +83,19 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('article_section_with_slide_show',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('image', sqlalchemy_file.types.FileField(), nullable=False),
     sa.ForeignKeyConstraint(['id'], ['article_sections.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('article_section_with_video',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('video_url', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['id'], ['article_sections.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('article_sections_with_plain_text',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.ForeignKeyConstraint(['id'], ['article_sections.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

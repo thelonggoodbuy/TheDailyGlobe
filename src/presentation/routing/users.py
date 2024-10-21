@@ -4,11 +4,17 @@ from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, inject
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
-                                            LoginGmailResponseFromCloudInteractor
+                                            LoginGmailResponseFromCloudInteractor,\
+                                            RegistrationInteractor,\
+                                            DeleteUserInteractor
 from src.application.ioc import ArticleProvider
-from src.presentation.schemas.users import LoginRequestData
+from src.presentation.schemas.users import LoginRequestData, RegisterData
 from starlette.requests import Request
 from src.main.config.settings import Settings
+from src.infrastructure.openapi.openapi import bearer_scheme
+
+from typing import Annotated
+from fastapi import Depends
 
 
 
@@ -46,3 +52,39 @@ async def login_gmail_response_from_cloud(request: Request,
 
     result = await interactor(request)
     return result
+
+
+@router.post("/users/registration")
+@inject
+async def registration(register_data: RegisterData,
+                        interactor: FromDishka[RegistrationInteractor]):
+
+    result = await interactor(register_data)
+    return result
+
+
+from pydantic import BaseModel
+class DeleteUsersData(BaseModel):
+    password: str
+    # token: str =  None
+
+
+
+
+@router.post("/users/delete_user")
+async def delete_user(delete_user_data: DeleteUsersData, 
+                      token: Annotated[str, Depends(bearer_scheme)],
+                      interactor: FromDishka[DeleteUserInteractor]):
+    # delete_user_data.token = token.credentials
+# async def delete_user(delete_user_data: DeleteUsersData):
+    print('(((TOKEN!!!!!)))')
+    # print(delete_user_data)
+    # print(type(token))
+    # print(token.credentials)
+    print(delete_user_data)
+    print('================')
+
+    result = await interactor(delete_user_data, token.credentials)
+
+    return result
+

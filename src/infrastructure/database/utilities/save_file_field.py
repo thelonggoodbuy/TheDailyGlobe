@@ -28,10 +28,7 @@ class SaveFileField(TypeDecorator):
     
 
     def process_result_value(self, value, dialect):
-        """
-        Этот метод будет вызываться при извлечении данных из базы.
-        Здесь можно вернуть абсолютный путь или путь к файлу для дальнейшей работы.
-        """
+
         if value is None:
             return None
 

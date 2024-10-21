@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, inject
-from src.application.interactors.articles import ArticleInteractor
+from src.application.interactors.articles import ArticleInteractor, TestSaveObjectInteractor
 from src.application.ioc import ArticleProvider
 
 
@@ -26,32 +26,17 @@ async def read_articles(interactor: FromDishka[ArticleInteractor]):
 # ==================================================================================================================================
 # TODO delete this code after testing
 
-from fastapi import UploadFile
+from fastapi import UploadFile, File
 
-
-# TODO delete this entrypoint after testing
-@router.post("/test_section_with_slider/")
+@router.post("/test_section_with_slider/", tags=["test_endpoint"])
 async def save_article_section_with_image(article_id: int, 
-                                          text: str,
-                                          intex_number_in_article: str,
-                                          image: UploadFile):
+                                        text: str,
+                                        intex_number_in_article: int,
+                                        interactor: FromDishka[TestSaveObjectInteractor],
+                                        image: UploadFile = File(...)):
     
 
+    result = await interactor(article_id=article_id, text=text, intex_number_in_article=intex_number_in_article, file=image)
 
-
-    print('***')
-    print(article_id)
-    print(text)
-    print(intex_number_in_article)
-    print(image)
-    print('****')
-
-    
-        query = select(UserTable).filter(UserEntity.email == user_email)
-        user = await self._session.execute(query)
-        result = user.first()
-        return result
-
-
-    return {"result": "success!!"}
+    return result
 

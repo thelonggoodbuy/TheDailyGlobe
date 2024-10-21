@@ -47,7 +47,7 @@ class ArticleSectionSlideShowEntity(Entity):
     article_id: int
     text: str
     intex_number_in_article: int
-    image: FileField
+    image: str
 
 
 @dataclass
