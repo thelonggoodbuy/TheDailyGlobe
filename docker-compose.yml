@@ -26,6 +26,8 @@ services:
     restart: always
     env_file:
       - ./.env.unfold
+    ports:
+      - "3004:80"
 
 
   api: &api
@@ -40,7 +42,6 @@ services:
       - ./.env
     volumes:
       - media_volume:/usr/src/app/media
-
 
   admin:
     build:
@@ -63,9 +64,7 @@ services:
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/media
     ports:
-    #   - "3003:80"
-    #   - "3004:80"
-      - 3003:80
+      - 3004:80
     depends_on:
       - api
       - admin
