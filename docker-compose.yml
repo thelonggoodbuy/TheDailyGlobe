@@ -36,10 +36,6 @@ services:
       - postgres_db
     restart: always
     command: make run-docker
-    # expose:
-    #   - "8000"
-    # ports:
-    #   - "8000:8000"
     env_file:
       - ./.env
     volumes:
@@ -47,7 +43,6 @@ services:
 
 
   admin:
-    # <<: *api
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -59,29 +54,21 @@ services:
       - media_volume:/usr/src/app/media
     depends_on:
     - admin_db
-    # expose:
-    #   - "8001"
-    # ports:
-    #   - "8001:8001"
+
 
   nginx:
     build: 
       context: ./nginx
-    # volumes:
-    #   - /home/demodev/web/shooter.demodev.cc/public_html/public/static:/usr/src/app/staticfiles
-    # ports:
-    ports:
-      - "3003:80"
-      - "3004:80"
-      # - 80:80
-      # - 80:80
-    depends_on:
-      - api
-      - admin
     volumes:
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/media
-
+    ports:
+    #   - "3003:80"
+    #   - "3004:80"
+      - 80:80
+    depends_on:
+      - api
+      - admin
 
 
   migrator:
