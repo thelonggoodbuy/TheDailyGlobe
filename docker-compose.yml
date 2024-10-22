@@ -26,8 +26,6 @@ services:
     restart: always
     env_file:
       - ./.env.unfold
-    ports:
-      - "3004:80"
 
 
   api: &api
