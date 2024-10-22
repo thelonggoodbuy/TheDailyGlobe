@@ -65,7 +65,7 @@ services:
     ports:
     #   - "3003:80"
     #   - "3004:80"
-      - 80:80
+      - 3003:80
     depends_on:
       - api
       - admin
