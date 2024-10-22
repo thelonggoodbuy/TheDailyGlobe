@@ -24,7 +24,7 @@ class ArticleSectionWithSlideShowUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
     # id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to="galery/")
-    article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
+    article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
 
@@ -38,7 +38,7 @@ class ArticleSectionWithVideoUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
     # id = models.AutoField(primary_key=True)
     video_url = models.CharField(max_length=255)
-    article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
+    article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
 
@@ -52,7 +52,7 @@ class ArticleSectionsWithPlainTextUnfold(models.Model):
     id = models.AutoField(primary_key=True)
 
     
-    article = models.ForeignKey('ArticlesUnfold', models.DO_NOTHING, blank=True, null=True)
+    article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
 

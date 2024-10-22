@@ -33,8 +33,10 @@ run-migrator-docker:
 	alembic upgrade head
 
 	python admin_panel/manage.py migrate --database=default
-	django-admin collectstatic --settings=admin_panel.config.settings
+	django-admin collectstatic --settings=admin_panel.config.settings --noinput
 	python admin_panel/manage.py generate_initial_admin_user
+	python admin_panel/manage.py generate_initial_categories
+	python admin_panel/manage.py generate_initial_articles
 
 
 # run-initial-data:
