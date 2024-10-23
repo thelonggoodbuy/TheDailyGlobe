@@ -2,10 +2,13 @@ from fastapi import APIRouter
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, inject
-from src.application.interactors.articles import ArticleInteractor, TestSaveObjectInteractor
+from src.application.interactors.articles import ArticleInteractor,\
+                                                TestSaveObjectInteractor,\
+                                                GetAllCategorysInteractor,\
+                                                GetArticlesFeedInteractor
 from src.application.ioc import ArticleProvider
 
-
+from src.presentation.schemas.articles import ArticlesFeedRequestSchema, ArticleFeedResponseSchema
 
 
 
@@ -14,17 +17,34 @@ router = APIRouter(route_class=DishkaRoute)
 
 
 
-@router.get("/articles/")
+# @router.get("/articles/", tags=["articles"])
+# @inject
+# async def read_articles(interactor: FromDishka[ArticleInteractor]):
+
+#     result = await interactor()
+#     return result
+
+
+@router.get("/all_categorys/", tags=["articles"])
 @inject
-async def read_articles(interactor: FromDishka[ArticleInteractor]):
+async def all_categorys(interactor: FromDishka[GetAllCategorysInteractor]):
 
     result = await interactor()
     return result
 
 
 
-# ==================================================================================================================================
-# TODO delete this code after testing
+@router.post("/get_articles_feed/", tags=["articles"])
+@inject
+async def all_categorys(article_feed_request_schema: ArticlesFeedRequestSchema, 
+                        interactor: FromDishka[GetArticlesFeedInteractor]) -> ArticleFeedResponseSchema:
+
+    result = await interactor(article_feed_request_schema)
+    return result
+
+
+
+# --------------------------TEST--------DATA----------ROUTINGS-----------------------------
 
 from fastapi import UploadFile, File
 

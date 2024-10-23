@@ -22,7 +22,11 @@ from src.infrastructure.database.gateways.write_file_disc_storage_gateway import
 from collections.abc import AsyncIterable
 
 
-from src.application.interactors.articles import ArticleInteractor, TestSaveObjectInteractor
+from src.application.interactors.articles import ArticleInteractor, \
+                                            TestSaveObjectInteractor,\
+                                            GetAllCategorysInteractor,\
+                                            GetArticlesFeedInteractor
+
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
@@ -31,8 +35,10 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             UpdatePasswordUserInteractor,\
                                             RefreshTokendUserInteractor
 
-from src.infrastructure.database.repositories.users import IAlchemyRepository, BaseUserRepository
+from src.infrastructure.database.repositories.users import BaseUserRepository
+from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository, BaseCategoryRepository
 
+from src.application.interfaces.repositories import IAlchemyRepository
 
 from src.main.config.settings import Settings
 from src.application.services.jwt_token_service import JWTTokenService
@@ -48,22 +54,42 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST
     )
 
-    # article interactors
-    article_section_with_photo_interactor = provide(
-        source=TestSaveObjectInteractor,
+    get_all_categorys_interactor = provide(
+        source=GetAllCategorysInteractor,
         scope=Scope.REQUEST
     )
 
+    get_articles_feed_interactor = provide(
+        source=GetArticlesFeedInteractor,
+        scope=Scope.REQUEST
+    )
+
+    # repository
     article_repository = provide(
         source = ArticleAlchemyRepository,
         scope=Scope.REQUEST,
         provides=AnyOf[BaseArticleRepository, IAlchemyRepository]
     )
 
+    
+    category_repository = provide(
+        source = CategoryAlchemyRepository,
+        scope=Scope.REQUEST,
+        provides=AnyOf[BaseCategoryRepository, IAlchemyRepository]
+    )
+
     # gateways
     write_file_gateway = provide(source=WriteFileDiscStorageGateway,
                                  scope=Scope.REQUEST,
                                  provides=IWriteFileStorageGateway)
+    
+    # ------------------------------------------------------------
+    # test article interactors
+    article_section_with_photo_interactor = provide(
+        source=TestSaveObjectInteractor,
+        scope=Scope.REQUEST
+    )
+    # ------------------------------------------------------------
 
 
     @provide(scope=Scope.APP)

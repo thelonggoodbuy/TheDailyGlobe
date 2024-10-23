@@ -63,6 +63,7 @@ class ArticleSectionsWithPlainTextUnfold(models.Model):
 
 class ArticlesUnfold(models.Model):
     title = models.CharField(max_length=255)
+    main_image = models.ImageField(upload_to="galery/")
     category = models.ForeignKey('CategoryUnfold', models.DO_NOTHING, blank=True, null=True)
     lead = models.TextField(blank=True, null=True)
     author = models.CharField(max_length=255)

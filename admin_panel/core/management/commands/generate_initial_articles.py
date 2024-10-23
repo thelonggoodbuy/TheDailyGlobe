@@ -73,6 +73,9 @@ class Command(BaseCommand):
                 author=fake.name(),
                 publication_date=self.generate_timestamp()
             )
+            random_image_path = self.get_random_image()
+            with open(random_image_path, 'rb') as image_file:
+                article.main_image.save(os.path.basename(random_image_path), File(image_file))
             article.save()
             self.generate_article_sections(article)
             print(f"Стаття {article} створена!")

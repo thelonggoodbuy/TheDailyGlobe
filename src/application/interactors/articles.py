@@ -3,8 +3,14 @@ from common.base.interactor import BaseInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 from src.infrastructure.database.repositories.articles import BaseArticleRepository
+from src.infrastructure.database.repositories.categories import BaseCategoryRepository
 from src.main.config.settings import Settings
 from src.application.interfaces.gateways import IWriteFileStorageGateway
+from src.presentation.schemas.categorys import CategorysResponse
+
+from src.presentation.schemas.articles import ArticlesFeedRequestSchema, ArticleFeedResponseSchema
+
+
 
 
 class ArtictleResponse(BaseModel):
@@ -35,7 +41,56 @@ class ArticleInteractor(BaseInteractor):
         return resp
     
 
+    
 
+
+class GetAllCategorysInteractor(BaseInteractor):
+     
+    def __init__(self,
+                db_session: IDatabaseSession,
+                category_repository: BaseCategoryRepository,
+                settings: Settings):
+
+                self.db_session = db_session
+                self.category_repository = category_repository
+                self.settings = settings
+
+
+    async def __call__(self) -> CategorysResponse:
+        result = await self.category_repository.get_all()
+        return result
+
+
+
+class GetArticlesFeedInteractor(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+    async def __call__(self, article_feed_request_schema: ArticlesFeedRequestSchema) -> ArticleFeedResponseSchema:
+        result = await self.article_repository.return_article_feed(article_feed_request_schema)
+        return result
+         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# =========================TEST========INTERACTORS=========================
 
 
 class TestSaveObjectInteractor(BaseInteractor):

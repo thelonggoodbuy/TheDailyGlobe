@@ -12,6 +12,7 @@ from sqlalchemy_file import FileField
 class ArticleEntity(Entity):
     """Article model."""
     title: str
+    main_image: str
     category_id: int
     lead: str
     author: str
@@ -62,4 +63,5 @@ class ArticleWithVideoSectionEntity(Entity):
 
 @dataclass
 class CategoryEntity(Entity):
+    id: str
     title: str

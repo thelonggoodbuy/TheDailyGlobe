@@ -47,6 +47,7 @@ ArticleTable = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     # article`s title
     Column("title", String(length=255), nullable=False),
+    Column("main_image", String(length=255), nullable=False),
     # article`s category FK
     Column("category_id", ForeignKey("category.id")),
     # article's lead
