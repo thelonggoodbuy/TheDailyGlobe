@@ -93,7 +93,7 @@ class Command(BaseCommand):
         return random_timestamp
     
     def generate_article_sections(self, article):
-        for i in [0, 1, 3, 4, 6, 8, 10]:
+        for i in [0, 1, 2, 3, 4, 6, 8, 10, 11]:
             section_with_plain_text = ArticleSectionsWithPlainTextUnfold(
                 article=article,
                 text=fake.paragraph(nb_sentences=10),

@@ -25,7 +25,8 @@ from collections.abc import AsyncIterable
 from src.application.interactors.articles import ArticleInteractor, \
                                             TestSaveObjectInteractor,\
                                             GetAllCategorysInteractor,\
-                                            GetArticlesFeedInteractor
+                                            GetArticlesFeedInteractor,\
+                                            GetArticlesDetailInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -61,6 +62,11 @@ class ArticleProvider(Provider):
 
     get_articles_feed_interactor = provide(
         source=GetArticlesFeedInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_detail_article_interactor = provide(
+        source=GetArticlesDetailInteractor,
         scope=Scope.REQUEST
     )
 

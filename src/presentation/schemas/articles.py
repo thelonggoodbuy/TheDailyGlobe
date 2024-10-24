@@ -21,3 +21,12 @@ class ArticleItem(BaseModel):
 
 class ArticleFeedResponseSchema(BaseModel):
     articles: List[ArticleItem]
+
+
+
+class ArticlesDetailRequestSchema(BaseModel):
+    article_id: int
+
+
+class ArticlesDetailResponseSchema(BaseModel):
+    response_dict: dict

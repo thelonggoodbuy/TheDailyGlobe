@@ -8,7 +8,10 @@ from src.main.config.settings import Settings
 from src.application.interfaces.gateways import IWriteFileStorageGateway
 from src.presentation.schemas.categorys import CategorysResponse
 
-from src.presentation.schemas.articles import ArticlesFeedRequestSchema, ArticleFeedResponseSchema
+from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
+                                                ArticleFeedResponseSchema, \
+                                                ArticlesDetailRequestSchema, \
+                                                ArticlesDetailResponseSchema
 
 
 
@@ -79,7 +82,20 @@ class GetArticlesFeedInteractor(BaseInteractor):
 
 
 
+class GetArticlesDetailInteractor(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
 
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+    async def __call__(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
+        print('Interaktor work!!!!')
+        result = await self.article_repository.return_detail_article(get_detail_article_schema)
+        return result
 
 
 

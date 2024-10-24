@@ -27,6 +27,8 @@ class ArticleSectionWithSlideShowUnfold(models.Model):
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
+    section_type = models.CharField(max_length=50, default='article_section_with_slide_show', null=False)
+
 
     class Meta:
         managed = False
@@ -41,6 +43,7 @@ class ArticleSectionWithVideoUnfold(models.Model):
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
+    section_type = models.CharField(max_length=50, default='article_section_with_video', null=False)
 
     class Meta:
         managed = False
@@ -50,11 +53,10 @@ class ArticleSectionWithVideoUnfold(models.Model):
 class ArticleSectionsWithPlainTextUnfold(models.Model):
     # id = models.IntegerField(primary_key=True)
     id = models.AutoField(primary_key=True)
-
-    
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
+    section_type = models.CharField(max_length=50, default='article_sections_with_plain_text', null=False)
 
     class Meta:
         managed = False

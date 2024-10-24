@@ -5,10 +5,14 @@ from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, i
 from src.application.interactors.articles import ArticleInteractor,\
                                                 TestSaveObjectInteractor,\
                                                 GetAllCategorysInteractor,\
-                                                GetArticlesFeedInteractor
+                                                GetArticlesFeedInteractor, \
+                                                GetArticlesDetailInteractor
 from src.application.ioc import ArticleProvider
 
-from src.presentation.schemas.articles import ArticlesFeedRequestSchema, ArticleFeedResponseSchema
+from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
+                                                ArticleFeedResponseSchema, \
+                                                ArticlesDetailRequestSchema, \
+                                                ArticlesDetailResponseSchema
 
 
 
@@ -43,6 +47,18 @@ async def all_categorys(article_feed_request_schema: ArticlesFeedRequestSchema,
     return result
 
 
+@router.post("/get_detail_article/", tags=["articles"])
+@inject
+async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
+                             interactor: FromDishka[GetArticlesDetailInteractor])-> ArticlesDetailResponseSchema:
+    print('---router vefore interactor----')
+    result = await interactor(get_detail_article_schema)
+    print('---router vefore interactor----')
+
+    return result
+
+
+
 
 # --------------------------TEST--------DATA----------ROUTINGS-----------------------------
 
@@ -57,6 +73,7 @@ async def save_article_section_with_image(article_id: int,
     
 
     result = await interactor(article_id=article_id, text=text, intex_number_in_article=intex_number_in_article, file=image)
-
     return result
+
+
 

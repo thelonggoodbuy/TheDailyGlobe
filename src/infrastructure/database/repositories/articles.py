@@ -4,7 +4,10 @@ from src.infrastructure.database.tables.users import UserTable
 from src.infrastructure.database.tables.articles import CategortyTable
 from src.domain.entities.users.users_entities import UserEntity
 
-from src.domain.entities.articles.articles_entities import ArticleSectionSlideShowEntity
+from src.domain.entities.articles.articles_entities import ArticleSectionSlideShowEntity,\
+                                                        ArticleWithPlainTextSectionEntity,\
+                                                        ArticleWithVideoSectionEntity
+
 
 from src.application.interfaces.repositories import IAlchemyRepository
 from abc import ABC, abstractmethod
@@ -15,7 +18,10 @@ from sqlalchemy import select
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
-                                                ArticleItem
+                                                ArticleItem, \
+                                                ArticlesDetailRequestSchema, \
+                                                ArticlesDetailResponseSchema
+
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
 from sqlalchemy.orm import selectinload
@@ -59,25 +65,80 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         article_objects = article_rows.scalars().all()
         response = ArticleFeedResponseSchema(articles=[])
         for article_obj in article_objects:
-            print('====>article_obj.publication_date<======')
-            print(article_obj.publication_date)
-            print(type(article_obj.publication_date))
-            print('========================================')
+            # print('====>article_obj.publication_date<======')
+            # print(article_obj.publication_date)
+            # print(type(article_obj.publication_date))
+            # print('========================================')
             article = ArticleItem(
                 category_title=article_obj.category.title,
                 id=article_obj.id,
                 title=article_obj.title,
                 author=article_obj.author,
                 main_image=article_obj.main_image,
-                publication_date=(format_datetime(article_obj.publication_date, format='MMMM dd, yyyy', locale='uk')).capitalize()
+                # publication_date=(format_datetime(article_obj.publication_date, format='MMMM dd, yyyy', locale='uk')).capitalize()
+                publication_date=str(article_obj.publication_date)
             )
             response.articles.append(article)
-
-        print('===>REPOSITORY===DATA<===')
-        print(response)
-        print('=========================')
-
+        # print('===>REPOSITORY===DATA<===')
+        # print(response)
+        # print('=========================')
         
-
         return response
     
+
+    async def return_detail_article(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
+        print('REPOSITORY WORK!!!')
+        query = select(ArticleEntity)\
+                                    .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
+                                    # .options(selectinload(ArticleEntity.article_section_with_plain_text))\
+                                    # .options(selectinload(ArticleEntity.article_section_with_slide_show))\
+                                    # .options(selectinload(ArticleEntity.article_section_with_video))\
+                                    # .filter(ArticleEntity.id == get_detail_article_schema.article_id)
+        article_rows = await self._session.execute(query)
+        article_object = article_rows.scalars().first()
+        article_dict = article_object.to_dict()
+        article_dict['category_title'] = article_object.category.title
+
+        sections_list = []
+
+        query_sections_with_plain_text_query = select(ArticleWithPlainTextSectionEntity).filter(ArticleWithPlainTextSectionEntity.article_id == article_object.id)
+        query_sections_with_plain_text_rows = await self._session.execute(query_sections_with_plain_text_query)
+        query_sections_with_plain_text_objects = query_sections_with_plain_text_rows.scalars().all()
+
+        query_sections_with_slide_show_query = select(ArticleSectionSlideShowEntity).filter(ArticleSectionSlideShowEntity.article_id == article_object.id)
+        query_sections_with_slide_show_rows = await self._session.execute(query_sections_with_slide_show_query)
+        query_sections_with_slide_show_objects = query_sections_with_slide_show_rows.scalars().all()
+
+        query_sections_with_video_query = select(ArticleWithVideoSectionEntity).filter(ArticleWithVideoSectionEntity.article_id == article_object.id)
+        query_sections_with_video_rows = await self._session.execute(query_sections_with_video_query)
+        query_sections_with_video_objects = query_sections_with_video_rows.scalars().all()
+
+        sections_list_objects = query_sections_with_plain_text_objects +\
+                            query_sections_with_slide_show_objects +\
+                            query_sections_with_video_objects
+
+        for article_section in sections_list_objects:
+            sections_list.append(article_section.to_dict())
+
+
+        priority = {
+            "article_sections_with_plain_text": 1,
+            "article_section_with_slide_show": 2,
+            "article_section_with_video": 3,
+        }
+
+        sorted_list = sorted(
+            sections_list, 
+            # key=lambda x: (priority[x["section_type"]], x["intex_number_in_article"])
+            key=lambda x: (x["intex_number_in_article"], priority[x["section_type"]] )
+        )
+
+        import pprint
+        print('=======SECTION List===========')
+        pprint.pprint(sorted_list)
+        print('==============================')
+        article_dict['article_sections'] = sorted_list
+
+
+        response = ArticlesDetailResponseSchema(response_dict=article_dict)
+        return response
