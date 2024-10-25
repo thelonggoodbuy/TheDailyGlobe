@@ -30,7 +30,7 @@ UserTable = Table(
     #Unique identifier for user
     Column("id", Integer, primary_key=True, autoincrement=True),
     # users email
-    Column("email", String(length=255), nullable=False),
+    Column("email", String(length=255), nullable=False, unique=True),
     # users password
     Column("password", String(length=255), nullable=False),
     # is_staff field (default False)

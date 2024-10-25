@@ -11,6 +11,7 @@ from src.presentation.schemas.users import LoginRequestData, RegisterData, UserR
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 
 from src.infrastructure.database.repositories.users import BaseUserRepository
+from src.infrastructure.database.repositories.subscriptions import BaseSubscribtionRepository
 
 
 from src.application.interfaces.services import ITokenService
@@ -34,10 +35,12 @@ class LoginRegularInteractor(BaseInteractor):
     def __init__(self,
                  db_session: IDatabaseSession,
                  user_repository: BaseUserRepository,
+                 subscription_repository: BaseSubscribtionRepository,
                  token_service: ITokenService):
 
                  self.db_session = db_session
                  self.user_repository = user_repository
+                 self.subscription_repository = subscription_repository
                  self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
                  self.token_service = token_service
                  
@@ -54,7 +57,19 @@ class LoginRegularInteractor(BaseInteractor):
         else:
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
-            result = {'status': 'success', 'access_token': jwt_token, "refresh_token": refresh_token}
+            print('===>user_data<===') 
+            print(user_obj)
+            print('=================')
+            subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
+            if subscription:
+                subscription_data = subscription
+            else:
+                subscription_data = 'unregistered_user'
+            result = {'status': 'success', 
+                    'access_token': jwt_token, 
+                    "refresh_token": refresh_token,
+                    "user_data":{"id": user_obj.id, "email":user_obj.email, "is_active": user_obj.is_active}, 
+                    "subscription_data": subscription_data}
         resp = UserLoginResponse(result = result)
         return resp
     

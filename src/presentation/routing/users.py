@@ -28,7 +28,7 @@ import json
 router = APIRouter(route_class=DishkaRoute)
 
 
-@router.post("/users/login_regular")
+@router.post("/users/login_regular", tags=["Auth"])
 @inject
 async def login_regular(login_data: LoginRequestData, 
                         interactor: FromDishka[LoginRegularInteractor]):
@@ -38,7 +38,7 @@ async def login_regular(login_data: LoginRequestData,
 
 
 
-@router.get("/users/login_gmail_request_to_cloud")
+@router.get("/users/login_gmail_request_to_cloud", tags=["Auth"])
 @inject
 async def login_gmail_request_to_cloud(request: Request,
                                        interactor: FromDishka[LoginGmailRequestToCloudInteractor]):
@@ -47,7 +47,7 @@ async def login_gmail_request_to_cloud(request: Request,
     return result
 
 
-@router.get("/users/login_gmail_response_from_cloud")
+@router.get("/users/login_gmail_response_from_cloud", tags=["Auth"])
 @inject
 async def login_gmail_response_from_cloud(request: Request,
                                           interactor: FromDishka[LoginGmailResponseFromCloudInteractor]):
@@ -56,7 +56,7 @@ async def login_gmail_response_from_cloud(request: Request,
     return result
 
 
-@router.post("/users/registration")
+@router.post("/users/registration", tags=["Auth"])
 @inject
 async def registration(register_data: RegisterData,
                         interactor: FromDishka[RegistrationInteractor]):
@@ -68,7 +68,7 @@ async def registration(register_data: RegisterData,
 
 
 
-@router.post("/users/delete_user")
+@router.post("/users/delete_user", tags=["users_profile"])
 @inject
 async def delete_user(delete_user_data: DeleteUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
@@ -81,7 +81,7 @@ async def delete_user(delete_user_data: DeleteUsersData,
 
 
 
-@router.post("/users/change_password")
+@router.post("/users/change_password", tags=["users_profile"])
 @inject
 async def delete_user(change_password_user_data: ChangePasswordUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
@@ -93,7 +93,7 @@ async def delete_user(change_password_user_data: ChangePasswordUsersData,
 
 
 
-@router.post("/users/refresh_token")
+@router.post("/users/refresh_token", tags=["auth"])
 @inject
 async def refresh_token(refresh_token: RefreshTokenUsersData,
                       interactor: FromDishka[RefreshTokendUserInteractor]):

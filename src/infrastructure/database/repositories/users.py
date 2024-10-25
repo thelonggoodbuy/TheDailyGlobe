@@ -6,6 +6,7 @@ from src.application.interfaces.repositories import IAlchemyRepository
 from abc import ABC, abstractmethod
 from src.presentation.schemas.users import RegisterData
 from src.infrastructure.database.utilities.get_password_hash import get_password_hash
+from fastapi import HTTPException
 
 from sqlalchemy import select
 
@@ -37,6 +38,11 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
 
     async def register_user(self, register_data: RegisterData):
         """register new user"""
+        existing_user = await self.get_user_by_email(user_email=register_data.email)
+
+        if existing_user is not None:
+            raise HTTPException(status_code=400, detail="Email уже используется")
+    
         new_user = UserEntity(
                 email=register_data.email,
                 password=get_password_hash(register_data.password)

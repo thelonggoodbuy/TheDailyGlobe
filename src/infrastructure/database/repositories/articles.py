@@ -90,10 +90,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         print('REPOSITORY WORK!!!')
         query = select(ArticleEntity)\
                                     .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
-                                    # .options(selectinload(ArticleEntity.article_section_with_plain_text))\
-                                    # .options(selectinload(ArticleEntity.article_section_with_slide_show))\
-                                    # .options(selectinload(ArticleEntity.article_section_with_video))\
-                                    # .filter(ArticleEntity.id == get_detail_article_schema.article_id)
         article_rows = await self._session.execute(query)
         article_object = article_rows.scalars().first()
         article_dict = article_object.to_dict()

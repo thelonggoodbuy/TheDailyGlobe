@@ -16,6 +16,7 @@ from src.application.interfaces.gateways import IWriteFileStorageGateway
 
 from src.infrastructure.database.repositories.users import UserAlchemyRepository
 from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository, BaseArticleRepository
+from src.infrastructure.database.repositories.subscriptions import SubscriptionRepository, BaseSubscribtionRepository
 
 from src.infrastructure.database.gateways.write_file_disc_storage_gateway import WriteFileDiscStorageGateway
 
@@ -176,6 +177,12 @@ class UserProvider(Provider):
         source=UserAlchemyRepository,
         scope=Scope.APP,
         provides=AnyOf[BaseUserRepository, IAlchemyRepository]
+    )
+
+    subscription_repository = provide(
+        source=SubscriptionRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseSubscribtionRepository, IAlchemyRepository]
     )
 
 

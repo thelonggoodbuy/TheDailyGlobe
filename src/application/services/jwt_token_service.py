@@ -59,7 +59,7 @@ class JWTTokenService(ITokenService):
                 # response = TokenResponse(is_valid=True, user_email=user.email, user_password=user.password)
                 # return response
                 encoded_jwt = await self.create_access_token(email=token_status.user_email)
-                return encoded_jwt
+                return {"access_token": encoded_jwt}
             
             case False:
                 print('Token false')

@@ -11,8 +11,9 @@ class UserEntity(Entity):
     """User model."""
     email: str
     password: str
+    id: str = None
     is_staff: bool = False
-    is_active: bool = False
+    is_active: bool = True
 
 
 @dataclass
