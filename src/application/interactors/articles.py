@@ -11,7 +11,9 @@ from src.presentation.schemas.categorys import CategorysResponse
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
                                                 ArticlesDetailRequestSchema, \
-                                                ArticlesDetailResponseSchema
+                                                ArticlesDetailResponseSchema, \
+                                                GetSlideshowRequestSchema, \
+                                                SlideShowResponseSchema
 
 
 
@@ -93,14 +95,27 @@ class GetArticlesDetailInteractor(BaseInteractor):
         self.settings = settings
 
     async def __call__(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
-        print('Interaktor work!!!!')
         result = await self.article_repository.return_detail_article(get_detail_article_schema)
         return result
 
 
 
 
+class GetSlideShowInteractor(BaseInteractor):
 
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+
+    async def __call__(self, get_slideshow_schema: GetSlideshowRequestSchema) -> SlideShowResponseSchema:
+        result = await self.article_repository.return_slideshow(get_slideshow_schema)
+        return result
 
 
 

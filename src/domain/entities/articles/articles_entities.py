@@ -62,6 +62,7 @@ class ArticleSectionEntity(Entity):
 @dataclass
 class ArticleWithPlainTextSectionEntity(Entity):
     """Model of article section, which content only text content"""
+    id: int
     article_id: int
     text: str
     intex_number_in_article: int
@@ -72,6 +73,7 @@ class ArticleWithPlainTextSectionEntity(Entity):
 @dataclass
 class ArticleSectionSlideShowEntity(Entity):
     """Model of article section, which content text and image"""
+    id: int
     article_id: int
     text: str
     intex_number_in_article: int
@@ -82,6 +84,7 @@ class ArticleSectionSlideShowEntity(Entity):
 @dataclass
 class ArticleWithVideoSectionEntity(Entity):
     """Model of article section, which content text and video"""
+    id: int
     article_id: int
     text: str
     intex_number_in_article: int

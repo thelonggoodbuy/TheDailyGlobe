@@ -6,13 +6,16 @@ from src.application.interactors.articles import ArticleInteractor,\
                                                 TestSaveObjectInteractor,\
                                                 GetAllCategorysInteractor,\
                                                 GetArticlesFeedInteractor, \
-                                                GetArticlesDetailInteractor
+                                                GetArticlesDetailInteractor,\
+                                                GetSlideShowInteractor
 from src.application.ioc import ArticleProvider
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
                                                 ArticlesDetailRequestSchema, \
-                                                ArticlesDetailResponseSchema
+                                                ArticlesDetailResponseSchema, \
+                                                GetSlideshowRequestSchema, \
+                                                SlideShowResponseSchema
 
 
 
@@ -40,7 +43,7 @@ async def all_categorys(interactor: FromDishka[GetAllCategorysInteractor]):
 
 @router.post("/get_articles_feed/", tags=["articles"])
 @inject
-async def all_categorys(article_feed_request_schema: ArticlesFeedRequestSchema, 
+async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSchema, 
                         interactor: FromDishka[GetArticlesFeedInteractor]) -> ArticleFeedResponseSchema:
 
     result = await interactor(article_feed_request_schema)
@@ -51,11 +54,21 @@ async def all_categorys(article_feed_request_schema: ArticlesFeedRequestSchema,
 @inject
 async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
                              interactor: FromDishka[GetArticlesDetailInteractor])-> ArticlesDetailResponseSchema:
-    print('---router vefore interactor----')
     result = await interactor(get_detail_article_schema)
-    print('---router vefore interactor----')
 
     return result
+
+
+
+@router.post("/get_slideshow/", tags=["articles"])
+@inject
+async def get_slideshow(get_slideshow_schema: GetSlideshowRequestSchema,
+                        interactor: FromDishka[GetSlideShowInteractor])-> SlideShowResponseSchema:
+    result = await interactor(get_slideshow_schema)
+
+    return result
+
+
 
 
 

@@ -30,3 +30,20 @@ class ArticlesDetailRequestSchema(BaseModel):
 
 class ArticlesDetailResponseSchema(BaseModel):
     response_dict: dict
+
+
+
+class GetSlideshowRequestSchema(BaseModel):
+    article_id: int
+    article_section_with_slideshow_id: int
+
+
+class SingleSlideSchema(BaseModel):
+    id: int
+    text: str
+    image: str
+    is_opened: bool = False
+
+
+class SlideShowResponseSchema(BaseModel):
+    result: List[SingleSlideSchema]

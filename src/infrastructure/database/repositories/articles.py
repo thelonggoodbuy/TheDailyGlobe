@@ -20,7 +20,10 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
                                                 ArticleItem, \
                                                 ArticlesDetailRequestSchema, \
-                                                ArticlesDetailResponseSchema
+                                                ArticlesDetailResponseSchema, \
+                                                GetSlideshowRequestSchema, \
+                                                SlideShowResponseSchema,\
+                                                SingleSlideSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -138,3 +141,42 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
         response = ArticlesDetailResponseSchema(response_dict=article_dict)
         return response
+    
+
+    async def return_slideshow(self, get_slideshow_schema: GetSlideshowRequestSchema) -> SlideShowResponseSchema:
+        
+        query_sections_with_slide_show_query = select(ArticleSectionSlideShowEntity).filter(ArticleSectionSlideShowEntity.article_id == get_slideshow_schema.article_id)
+        query_sections_with_slide_show_rows = await self._session.execute(query_sections_with_slide_show_query)
+        query_sections_with_slide_show_objects = query_sections_with_slide_show_rows.scalars().all()
+
+        result_list = []
+        print('--->get_slideshow_schema.article_section_with_slideshow_id:<---')
+        print(get_slideshow_schema.article_section_with_slideshow_id)
+        print(type(get_slideshow_schema.article_section_with_slideshow_id))
+        print('--------------------------------------------------------------')
+
+
+
+        for slide in query_sections_with_slide_show_objects:
+            print('***')
+            print('slide.id')
+            print(print(slide.id))
+            print(type(slide.id))
+            print('***')
+            if slide.id == get_slideshow_schema.article_section_with_slideshow_id:
+                is_opened_status = True
+            else:
+                is_opened_status = False
+            slide = SingleSlideSchema(
+                id=slide.id,
+                text=slide.text,
+                image=slide.image,
+                is_opened=is_opened_status
+            )
+            result_list.append(slide)
+        result = SlideShowResponseSchema(result=result_list)
+        return result
+        
+
+
+

@@ -27,7 +27,8 @@ from src.application.interactors.articles import ArticleInteractor, \
                                             TestSaveObjectInteractor,\
                                             GetAllCategorysInteractor,\
                                             GetArticlesFeedInteractor,\
-                                            GetArticlesDetailInteractor
+                                            GetArticlesDetailInteractor,\
+                                            GetSlideShowInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -68,6 +69,11 @@ class ArticleProvider(Provider):
 
     get_detail_article_interactor = provide(
         source=GetArticlesDetailInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_slide_show_interactor = provide(
+        source=GetSlideShowInteractor,
         scope=Scope.REQUEST
     )
 
