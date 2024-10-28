@@ -47,6 +47,9 @@ def create_app() -> FastAPI:
         # print(exc.errors()[0]['ctx']['error'])
         # error_obj = exc.errors()[0]['ctx']['error']
         for error in exc.errors():
+            print('--->error<---')
+            print(error)
+            print('-------------')
 
             error_obj = error['ctx']['error'].args[0] 
 

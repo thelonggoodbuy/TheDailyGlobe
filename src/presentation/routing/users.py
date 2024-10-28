@@ -62,7 +62,7 @@ async def login_gmail_response_from_cloud(request: Request,
 @router.post("/users/registration", tags=["users_profile"])
 @inject
 async def registration(register_data: RegisterData,
-                        interactor: FromDishka[RegistrationInteractor]) -> UserRegisterResponse:
+                        interactor: FromDishka[RegistrationInteractor]) -> BaseResponseSchema:
     
     result_unformated = await interactor(register_data)
     result = result_unformated.model_dump(by_alias=True)
@@ -78,8 +78,8 @@ async def delete_user(delete_user_data: DeleteUsersData,
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[DeleteUserInteractor]):
 
-    result = await interactor(delete_user_data, token.credentials)
-
+    result_unformated = await interactor(delete_user_data, token.credentials)
+    result = result_unformated.model_dump(by_alias=True)
     return result
 
 
@@ -91,8 +91,8 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[UpdatePasswordUserInteractor]):
 
-    result = await interactor(change_password_user_data, token.credentials)
-
+    result_unformated = await interactor(change_password_user_data, token.credentials)
+    result = result_unformated.model_dump(by_alias=True)
     return result
 
 
@@ -102,6 +102,7 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
 async def refresh_token(refresh_token: RefreshTokenUsersData,
                       interactor: FromDishka[RefreshTokendUserInteractor]):
 
-    result = await interactor(refresh_token)
+    result_unformated = await interactor(refresh_token)
+    result = result_unformated.model_dump(by_alias=True)
 
     return result

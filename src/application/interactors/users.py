@@ -14,10 +14,14 @@ from src.infrastructure.database.repositories.users import IAlchemyRepository
 
 from src.infrastructure.database.repositories.users import BaseUserRepository
 from src.infrastructure.database.repositories.subscriptions import BaseSubscribtionRepository
-
+from sqlalchemy.exc import IntegrityError
 
 from src.application.interfaces.services import ITokenService
 from src.main.config.settings import Settings
+
+import asyncpg
+
+
 
 
 
@@ -166,25 +170,84 @@ class RegistrationInteractor(BaseInteractor):
     def __init__(self,
                 db_session: IDatabaseSession,
                 user_repository: BaseUserRepository,
+                subscription_repository: BaseSubscribtionRepository,
                 settings: Settings,
-                 token_service: ITokenService
+                token_service: ITokenService
                 ):
         """initialize interactor"""
         self.db_session = db_session
         self.settings = settings
         self.user_repository = user_repository
+        self.subscription_repository = subscription_repository
         self.token_service = token_service
 
 
     async def __call__(self,
-                    register_data: RegisterData) -> UserRegisterResponse:
+                    register_data: RegisterData) -> BaseResponseSchema:
         
-        user_obj = await self.user_repository.register_user(register_data)
+        print('===>>>This is my register data!<<<====')
+        print(register_data)
+        print('======================================')
 
-        jwt_token = await self.token_service.create_access_token(user_obj.email)
-        result = UserRegisterResponse(result='success', jwt_access_token= jwt_token)
+        try:
+            user_obj = await self.user_repository.register_user(register_data)
+            access_token = await self.token_service.create_access_token(user_obj.email)
+            refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
+            subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
 
-        # resp = {'status': 'success'}
+            if subscription:
+                subscription_data = subscription
+            else:
+                subscription_data = 'unregistered_user'
+
+            user_data = LoginUserSuccessData(id=user_obj.id,
+                                                email=user_obj.email)
+
+            data = LoginSuccessDataSchema(
+                    access_token=access_token, 
+                    refresh_token=refresh_token,
+                    user_data=user_data.model_dump(by_alias=True), 
+                    subscription_data=subscription_data)
+
+            result = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
+
+        except IntegrityError as e:
+
+            # print('************')
+            # print(e.__dict__)
+            # print('*****')
+            # print(e.orig)
+            # print('*******')
+            # print('***1***')
+            # print(e.statement)
+            # print(type(e.statement))
+            # print('***2***')
+            # print(e.params)
+            # print(type(e.params))
+            # print('***3***')
+            # print(e.orig)
+            # print('*')
+            # print(type(e.orig))
+            # print('*')
+            # print(str(e.orig))
+            # print('***4***')
+            # print(e.hide_parameters)
+            # print(type(e.hide_parameters))
+            # print('***5***')
+            # print(e.connection_invalidated)
+            # print(type(e.connection_invalidated))
+            # print('************')
+
+            # if isinstance(e.orig, asyncpg.exceptions.UniqueViolationError):
+            #     print(e.orig)
+            if 'duplicate key value violates unique constraint "users_email_key"' in str(e.orig):
+                await self.db_session.rollback()
+                # raise ValueError("Користувач з таким емейлом існує.")
+                result = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})
+
+            # else:
+            #     raise ValueError(f"Ошибка при регистрации: {str(e.orig)}")
+
         return result
     
 
@@ -211,12 +274,17 @@ class DeleteUserInteractor(BaseInteractor):
 
         user_obj = await self.token_service.get_user_by_token(token)
         if not user_obj.is_valid:
-            return {"error": user_obj.error_text}
+            # return {"error": user_obj.error_text}
+            result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
+            return result
         password_valid = self.verify_password(plain_password=delete_user_data.password, 
                                    hashed_password=user_obj.user_password)
         if not password_valid:
-            return {"error": "Помилка в паролі."}
-        result = await self.user_repository.delete_user(user_obj.user_email)
+            # return {"error": "Помилка в паролі."}
+            result = BaseResponseSchema(error=True, message="Помилка в паролі", data={})
+            return result
+        result_message = await self.user_repository.delete_user(user_obj.user_email)
+        result = BaseResponseSchema(error=False, message="", data=result_message)
         return result
 
 
@@ -250,13 +318,17 @@ class UpdatePasswordUserInteractor(BaseInteractor):
 
         user_obj = await self.token_service.get_user_by_token(token)
         if not user_obj.is_valid:
-            return {"error": user_obj.error_text}
+            result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
+            return result
         password_valid = self.verify_password(plain_password=update_password_users_data.old_password, 
                                    hashed_password=user_obj.user_password)
         if not password_valid:
-            return {"error": "Помилка в паролі."}
+            result = BaseResponseSchema(error=True, message="Помилка в паролі.", data={})
+            return result
         user = await self.user_repository.get_user_by_email(user_obj.user_email)
-        result = await self.user_repository.update_user(user, **{"password": update_password_users_data.new_password})
+        repository_result = await self.user_repository.update_user(user, **{"password": update_password_users_data.new_password})
+        result = BaseResponseSchema(error=False, message="", data=repository_result)
+
         return result
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
@@ -289,10 +361,11 @@ class RefreshTokendUserInteractor(BaseInteractor):
 
         user_obj = await self.token_service.get_user_by_token(refresh_token_obj.refresh_token)
         if not user_obj.is_valid:
-            return {"error": user_obj.error_text}
+            result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
+            return result
         
-        result = await self.token_service.refresh_token(refresh_token=refresh_token_obj.refresh_token)
-        
+        token_dict = await self.token_service.refresh_token(refresh_token=refresh_token_obj.refresh_token)
+        result = BaseResponseSchema(error=False, message="", data=token_dict)
         return result
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:

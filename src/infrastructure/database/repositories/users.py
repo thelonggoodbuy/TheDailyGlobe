@@ -40,8 +40,8 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         """register new user"""
         existing_user = await self.get_user_by_email(user_email=register_data.email)
 
-        if existing_user is not None:
-            raise HTTPException(status_code=400, detail="Email уже используется")
+        # if existing_user is not None:
+        #     raise HTTPException(status_code=400, detail="Email уже используется")
     
         new_user = UserEntity(
                 email=register_data.email,
@@ -57,7 +57,7 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         user_id = user.id
         await self._session.delete(user)
         await self._session.commit()
-        return {"result": f"Пользователь с id {user_id} був видалений з системи"}
+        return {"message": f"Пользователь с id {user_id} був видалений з системи"}
     
 
     async def update_user(self, user_obj, **values_dict):
@@ -70,7 +70,7 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
                     setattr(user_obj, obj_field, values_dict[obj_field])
         # await self._session.update(user)
         await self._session.commit()
-        return {"result": f"Користувач с id {user_obj.id} змінив данні."}        
+        return {"message": f"Користувач с id {user_obj.id} змінив данні."}        
 
 
         

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from pydantic import field_validator, model_validator
 from pydantic.networks import EmailStr
@@ -44,10 +44,40 @@ class LoginRequestData(BaseModel):
         return value
     
 
-class RegisterData(BaseModel):
+from pydantic import BaseModel, ConfigDict, AliasGenerator
+from pydantic.alias_generators import to_camel, to_snake
+from typing import Any, Dict, Optional
+from typing import Type
+
+
+
+class RegisterData(BaseSchema):
     email: str
     password: str
-    repeat_password: str
+    repeat_password: str = Field(alias='repeatPassword')
+
+    # model_config = ConfigDict(
+    #     alias_generator=AliasGenerator(
+    #         validation_alias=to_snake,
+    #         serialization_alias=to_camel,
+    #     ),
+    #     populate_by_name=True,
+    #     from_attributes=True,
+        
+    # )
+
+    
+
+
+    # model_config = ConfigDict(
+    #     alias_generator=lambda field_name: ''.join(
+    #         word.capitalize() if i > 0 else word
+    #         for i, word in enumerate(field_name.split('_'))
+    #     ),
+    #     populate_by_name=True,
+    #     from_attributes=True,
+    # )
+
 
     @field_validator("email")
     def email_have_not_be_empty(cls, value):
@@ -75,7 +105,7 @@ class RegisterData(BaseModel):
             raise ValueError("Паролі не співпадають")
         return value
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def validate_password_and_repeat_password_not_empty(cls, data):
         if ("password" in data and "repeat_password" not in data) or (
             "password" not in data and "repeat_password" in data
@@ -109,10 +139,10 @@ class DeleteUsersData(BaseModel):
     password: str
 
 
-class ChangePasswordUsersData(BaseModel):
-    old_password: str
-    new_password: str
-    repeat_new_password: str
+class ChangePasswordUsersData(BaseSchema):
+    old_password: str = Field(alias='oldPassword')
+    new_password: str = Field(alias='newPassword')
+    repeat_new_password: str = Field(alias='repeatNewPassword')
 
     @field_validator("old_password")
     def password_have_not_be_empty(cls, value):

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema
+from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 
 
 
