@@ -48,7 +48,12 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                     text,
                                     intex_number_in_article,
                                     image):
-        new_article_sections_slide_show = ArticleSectionSlideShowEntity(article_id, text, intex_number_in_article, image)
+        
+        new_article_sections_slide_show = ArticleSectionSlideShowEntity(article_id=article_id, 
+                                                                        text=text, 
+                                                                        intex_number_in_article=intex_number_in_article, 
+                                                                        image=image, 
+                                                                        section_type='article_section_with_slide_show')
         self._session.add(new_article_sections_slide_show)
         return self._session
     

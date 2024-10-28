@@ -73,12 +73,13 @@ class ArticleWithPlainTextSectionEntity(Entity):
 @dataclass
 class ArticleSectionSlideShowEntity(Entity):
     """Model of article section, which content text and image"""
-    id: int
+    
     article_id: int
     text: str
     intex_number_in_article: int
     image: str
     section_type: str
+    id: int = None
 
 
 @dataclass
