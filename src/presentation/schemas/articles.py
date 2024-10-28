@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import List
 
+from src.presentation.schemas.base_schemas import BaseResponseSchema
+
+
 
 
 class ArticlesFeedRequestSchema(BaseModel):
@@ -10,7 +13,7 @@ class ArticlesFeedRequestSchema(BaseModel):
 
 
 
-class ArticleItem(BaseModel):
+class ArticleItem(BaseResponseSchema):
     category_title: str
     id: int
     title: str
@@ -19,7 +22,7 @@ class ArticleItem(BaseModel):
     publication_date: str
 
 
-class ArticleFeedResponseSchema(BaseModel):
+class ArticleFeedResponseSchema(BaseResponseSchema):
     articles: List[ArticleItem]
 
 

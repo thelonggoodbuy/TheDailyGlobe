@@ -10,7 +10,8 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             UpdatePasswordUserInteractor,\
                                             RefreshTokendUserInteractor
 from src.application.ioc import ArticleProvider
-from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData, RefreshTokenUsersData
+from src.presentation.schemas.base_schemas import BaseResponseSchema
+from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData, RefreshTokenUsersData, UserRegisterResponse
 from starlette.requests import Request
 from src.main.config.settings import Settings
 from src.infrastructure.openapi.openapi import bearer_scheme
@@ -31,9 +32,11 @@ router = APIRouter(route_class=DishkaRoute)
 @router.post("/users/login_regular", tags=["Auth"])
 @inject
 async def login_regular(login_data: LoginRequestData, 
-                        interactor: FromDishka[LoginRegularInteractor]):
+                        interactor: FromDishka[LoginRegularInteractor]) -> BaseResponseSchema:
 
-    result = await interactor(login_data)
+    result_unformated = await interactor(login_data)
+    result = result_unformated.model_dump(by_alias=True)
+
     return result
 
 
@@ -56,12 +59,13 @@ async def login_gmail_response_from_cloud(request: Request,
     return result
 
 
-@router.post("/users/registration", tags=["Auth"])
+@router.post("/users/registration", tags=["users_profile"])
 @inject
 async def registration(register_data: RegisterData,
-                        interactor: FromDishka[RegistrationInteractor]):
-
-    result = await interactor(register_data)
+                        interactor: FromDishka[RegistrationInteractor]) -> UserRegisterResponse:
+    
+    result_unformated = await interactor(register_data)
+    result = result_unformated.model_dump(by_alias=True)
     return result
 
 
@@ -83,7 +87,7 @@ async def delete_user(delete_user_data: DeleteUsersData,
 
 @router.post("/users/change_password", tags=["users_profile"])
 @inject
-async def delete_user(change_password_user_data: ChangePasswordUsersData, 
+async def change_password(change_password_user_data: ChangePasswordUsersData, 
                       token: Annotated[str, Depends(bearer_scheme)],
                       interactor: FromDishka[UpdatePasswordUserInteractor]):
 

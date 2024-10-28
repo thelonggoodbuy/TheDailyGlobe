@@ -86,7 +86,7 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                 # publication_date=(format_datetime(article_obj.publication_date, format='MMMM dd, yyyy', locale='uk')).capitalize()
                 publication_date=str(article_obj.publication_date)
             )
-            response.articles.append(article)
+            response.articles.append(article.model_dump(by_alias=True))
         # print('===>REPOSITORY===DATA<===')
         # print(response)
         # print('=========================')

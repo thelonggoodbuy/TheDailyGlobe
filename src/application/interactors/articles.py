@@ -78,7 +78,8 @@ class GetArticlesFeedInteractor(BaseInteractor):
         self.settings = settings
 
     async def __call__(self, article_feed_request_schema: ArticlesFeedRequestSchema) -> ArticleFeedResponseSchema:
-        result = await self.article_repository.return_article_feed(article_feed_request_schema)
+        result_unformated = await self.article_repository.return_article_feed(article_feed_request_schema)
+        result = result_unformated.model_dump(by_alias=True)
         return result
          
 

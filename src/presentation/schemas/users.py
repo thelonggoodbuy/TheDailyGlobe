@@ -1,10 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 from pydantic import field_validator, model_validator
 from pydantic.networks import EmailStr
 from pydantic_core.core_schema import FieldValidationInfo
 
+from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 
 
+class BaseModelWithCamelCase(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
 
 
 class LoginRequestData(BaseModel):
@@ -25,6 +33,7 @@ class LoginRequestData(BaseModel):
             EmailStr._validate(value)
         except ValueError:
             raise ValueError('Не корректна емейл адресса.')
+            # return 'Не корректна емейл адресса.'
         return value
     
     
@@ -78,9 +87,22 @@ class RegisterData(BaseModel):
             return data
         
 
-class UserRegisterResponse(BaseModel):
+class UserRegisterResponse(BaseResponseSchema):
     result: str
     jwt_access_token: str
+
+
+
+class LoginUserSuccessData(BaseModel):
+    id: int
+    email: str
+
+class LoginSuccessDataSchema(BaseSchema):
+    access_token: str
+    refresh_token: str
+    user_data: dict
+    #TODO subscription это пока заглушка
+    subscription_data: str
 
 
 class DeleteUsersData(BaseModel):

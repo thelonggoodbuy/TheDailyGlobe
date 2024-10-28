@@ -7,7 +7,9 @@ from starlette.requests import Request
 from dataclasses import dataclass
 from sqlalchemy import select
 
-from src.presentation.schemas.users import LoginRequestData, RegisterData, UserRegisterResponse
+from src.presentation.schemas.users import LoginRequestData, RegisterData, UserRegisterResponse, LoginUserSuccessData, LoginSuccessDataSchema
+from src.presentation.schemas.base_schemas import BaseResponseSchema
+
 from src.infrastructure.database.repositories.users import IAlchemyRepository
 
 from src.infrastructure.database.repositories.users import BaseUserRepository
@@ -46,32 +48,46 @@ class LoginRegularInteractor(BaseInteractor):
                  
   
     async def __call__(self,
-                    login_data: LoginRequestData) -> UserLoginResponse:
+                    login_data: LoginRequestData) -> BaseResponseSchema:
         # TODO return!!!   
         user_obj = await self.user_repository.get_user_by_email(user_email=login_data.email)
         if user_obj is None:
-            result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
+            # result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
+            result = BaseResponseSchema(error=True, message='Користувача з таким емейлом не існує', data={})
         elif not self.verify_password(login_data.password, user_obj.password):
-
-            result = {'status': 'error', 'text': 'помилка в паролі'}
+            # result = {'status': 'error', 'text': 'помилка в паролі'}
+            result = BaseResponseSchema(error=True, message='помилка в паролі', data={})
         else:
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
-            print('===>user_data<===') 
-            print(user_obj)
-            print('=================')
+            # print('===>user_data<===') 
+            # print(user_obj)
+            # print('=================')
+
             subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
+
             if subscription:
                 subscription_data = subscription
             else:
                 subscription_data = 'unregistered_user'
-            result = {'status': 'success', 
-                    'access_token': jwt_token, 
-                    "refresh_token": refresh_token,
-                    "user_data":{"id": user_obj.id, "email":user_obj.email, "is_active": user_obj.is_active}, 
-                    "subscription_data": subscription_data}
-        resp = UserLoginResponse(result = result)
-        return resp
+
+            user_data = LoginUserSuccessData(id=user_obj.id,
+                                             email=user_obj.email)
+
+            data = LoginSuccessDataSchema(
+                    access_token=jwt_token, 
+                    refresh_token=refresh_token,
+                    user_data=user_data.model_dump(by_alias=True), 
+                    subscription_data=subscription_data)
+            # resp = UserLoginResponse(result = result)
+            # print('=======data=======')
+            # print(data)
+            # print('==================')
+            result = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
+        print('=========RESULT=========')
+        print(result)
+        print('========================')
+        return result
     
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
@@ -98,7 +114,7 @@ class LoginGmailRequestToCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
-        redirect_uri = 'http://127.0.0.1:8000/users/login_gmail_response_from_cloud'
+        redirect_uri = 'http://127.0.0.1:3004/users/login_gmail_response_from_cloud'
         auth_url = await auth_obj.google.create_authorization_url(redirect_uri, **{"prompt": 'select_account'})
         await auth_obj.google.save_authorize_data(request, redirect_uri=str(redirect_uri), **auth_url)
         resp = UserLoginResponse(result = {'response':auth_url})
@@ -166,7 +182,7 @@ class RegistrationInteractor(BaseInteractor):
         user_obj = await self.user_repository.register_user(register_data)
 
         jwt_token = await self.token_service.create_access_token(user_obj.email)
-        result = {'status': 'success', 'access_jwt_token': jwt_token}
+        result = UserRegisterResponse(result='success', jwt_access_token= jwt_token)
 
         # resp = {'status': 'success'}
         return result
