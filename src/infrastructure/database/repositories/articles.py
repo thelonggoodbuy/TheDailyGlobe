@@ -23,7 +23,11 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticlesDetailResponseSchema, \
                                                 GetSlideshowRequestSchema, \
                                                 SlideShowResponseSchema,\
-                                                SingleSlideSchema
+                                                SingleSlideSchema, \
+                                                ArticleSectionPlainTextSchema, \
+                                                ArticleSectionSlideShowSchema, \
+                                                ArticleWithVideoSectionSchema, \
+                                                ArticleDetailSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -71,7 +75,12 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
     )
         article_rows = await self._session.execute(query)
         article_objects = article_rows.scalars().all()
-        response = ArticleFeedResponseSchema(articles=[])
+        # response = ArticleFeedResponseSchema(articles=[])
+        print('=====article_objects=====')
+        print(article_objects)
+        print(type(article_objects))
+        print('=========================')
+        article_list = []
         for article_obj in article_objects:
             # print('====>article_obj.publication_date<======')
             # print(article_obj.publication_date)
@@ -86,7 +95,15 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                 # publication_date=(format_datetime(article_obj.publication_date, format='MMMM dd, yyyy', locale='uk')).capitalize()
                 publication_date=str(article_obj.publication_date)
             )
-            response.articles.append(article.model_dump(by_alias=True))
+            article_list.append(article.model_dump(by_alias=True))
+
+        print('===>article_list<===')
+        print(article_list)
+        print(type(article_list))
+        print('====================')
+
+        response = ArticleFeedResponseSchema(error=False, message='', data=article_list)
+        
         # print('===>REPOSITORY===DATA<===')
         # print(response)
         # print('=========================')
@@ -100,8 +117,21 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                     .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
         article_rows = await self._session.execute(query)
         article_object = article_rows.scalars().first()
-        article_dict = article_object.to_dict()
-        article_dict['category_title'] = article_object.category.title
+        # article_dict = article_object.to_dict()
+        article_dict = ArticleDetailSchema(id=article_object.id,
+                                        title=article_object.title,
+                                        main_image=article_object.main_image,
+                                        category_id=article_object.category_id,
+                                        lead=article_object.lead,
+                                        author=article_object.author,
+                                        publication_date=str(article_object.publication_date),
+                                        category_title=article_object.category.title,
+                                        article_sections=[])
+        # article_dict['category_title'] = article_object.category.title
+
+        print('==================article_dict=====================')
+        print(article_dict)
+        print('===================================================')
 
         sections_list = []
 
@@ -122,8 +152,20 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                             query_sections_with_video_objects
 
         for article_section in sections_list_objects:
-            sections_list.append(article_section.to_dict())
-
+            # sections_list.append(article_section.to_dict())
+            match article_section.section_type:
+                case 'article_sections_with_plain_text':
+                    # print("======article_section.to_dict()========")
+                    # print(article_section.to_dict())
+                    # print("=======================================")
+                    section = ArticleSectionPlainTextSchema(**article_section.to_dict())
+                    sections_list.append(section.model_dump(by_alias=True))
+                case 'article_section_with_slide_show':
+                    section = ArticleSectionSlideShowSchema(**article_section.to_dict())
+                    sections_list.append(section.model_dump(by_alias=True))
+                case 'article_section_with_video':
+                    section = ArticleWithVideoSectionSchema(**article_section.to_dict())
+                    sections_list.append(section.model_dump(by_alias=True))
 
         priority = {
             "article_sections_with_plain_text": 1,
@@ -131,20 +173,33 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
             "article_section_with_video": 3,
         }
 
+        # print("=====sections_list=====")
+        # print(sections_list)
+        # print("=======================")
+
         sorted_list = sorted(
             sections_list, 
-            # key=lambda x: (priority[x["section_type"]], x["intex_number_in_article"])
-            key=lambda x: (x["intex_number_in_article"], priority[x["section_type"]] )
+            # key=lambda x: (x.intex_number_in_article, priority[x.section_type])
+            key=lambda x: (x["intexNumberInArticle"], priority[x["sectionType"]])
         )
 
+        # sorted_formated_list = list(map(lambda x: x.model_dump(by_alias=True), sorted_list))
+        sorted_formated_list = []
         import pprint
+        # print('=======SECTION List===========')
+        # pprint.pprint(sorted_list)
+        # print('==============================')
+        # article_dict['article_sections'] = sorted_list
+        article_dict.article_sections = sorted_list
+
         print('=======SECTION List===========')
-        pprint.pprint(sorted_list)
+        pprint.pprint(article_dict)
         print('==============================')
-        article_dict['article_sections'] = sorted_list
 
-
-        response = ArticlesDetailResponseSchema(response_dict=article_dict)
+        response = ArticlesDetailResponseSchema(error=False, message='', data=article_dict.model_dump(by_alias=True))
+        print('===============================================')
+        print(response)
+        print('===============================================')
         return response
     
 
@@ -178,8 +233,8 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                 image=slide.image,
                 is_opened=is_opened_status
             )
-            result_list.append(slide)
-        result = SlideShowResponseSchema(result=result_list)
+            result_list.append(slide.model_dump(by_alias=True))
+        result = SlideShowResponseSchema(error=False, message="", data=result_list)
         return result
         
 

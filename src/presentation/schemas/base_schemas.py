@@ -38,7 +38,9 @@ class BaseSchema(BaseModel):
 
 
 
-class BaseResponseSchema(BaseModel):
+class BaseResponseSchema(BaseSchema):
     error: bool = True
     message: Optional[str] = None
     data: Optional[dict]
+
+    

@@ -54,7 +54,8 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
 @inject
 async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
                              interactor: FromDishka[GetArticlesDetailInteractor])-> ArticlesDetailResponseSchema:
-    result = await interactor(get_detail_article_schema)
+    unformated_result = await interactor(get_detail_article_schema)
+    result = unformated_result.model_dump(by_alias=True)
 
     return result
 

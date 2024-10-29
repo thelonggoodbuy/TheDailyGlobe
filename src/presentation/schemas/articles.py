@@ -1,53 +1,142 @@
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 
+from pydantic import BaseModel, ConfigDict, AliasGenerator
+from pydantic.alias_generators import to_camel, to_snake
+
+
+class ArticlesFeedRequestSchema(BaseSchema):
+    category_id: int = Field(alias='categoryId')
+    pagination_length: int = Field(alias='paginationLength')
+    current_pagination_position: int = Field(alias='currentPaginationPosition')
 
 
 
-class ArticlesFeedRequestSchema(BaseModel):
-    category_id: int = None
-    pagination_length: int
-    current_pagination_position: int
+# class ArticleItem(BaseSchema):
+#     category_title: str = Field(alias='categoryTitle')
+#     id: int
+#     title: str
+#     author: str
+#     main_image: str = Field(alias='mainImage')
+#     publication_date: str = Field(alias='publicationDate')
 
 
-
-class ArticleItem(BaseResponseSchema):
-    category_title: str
+class ArticleItem(BaseSchema):
+    category_title: str = Field(alias='categoryTitle')
     id: int
     title: str
     author: str
-    main_image: str
-    publication_date: str
+    main_image: str = Field(alias='mainImage')
+    publication_date: str = Field(alias='publicationDate')
 
 
 class ArticleFeedResponseSchema(BaseResponseSchema):
-    articles: List[ArticleItem]
+    
+    data: Optional[List]
 
 
 
-class ArticlesDetailRequestSchema(BaseModel):
-    article_id: int
+class ArticlesDetailRequestSchema(BaseSchema):
+    article_id: int = Field(alias='articleId')
 
 
-class ArticlesDetailResponseSchema(BaseModel):
-    response_dict: dict
+class ArticlesDetailResponseSchema(BaseResponseSchema):
+    data: dict
 
 
 
-class GetSlideshowRequestSchema(BaseModel):
-    article_id: int
-    article_section_with_slideshow_id: int
+class GetSlideshowRequestSchema(BaseSchema):
+    article_id: int = Field(alias='articleId')
+    article_section_with_slideshow_id: int = Field(alias='articleSectionWithSlideshowId')
 
 
-class SingleSlideSchema(BaseModel):
+class SingleSlideSchema(BaseSchema):
     id: int
     text: str
     image: str
     is_opened: bool = False
 
 
-class SlideShowResponseSchema(BaseModel):
-    result: List[SingleSlideSchema]
+class SlideShowResponseSchema(BaseResponseSchema):
+    data: List[SingleSlideSchema]
+
+
+
+
+class ArticleSectionPlainTextSchema(BaseModel):
+    id: int
+    article_id: int = Field(alias='articleId')
+    text: str
+    intex_number_in_article: int = Field(alias='intexNumberInArticle')
+    section_type: str = Field(default="article_sections_with_plain_text", alias='sectionType')
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,    
+    )
+
+
+
+class ArticleSectionSlideShowSchema(BaseModel):
+    id: int
+    article_id: int = Field(alias='articleId')
+    text: str
+    intex_number_in_article: int
+    image: str
+    section_type: str = Field(default="article_section_with_slide_show", alias='sectionType')
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+        
+        
+
+
+
+class ArticleWithVideoSectionSchema(BaseModel):
+    id: int
+    article_id: int = Field(alias='articleId')
+    text: str
+    intex_number_in_article: int
+    video_url: str
+    section_type: str = Field(default="article_section_with_video", alias='sectionType')
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+
+
+class ArticleDetailSchema(BaseSchema):
+    id: int
+    title: str
+    main_image: str = Field(alias='mainImage')
+    category_id: int
+    lead: str
+    author: str
+    publication_date: str
+    category_title: str = Field(alias='categoryTitle')
+    article_sections: Optional[List] = Field(alias='articleSections')
+
+
+
+
+
+    # article_id: int = Field(alias='articleId')
+    # text: str
+    # intex_number_in_article: int
+    # video_url: str
+    # section_type: str = Field(default="article_section_with_video", alias='sectionType')
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )

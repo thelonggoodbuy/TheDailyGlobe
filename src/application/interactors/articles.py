@@ -64,12 +64,17 @@ class GetAllCategorysInteractor(BaseInteractor):
 
     async def __call__(self) -> CategorysResponse:
         categorys_obj = await self.category_repository.get_all()
-        # print('--->data<----')
-        # print(data)
-        # print('--------------')
+
+        print('===========!!!==============')
+
         data = {"categories":[]}
         for categoty_item in categorys_obj.categories:
             data["categories"].append(categoty_item.model_dump(by_alias=True))
+
+        print('--->data<----')
+        print(data)
+        print('--------------')
+
         result = BaseResponseSchema(error=False, message="", data=data)
         return result
 
