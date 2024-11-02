@@ -15,15 +15,6 @@ class ArticlesFeedRequestSchema(BaseSchema):
 
 
 
-# class ArticleItem(BaseSchema):
-#     category_title: str = Field(alias='categoryTitle')
-#     id: int
-#     title: str
-#     author: str
-#     main_image: str = Field(alias='mainImage')
-#     publication_date: str = Field(alias='publicationDate')
-
-
 class ArticleItem(BaseSchema):
     category_title: str = Field(alias='categoryTitle')
     id: int
@@ -126,14 +117,6 @@ class ArticleDetailSchema(BaseSchema):
     article_sections: Optional[List] = Field(alias='articleSections')
 
 
-
-
-
-    # article_id: int = Field(alias='articleId')
-    # text: str
-    # intex_number_in_article: int
-    # video_url: str
-    # section_type: str = Field(default="article_section_with_video", alias='sectionType')
 
     model_config = ConfigDict(
         alias_generator=to_camel,
