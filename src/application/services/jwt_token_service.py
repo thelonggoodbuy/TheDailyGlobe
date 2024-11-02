@@ -17,6 +17,7 @@ import time
 
 class TokenResponse(BaseModel):
     is_valid: bool
+    id: int = None
     error_text: str = None
     user_email: str = None
     user_password: str = None
@@ -44,7 +45,7 @@ class JWTTokenService(ITokenService):
             expire = datetime.now(timezone.utc) + timedelta(days=28)
         else:
             # expire = datetime.now(timezone.utc) + timedelta(minutes=10)
-            expire = datetime.now(timezone.utc) + timedelta(seconds=100)
+            expire = datetime.now(timezone.utc) + timedelta(minutes=20)
         to_encode = {'email': email, "exp": expire}
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt
@@ -70,7 +71,11 @@ class JWTTokenService(ITokenService):
 
 
     async def validate_token(self, token: str):
+        print('===payload===')
+        print(token)
+        print('=============')
         try:
+            print('+++1+++')
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             print("=====Your payload is: =======")
             print(payload)
@@ -86,23 +91,25 @@ class JWTTokenService(ITokenService):
             response = TokenResponse(is_valid=True, user_email=payload['email'])
             return response
         except DecodeError:
+            print('+++2+++')
             response = TokenResponse(is_valid=False, error_text="Токен не валідний")
             return response
         except InvalidTokenError:
+            print('+++3+++')
             response = TokenResponse(is_valid=False, error_text="Токен застарів")
             return response
             
 
     async def get_user_by_token(self, token: str):
         token_status = await self.validate_token(token)
-        # print('--->token_status<---')
-        # print(token_status)
-        # print('--------------------')
+        print('--->token_status<---')
+        print(token_status)
+        print('--------------------')
         match token_status.is_valid:
             case True:
                 print('Token valid')
                 user = await self.get_user_by_payload(token_status.user_email)
-                response = TokenResponse(is_valid=True, user_email=user.email, user_password=user.password)
+                response = TokenResponse(is_valid=True, user_email=user.email, user_password=user.password, id=user.id)
                 return response
 
             case False:

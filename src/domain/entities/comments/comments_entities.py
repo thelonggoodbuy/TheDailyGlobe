@@ -14,3 +14,4 @@ class CommentEntity(Entity):
     text: str
     user_id: int
     article_id: int
+    id: int = None

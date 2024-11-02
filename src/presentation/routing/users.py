@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from dishka import make_async_container
-from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, inject
+from dishka.integrations.fastapi import FromDishka, DishkaRoute, inject
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
@@ -19,11 +19,6 @@ from src.infrastructure.openapi.openapi import bearer_scheme
 from typing import Annotated
 from fastapi import Depends
 
-
-
-from pydantic import ValidationError
-from fastapi.responses import JSONResponse
-import json
 
 
 router = APIRouter(route_class=DishkaRoute)
@@ -97,7 +92,7 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
 
 
 
-@router.post("/users/refresh_token", tags=["auth"])
+@router.post("/users/refresh_token", tags=["Auth"])
 @inject
 async def refresh_token(refresh_token: RefreshTokenUsersData,
                       interactor: FromDishka[RefreshTokendUserInteractor]):
