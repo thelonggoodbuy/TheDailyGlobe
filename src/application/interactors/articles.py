@@ -13,7 +13,10 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticlesDetailRequestSchema, \
                                                 ArticlesDetailResponseSchema, \
                                                 GetSlideshowRequestSchema, \
-                                                SlideShowResponseSchema
+                                                SlideShowResponseSchema, \
+                                                GetVideoSchema, \
+                                                VideoArticlSections, \
+                                                VideoResponseSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 
@@ -133,6 +136,32 @@ class GetSlideShowInteractor(BaseInteractor):
 
 
 
+class GetVideoInteractor(BaseInteractor):
+    def __init__(self,
+                db_session: IDatabaseSession,
+                article_repository: BaseArticleRepository,
+                settings: Settings):
+        
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+    async def __call__(self, 
+                       get_video_schema: GetVideoSchema):
+        article_video_sections = await self.article_repository.get_video_section_by_id(get_video_schema.id)
+        video_section = VideoArticlSections(id=article_video_sections.id,
+                                            text=article_video_sections.text,
+                                            video_url=article_video_sections.video_url)
+
+
+        result = VideoResponseSchema(
+             error=False,
+             message="",
+             data=video_section
+        )
+
+
+        return result
 
 
 # =========================TEST========INTERACTORS=========================

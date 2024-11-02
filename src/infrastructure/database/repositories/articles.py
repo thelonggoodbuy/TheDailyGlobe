@@ -27,7 +27,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleSectionPlainTextSchema, \
                                                 ArticleSectionSlideShowSchema, \
                                                 ArticleWithVideoSectionSchema, \
-                                                ArticleDetailSchema
+                                                ArticleDetailSchema, \
+                                                VideoArticlSections
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -238,5 +239,9 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         return result
         
 
+    async def get_video_section_by_id(self, section_video_id):
+        query = select(ArticleWithVideoSectionEntity).filter(ArticleWithVideoSectionEntity.id == section_video_id)
+        query_row = await self._session.execute(query)
+        query_sections_with_slide_show_objects = query_row.scalars().first()
 
-
+        return query_sections_with_slide_show_objects

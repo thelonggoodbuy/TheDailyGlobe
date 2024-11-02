@@ -7,7 +7,8 @@ from src.application.interactors.articles import ArticleInteractor,\
                                                 GetAllCategorysInteractor,\
                                                 GetArticlesFeedInteractor, \
                                                 GetArticlesDetailInteractor,\
-                                                GetSlideShowInteractor
+                                                GetSlideShowInteractor,\
+                                                GetVideoInteractor
 from src.application.ioc import ArticleProvider
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
@@ -15,7 +16,9 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticlesDetailRequestSchema, \
                                                 ArticlesDetailResponseSchema, \
                                                 GetSlideshowRequestSchema, \
-                                                SlideShowResponseSchema
+                                                SlideShowResponseSchema, \
+                                                GetVideoSchema, \
+                                                VideoResponseSchema
 
 
 
@@ -70,6 +73,12 @@ async def get_slideshow(get_slideshow_schema: GetSlideshowRequestSchema,
     return result
 
 
+@router.post("/get_video/", tags=["articles"])
+@inject
+async def get_video(get_video_schema: GetVideoSchema,
+                    interactor: FromDishka[GetVideoInteractor]) -> VideoResponseSchema:
+    result = await interactor(get_video_schema)
+    return result
 
 
 

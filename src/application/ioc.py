@@ -28,7 +28,8 @@ from src.application.interactors.articles import ArticleInteractor, \
                                             GetAllCategorysInteractor,\
                                             GetArticlesFeedInteractor,\
                                             GetArticlesDetailInteractor,\
-                                            GetSlideShowInteractor
+                                            GetSlideShowInteractor,\
+                                            GetVideoInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -76,6 +77,12 @@ class ArticleProvider(Provider):
         source=GetSlideShowInteractor,
         scope=Scope.REQUEST
     )
+
+    get_video_section = provide(
+        source=GetVideoInteractor,
+        scope=Scope.REQUEST
+    )
+
 
     # repository
     article_repository = provide(

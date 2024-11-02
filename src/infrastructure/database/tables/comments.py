@@ -9,17 +9,8 @@ from src.domain.entities.comments.comments_entities import CommentEntity
 from src.domain.entities.users.users_entities import UserEntity
 from src.domain.entities.articles.articles_entities import ArticleEntity
 
-# from src.infrastructure.database.tables.users import UserTable
-# from src.infrastructure.database.tables.articles import ArticleTable
-
-
 from src.infrastructure.database.metadata import mapper_registry
 
-
-# mapper_registry = registry(metadata=metadata)
-
-# print('=======comment tables==============')
-# print(f"Registry ID in {__name__}: {id(mapper_registry)}")
 
 CommentTable = Table(
     # table name
@@ -40,9 +31,3 @@ mapper_registry.map_imperatively(
         "article": relationship(ArticleEntity, back_populates="comments")
     }
 )
-
-
-
-
-# print("Registered tables in Comments module:")
-# print(mapper_registry.metadata.tables.keys())

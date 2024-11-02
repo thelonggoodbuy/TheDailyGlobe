@@ -123,3 +123,33 @@ class ArticleDetailSchema(BaseSchema):
         populate_by_name=True,
         from_attributes=True,
     )
+
+
+class GetVideoSchema(BaseSchema):
+    """
+    Schema of request for video article section.
+    Args:
+    - id (int) - id of concrete concrete video article section.
+    """
+    id: int
+
+
+class VideoArticlSections(BaseSchema):
+    """
+    Schema of response object for video article section.
+    Args:
+    - id (int)
+    - 
+    """
+    id: int
+    text: str
+    video_url: str
+
+
+class VideoResponseSchema(BaseResponseSchema):
+    """
+    Schema of response for video article section.
+    Args:
+    - id (int) - id of concrete concrete video article section.
+    """
+    data: Optional[VideoArticlSections]
