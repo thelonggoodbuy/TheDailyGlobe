@@ -102,24 +102,30 @@ class Command(BaseCommand):
             section_with_plain_text.save()
 
         for i in [2, 5, 9]:
+            author_of_photos = fake.name()
             random_image_path = self.get_random_image()
             with open(random_image_path, 'rb') as image_file:
                 article_section_with_slide_show_unfold = ArticleSectionWithSlideShowUnfold(
                     article=article,
                     text=fake.paragraph(nb_sentences=10),
-                    intex_number_in_article=i
+                    intex_number_in_article=i,
+                    author=author_of_photos
                 )
                 article_section_with_slide_show_unfold.image.save(os.path.basename(random_image_path), File(image_file))
                 article_section_with_slide_show_unfold.save()
         
         for i in [7, 11]:
-            article_section_with_video_unfold = ArticleSectionWithVideoUnfold(
-                video_url='https://youtu.be/wm_RTOABNKs?si=hnLAj5nM8moBSFcX',
-                article=article,
-                text=fake.paragraph(nb_sentences=10),
-                intex_number_in_article=i
-            )
-            article_section_with_video_unfold.save()
+            random_image_path = self.get_random_image()
+            with open(random_image_path, 'rb') as image_file:
+                article_section_with_video_unfold = ArticleSectionWithVideoUnfold(
+                    video_url='https://youtu.be/wm_RTOABNKs?si=hnLAj5nM8moBSFcX',
+                    article=article,
+                    text=fake.paragraph(nb_sentences=2),
+                    title=fake.paragraph(nb_sentences=1),
+                    intex_number_in_article=i,
+                )
+                article_section_with_video_unfold.image_preview.save(os.path.basename(random_image_path), File(image_file))
+                article_section_with_video_unfold.save()
 
 
     def get_random_image(self):

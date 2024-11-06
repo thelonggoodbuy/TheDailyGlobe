@@ -148,11 +148,16 @@ class GetVideoInteractor(BaseInteractor):
 
     async def __call__(self, 
                        get_video_schema: GetVideoSchema):
+        print('==============get==vide====interactor=========1========')
         article_video_sections = await self.article_repository.get_video_section_by_id(get_video_schema.id)
+        print('==============get==vide====interactor=========2========')
         video_section = VideoArticlSections(id=article_video_sections.id,
                                             text=article_video_sections.text,
-                                            video_url=article_video_sections.video_url)
-
+                                            video_url=article_video_sections.video_url,
+                                            title=article_video_sections.title,
+                                            categoty_title=article_video_sections.article.category.title)
+                                            # categoty_title='заглушка')
+        print('==============get==vide====interactor=========3========')
 
         result = VideoResponseSchema(
              error=False,

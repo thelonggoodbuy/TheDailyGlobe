@@ -79,6 +79,8 @@ class ArticleSectionSlideShowEntity(Entity):
     intex_number_in_article: int
     image: str
     section_type: str
+    author: str
+    # title: str
     id: int = None
 
 
@@ -87,10 +89,12 @@ class ArticleWithVideoSectionEntity(Entity):
     """Model of article section, which content text and video"""
     id: int
     article_id: int
+    title: str
     text: str
     intex_number_in_article: int
     video_url: str
     section_type: str
+    image_preview: str
 
 
 

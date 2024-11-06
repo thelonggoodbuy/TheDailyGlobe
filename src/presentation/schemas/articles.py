@@ -48,7 +48,8 @@ class SingleSlideSchema(BaseSchema):
     id: int
     text: str
     image: str
-    is_opened: bool = False
+    author: str
+    is_opened: bool = Field(default=False, alias="isOpened")
 
 
 class SlideShowResponseSchema(BaseResponseSchema):
@@ -96,6 +97,7 @@ class ArticleWithVideoSectionSchema(BaseModel):
     text: str
     intex_number_in_article: int
     video_url: str
+    image_preview: str = Field(alias='imagePreview')
     section_type: str = Field(default="article_section_with_video", alias='sectionType')
 
     model_config = ConfigDict(
@@ -144,6 +146,8 @@ class VideoArticlSections(BaseSchema):
     id: int
     text: str
     video_url: str
+    title: str
+    categoty_title: str
 
 
 class VideoResponseSchema(BaseResponseSchema):

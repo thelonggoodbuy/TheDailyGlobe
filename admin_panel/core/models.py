@@ -28,6 +28,7 @@ class ArticleSectionWithSlideShowUnfold(models.Model):
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
     section_type = models.CharField(max_length=50, default='article_section_with_slide_show', null=False)
+    author = models.CharField(max_length=255)
 
 
     class Meta:
@@ -44,6 +45,8 @@ class ArticleSectionWithVideoUnfold(models.Model):
     text = models.TextField()
     intex_number_in_article = models.IntegerField()
     section_type = models.CharField(max_length=50, default='article_section_with_video', null=False)
+    title = models.CharField(max_length=255)
+    image_preview = models.ImageField(upload_to="galery/")
 
     class Meta:
         managed = False

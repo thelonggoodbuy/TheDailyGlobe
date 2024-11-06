@@ -13,7 +13,7 @@ from src.application.interfaces.repositories import IAlchemyRepository
 from abc import ABC, abstractmethod
 from src.presentation.schemas.users import RegisterData
 from src.infrastructure.database.utilities.get_password_hash import get_password_hash
-
+from sqlalchemy.orm import joinedload
 from sqlalchemy import select
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
@@ -148,6 +148,10 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         query_sections_with_video_rows = await self._session.execute(query_sections_with_video_query)
         query_sections_with_video_objects = query_sections_with_video_rows.scalars().all()
 
+        print('--->Video objects:<----')
+        print(query_sections_with_video_objects)
+        print('------------------------')
+
         sections_list_objects = query_sections_with_plain_text_objects +\
                             query_sections_with_slide_show_objects +\
                             query_sections_with_video_objects
@@ -221,26 +225,47 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         for slide in query_sections_with_slide_show_objects:
             print('***')
             print('slide.id')
-            print(print(slide.id))
+            print(slide.id)
             print(type(slide.id))
             print('***')
             if slide.id == get_slideshow_schema.article_section_with_slideshow_id:
+                print('#1')
                 is_opened_status = True
             else:
+                print('#2')
                 is_opened_status = False
             slide = SingleSlideSchema(
                 id=slide.id,
                 text=slide.text,
                 image=slide.image,
-                is_opened=is_opened_status
+                is_opened=is_opened_status,
+                author=slide.author
             )
+            print('slide result:')
+            print(slide)
             result_list.append(slide.model_dump(by_alias=True))
+
+        
+
+        print('--->result_list<---')
+        print(result_list)
+        print('------------------')        
+
         result = SlideShowResponseSchema(error=False, message="", data=result_list)
+        print('--->result_schema<---')
+        print(result)
+        print('------------------')
         return result
         
 
     async def get_video_section_by_id(self, section_video_id):
-        query = select(ArticleWithVideoSectionEntity).filter(ArticleWithVideoSectionEntity.id == section_video_id)
+        print('==============get==vide====repository=================')
+        # query = select(ArticleWithVideoSectionEntity).filter(ArticleWithVideoSectionEntity.id == section_video_id)
+        query = (
+            select(ArticleWithVideoSectionEntity)
+            .filter(ArticleWithVideoSectionEntity.id == section_video_id)
+            .options(joinedload(ArticleWithVideoSectionEntity.article).joinedload(ArticleEntity.category))
+        )
         query_row = await self._session.execute(query)
         query_sections_with_slide_show_objects = query_row.scalars().first()
 
