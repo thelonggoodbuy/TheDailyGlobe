@@ -35,16 +35,21 @@ class ArticleFeedResponseSchema(BaseResponseSchema):
 
 
 
+
+
 class DeviceType(str, Enum):
     android = "android"
     apple = "apple"
 
 
+class UnregisteredDeviceSchema(BaseSchema):
+    device_id: Optional[str] = Field(default=None, alias='deviceId')
+    device_type: Optional[DeviceType] = Field(default=any, alias='deviceType')
+
 
 class ArticlesDetailRequestSchema(BaseSchema):
     article_id: int = Field(alias='articleId')
-    device_id: Optional[str] = Field(alias='deviceId')
-    device_type: Optional[DeviceType] = Field(alias='deviceType')
+    # unregistered_device: Optional[UnregisteredDeviceSchema] = Field(alias='unregisteredDevice')
 
 
 class ArticlesDetailResponseSchema(BaseResponseSchema):

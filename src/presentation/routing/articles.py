@@ -50,11 +50,17 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
 @inject
 async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
                              interactor: FromDishka[GetArticlesDetailInteractor],
-                             token: Annotated[str, Depends(bearer_scheme_for_pages_with_unregistered_users)])-> ArticlesDetailResponseSchema:
+                             token: Annotated[str, Depends(bearer_scheme)])-> ArticlesDetailResponseSchema:
     
-
+    # if token:
+    #     unformated_result = await interactor(get_detail_article_schema, token)
+    #     result = unformated_result.model_dump(by_alias=True)
+    # else:
     unformated_result = await interactor(get_detail_article_schema, token)
     result = unformated_result.model_dump(by_alias=True)
+    # result = {"result": "you are not registered!"}
+
+    
 
     return result
 
