@@ -70,7 +70,7 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
                     setattr(user_obj, obj_field, values_dict[obj_field])
         # await self._session.update(user)
         await self._session.commit()
-        return {"message": f"Користувач с id {user_obj.id} змінив данні."}        
+        return {"message": f"Користувач {user_obj.email} змінив данні."}        
 
 
         

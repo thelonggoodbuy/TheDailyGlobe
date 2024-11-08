@@ -6,6 +6,10 @@ from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 
 from pydantic import BaseModel, ConfigDict, AliasGenerator
 from pydantic.alias_generators import to_camel, to_snake
+from enum import Enum
+
+
+
 
 
 class ArticlesFeedRequestSchema(BaseSchema):
@@ -26,12 +30,21 @@ class ArticleItem(BaseSchema):
 
 class ArticleFeedResponseSchema(BaseResponseSchema):
     
-    data: Optional[List]
+    data: Optional[dict]
+
+
+
+
+class DeviceType(str, Enum):
+    android = "android"
+    apple = "apple"
 
 
 
 class ArticlesDetailRequestSchema(BaseSchema):
     article_id: int = Field(alias='articleId')
+    device_id: Optional[str] = Field(alias='deviceId')
+    device_type: Optional[DeviceType] = Field(alias='deviceType')
 
 
 class ArticlesDetailResponseSchema(BaseResponseSchema):
@@ -60,9 +73,10 @@ class SlideShowResponseSchema(BaseResponseSchema):
 
 class ArticleSectionPlainTextSchema(BaseModel):
     id: int
-    article_id: int = Field(alias='articleId')
+    # article_id: int = Field(alias='articleId')
     text: str
     intex_number_in_article: int = Field(alias='intexNumberInArticle')
+    # section_type: str = Field(default="article_sections_with_plain_text", alias='sectionType')
     section_type: str = Field(default="article_sections_with_plain_text", alias='sectionType')
 
     model_config = ConfigDict(
@@ -75,7 +89,7 @@ class ArticleSectionPlainTextSchema(BaseModel):
 
 class ArticleSectionSlideShowSchema(BaseModel):
     id: int
-    article_id: int = Field(alias='articleId')
+    # article_id: int = Field(alias='articleId')
     text: str
     intex_number_in_article: int
     image: str
@@ -93,7 +107,7 @@ class ArticleSectionSlideShowSchema(BaseModel):
 
 class ArticleWithVideoSectionSchema(BaseModel):
     id: int
-    article_id: int = Field(alias='articleId')
+    # article_id: int = Field(alias='articleId')
     text: str
     intex_number_in_article: int
     video_url: str

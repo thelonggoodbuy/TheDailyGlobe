@@ -19,6 +19,10 @@ from sqlalchemy.exc import IntegrityError
 from src.application.interfaces.services import ITokenService
 from src.main.config.settings import Settings
 
+from fastapi import status
+from fastapi.responses import JSONResponse
+
+
 import asyncpg
 
 
@@ -209,41 +213,19 @@ class RegistrationInteractor(BaseInteractor):
                     user_data=user_data.model_dump(by_alias=True), 
                     subscription_data=subscription_data)
 
-            result = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
+            result_data = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
+            # data = result_data.model_dump()
+            result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_200_OK)
 
         except IntegrityError as e:
 
-            # print('************')
-            # print(e.__dict__)
-            # print('*****')
-            # print(e.orig)
-            # print('*******')
-            # print('***1***')
-            # print(e.statement)
-            # print(type(e.statement))
-            # print('***2***')
-            # print(e.params)
-            # print(type(e.params))
-            # print('***3***')
-            # print(e.orig)
-            # print('*')
-            # print(type(e.orig))
-            # print('*')
-            # print(str(e.orig))
-            # print('***4***')
-            # print(e.hide_parameters)
-            # print(type(e.hide_parameters))
-            # print('***5***')
-            # print(e.connection_invalidated)
-            # print(type(e.connection_invalidated))
-            # print('************')
-
-            # if isinstance(e.orig, asyncpg.exceptions.UniqueViolationError):
-            #     print(e.orig)
             if 'duplicate key value violates unique constraint "users_email_key"' in str(e.orig):
                 await self.db_session.rollback()
                 # raise ValueError("Користувач з таким емейлом існує.")
-                result = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})
+                result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})
+                # data = result_data.model_dump()
+                result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
+
 
             # else:
             #     raise ValueError(f"Ошибка при регистрации: {str(e.orig)}")

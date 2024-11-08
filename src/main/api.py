@@ -47,22 +47,34 @@ def create_app() -> FastAPI:
         print('*********')
         # print(exc.errors()[0]['ctx']['error'])
         # error_obj = exc.errors()[0]['ctx']['error']
+        error_messages_str = ""
         for error in exc.errors():
-            print('--->error<---')
-            print(error)
-            print('-------------')
+            # print('--->error<---')
+            # print(error)
+            # print('-------------')
 
-            error_obj = error['ctx']['error'].args[0] 
+            # error_obj = error['ctx']['error'].args[0] 
 
-            print('this is error obj:')
-            print(type(error_obj))
-            print(error_obj)
-            # print(error_obj.__dict__)
-            print('*********')
-            # return error_obj
-            response = BaseResponseSchema(error=True, message=error_obj, data={})
+            error_dict = error['ctx']
 
-            return JSONResponse(response.model_dump(by_alias=True), status_code=400)
+            print('-----------------')
+            print(error_dict)
+            print(error_dict.keys())
+            print('-----------------')
+
+            for key in error_dict.keys(): 
+                print('-->key<---')
+                print(key)
+                print(error_dict[key])
+                print(f"{key}: {error_dict[key]}")
+                print('----------')
+                error_messages_str += f"{key}: {error_dict[key]}"
+
+
+        response = BaseResponseSchema(error=True, message=error_messages_str, data={})
+
+        # return JSONResponse(response.model_dump(by_alias=True), status_code=400)
+        return JSONResponse(response.model_dump(by_alias=True), status_code=400)
 
 
     # session middleware for authlib

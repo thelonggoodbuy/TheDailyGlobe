@@ -29,9 +29,29 @@ class CommentSchema(BaseSchema):
     user_email: str
 
 
+class CommentListrIteamSchema(BaseSchema):
+    """
+    Schema of comments objects for list of comments.
+    """
+    id: int
+    text: str
+    # user_id: int
+    # article_id: int
+    is_sender: bool
+    user_email: str
+
+
 
 class CommentResponseData(BaseResponseSchema):
     """
     Schema of response for comments.
     """
-    data: Optional[List[CommentSchema] | CommentSchema]
+    data: Optional[List[CommentSchema] | CommentSchema | List[CommentListrIteamSchema]]
+    # data: dict
+
+
+class AllCommentRequestData(BaseSchema):
+    """
+    Schema of request for comments.
+    """
+    article_id: int

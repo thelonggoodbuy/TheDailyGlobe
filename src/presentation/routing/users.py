@@ -16,6 +16,9 @@ from starlette.requests import Request
 from src.main.config.settings import Settings
 from src.infrastructure.openapi.openapi import bearer_scheme
 
+from fastapi import status
+from fastapi.responses import JSONResponse
+
 from typing import Annotated
 from fastapi import Depends
 
@@ -59,9 +62,9 @@ async def login_gmail_response_from_cloud(request: Request,
 async def registration(register_data: RegisterData,
                         interactor: FromDishka[RegistrationInteractor]) -> BaseResponseSchema:
     
-    result_unformated = await interactor(register_data)
-    result = result_unformated.model_dump(by_alias=True)
-    return result
+    result_unformatted = await interactor(register_data)
+    # result = result_unformatted.model_dump(by_alias=True)
+    return result_unformatted
 
 
 
@@ -88,7 +91,12 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
 
     result_unformated = await interactor(change_password_user_data, token.credentials)
     result = result_unformated.model_dump(by_alias=True)
-    return result
+    # return result
+    if result_unformated.error:
+        return JSONResponse(content=result, status_code=status.HTTP_400_BAD_REQUEST)
+
+    return JSONResponse(content=result, status_code=status.HTTP_200_OK)
+
 
 
 

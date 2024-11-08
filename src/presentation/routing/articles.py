@@ -19,20 +19,13 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 SlideShowResponseSchema, \
                                                 GetVideoSchema, \
                                                 VideoResponseSchema
+from typing import Annotated, Optional
+from fastapi import Depends
+from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
 
 
 
 router = APIRouter(route_class=DishkaRoute)
-
-
-
-
-# @router.get("/articles/", tags=["articles"])
-# @inject
-# async def read_articles(interactor: FromDishka[ArticleInteractor]):
-
-#     result = await interactor()
-#     return result
 
 
 @router.get("/all_categorys/", tags=["articles"])
@@ -56,8 +49,11 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
 @router.post("/get_detail_article/", tags=["articles"])
 @inject
 async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
-                             interactor: FromDishka[GetArticlesDetailInteractor])-> ArticlesDetailResponseSchema:
-    unformated_result = await interactor(get_detail_article_schema)
+                             interactor: FromDishka[GetArticlesDetailInteractor],
+                             token: Annotated[str, Depends(bearer_scheme_for_pages_with_unregistered_users)])-> ArticlesDetailResponseSchema:
+    
+
+    unformated_result = await interactor(get_detail_article_schema, token)
     result = unformated_result.model_dump(by_alias=True)
 
     return result

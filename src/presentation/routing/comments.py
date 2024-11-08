@@ -5,9 +5,11 @@ from src.infrastructure.openapi.openapi import bearer_scheme
 from typing import Annotated
 
 from src.presentation.schemas.comments import CreateCommentRequestData,\
-                                                CommentResponseData
+                                                CommentResponseData,\
+                                                AllCommentRequestData
 
-from src.application.interactors.comments import CreateCommentInteractor
+from src.application.interactors.comments import CreateCommentInteractor,\
+                                                ShowCommentInteractor
 
 router = APIRouter(route_class=DishkaRoute)
 
@@ -16,14 +18,21 @@ router = APIRouter(route_class=DishkaRoute)
 @inject
 async def create_comment(comment_data: CreateCommentRequestData,
                         token: Annotated[str, Depends(bearer_scheme)],
-                        interactor: FromDishka[CreateCommentInteractor]) -> CommentResponseData:
+                        interractor: FromDishka[CreateCommentInteractor]) -> CommentResponseData:
 
-    # print('***--->')
-    # print('comment_data')
-    # print(comment_data)
-    # print('token')
-    # print(token)
-    # print('***--->')
-    result = await interactor(comment_data, token)
-    # result = result_unformated.model_dump(by_alias=True)
+    result = await interractor(comment_data, token)
+    return result
+
+
+
+@router.post("/comments/show_all_comment", tags=["comments"])
+@inject
+async def show_article_comment(comment_request_data: AllCommentRequestData,
+                        token: Annotated[str, Depends(bearer_scheme)],
+                        interractor: FromDishka[ShowCommentInteractor]) -> CommentResponseData:
+
+    result = await interractor(comment_request_data, token)
+    print("***")
+    print(result)
+    print("***")
     return result

@@ -20,6 +20,13 @@ class BaseSchema(BaseModel):
 
 
 class BaseResponseSchema(BaseSchema):
+    """
+    Base response schema.
+    Args:
+        - error (bool)
+        - message (str)
+        - data (Optional[dict])
+    """
     error: bool = True
     message: Optional[str] = None
     data: Optional[dict]

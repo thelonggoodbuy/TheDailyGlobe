@@ -111,9 +111,13 @@ class GetArticlesDetailInteractor(BaseInteractor):
         self.article_repository = article_repository
         self.settings = settings
 
-    async def __call__(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
-        result = await self.article_repository.return_detail_article(get_detail_article_schema)
-        return result
+    async def __call__(self, get_detail_article_schema: ArticlesDetailRequestSchema, token) -> ArticlesDetailResponseSchema:
+        detail_article = await self.article_repository.return_detail_article(get_detail_article_schema)
+        print('===============')
+        print('token:')
+        print(token)
+        print('===============')
+        return detail_article
 
 
 

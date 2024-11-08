@@ -39,7 +39,7 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             UpdatePasswordUserInteractor,\
                                             RefreshTokendUserInteractor
 
-from src.application.interactors.comments import CreateCommentInteractor
+from src.application.interactors.comments import CreateCommentInteractor, ShowCommentInteractor
 
 from src.infrastructure.database.repositories.users import BaseUserRepository
 from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository, BaseCategoryRepository
@@ -59,6 +59,11 @@ class CommentsProvider(Provider):
     # interactors
     create_comment = provide(
         source=CreateCommentInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_all_comments = provide(
+        source=ShowCommentInteractor,
         scope=Scope.REQUEST
     )
 
