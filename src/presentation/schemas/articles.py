@@ -43,13 +43,13 @@ class DeviceType(str, Enum):
 
 
 class UnregisteredDeviceSchema(BaseSchema):
-    device_id: Optional[str] = Field(default=None, alias='deviceId')
-    device_type: Optional[DeviceType] = Field(default=any, alias='deviceType')
+    device_id: str = Field(default=None, alias='deviceId')
+    device_type: DeviceType = Field(default=any, alias='deviceType')
 
 
 class ArticlesDetailRequestSchema(BaseSchema):
     article_id: int = Field(alias='articleId')
-    # unregistered_device: Optional[UnregisteredDeviceSchema] = Field(alias='unregisteredDevice')
+    unregistered_device: Optional[UnregisteredDeviceSchema] = Field(default=None, alias='unregisteredDevice')
 
 
 class ArticlesDetailResponseSchema(BaseResponseSchema):

@@ -23,10 +23,10 @@ class CommentSchema(BaseSchema):
     """
     id: int
     text: str
-    user_id: int
-    article_id: int
-    is_sender: bool
-    user_email: str
+    user_id: int = Field(alias='userId')
+    article_id: int = Field(alias='articleId')
+    is_sender: bool = Field(alias='isSender')
+    user_email: str = Field(alias='userEmail')
 
 
 class CommentListrIteamSchema(BaseSchema):
@@ -37,8 +37,8 @@ class CommentListrIteamSchema(BaseSchema):
     text: str
     # user_id: int
     # article_id: int
-    is_sender: bool
-    user_email: str
+    is_sender: bool = Field(alias='isSender')
+    user_email: str = Field(alias='userEmail')
 
 
 
@@ -54,4 +54,4 @@ class AllCommentRequestData(BaseSchema):
     """
     Schema of request for comments.
     """
-    article_id: int
+    article_id: int = Field(alias='articleId')

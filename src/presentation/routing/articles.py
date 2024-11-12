@@ -46,21 +46,56 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
     return result
 
 
+
+
+
+
+
+
+
+def bearer_or_device_id_extractor(
+    token: Annotated[str, Depends(bearer_scheme)],
+    get_detail_article_schema: ArticlesDetailRequestSchema
+):
+    if not token:
+        print('================YOU ARE NOT WITH BEARER================')
+        print(token)
+        # return last_query
+    else:
+        print('=========YOU ARE WITH SCHEMA WIRH DEVICE ID=========')
+        print(get_detail_article_schema)
+
+
+
+
+
+
+
+
+# @router.post("/get_detail_article/", tags=["articles"])
+# @inject
+# async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
+#                              interactor: FromDishka[GetArticlesDetailInteractor],
+#                              token: Annotated[str, Depends(bearer_scheme_for_pages_with_unregistered_users)])-> ArticlesDetailResponseSchema:
+    
+
 @router.post("/get_detail_article/", tags=["articles"])
 @inject
 async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
                              interactor: FromDishka[GetArticlesDetailInteractor],
-                             token: Annotated[str, Depends(bearer_scheme)])-> ArticlesDetailResponseSchema:
-    
+                             token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
+
     # if token:
     #     unformated_result = await interactor(get_detail_article_schema, token)
     #     result = unformated_result.model_dump(by_alias=True)
     # else:
-    unformated_result = await interactor(get_detail_article_schema, token)
-    result = unformated_result.model_dump(by_alias=True)
-    # result = {"result": "you are not registered!"}
+    # unformated_result = await interactor(get_detail_article_schema, token)
+    # result = unformated_result.model_dump(by_alias=True)
 
-    
+        # result = ArticlesDetailResponseSchema(error=False, message='', data={"result": "you want to register from other device!"})
+
+    # result = token_or_device_id_extractor
+    result = ArticlesDetailResponseSchema(error=False, message='', data={"result": "whatch the print!"})
 
     return result
 

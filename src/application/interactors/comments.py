@@ -42,7 +42,7 @@ class CreateCommentInteractor(BaseInteractor):
             result = CommentResponseData(
                 error=False,
                 message="",
-                data=comment_obj
+                data=comment_obj.model_dump(by_alias=True)
             )
         else:
             result = CommentResponseData(
@@ -88,7 +88,7 @@ class ShowCommentInteractor(BaseInteractor):
                                   is_sender=False,
                                   user_email=comment_obj.user.email
                                   )
-                comment_list.append(comment)
+                comment_list.append(comment.model_dump(by_alias=True))
 
                 print('=================================')
                 print(comment_list)
