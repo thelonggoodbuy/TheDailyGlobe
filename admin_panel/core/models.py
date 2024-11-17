@@ -73,6 +73,8 @@ class ArticlesUnfold(models.Model):
     lead = models.TextField(blank=True, null=True)
     author = models.CharField(max_length=255)
     publication_date = models.DateTimeField()
+    viewing = models.IntegerField(default=0, blank=True, null=True)
+    is_premium = models.BooleanField(default=False, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -114,7 +116,9 @@ class SearchRequestUnfold(models.Model):
 class SubscriptionsUnfold(models.Model):
     user = models.OneToOneField('UsersUnfold', models.DO_NOTHING, blank=True, null=True)
     expiration_date = models.DateTimeField()
-    subscription_type = models.TextField()  # This field type is a guess.
+    # subscription_type = models.TextField()  # This field type is a guess.
+    registration_id = models.CharField(max_length=255)
+    device_id = models.CharField(max_length=255)
 
     class Meta:
         managed = False

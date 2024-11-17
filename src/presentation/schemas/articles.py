@@ -26,6 +26,7 @@ class ArticleItem(BaseSchema):
     author: str
     main_image: str = Field(alias='mainImage')
     publication_date: str = Field(alias='publicationDate')
+    is_premium: bool = Field(alias='isPremium')
 
 
 class ArticleFeedResponseSchema(BaseResponseSchema):
@@ -45,6 +46,7 @@ class DeviceType(str, Enum):
 class UnregisteredDeviceSchema(BaseSchema):
     device_id: str = Field(default=None, alias='deviceId')
     device_type: DeviceType = Field(default=any, alias='deviceType')
+    registration_id: str = Field(default=None, alias='registrationId')
 
 
 class ArticlesDetailRequestSchema(BaseSchema):
@@ -52,8 +54,15 @@ class ArticlesDetailRequestSchema(BaseSchema):
     unregistered_device: Optional[UnregisteredDeviceSchema] = Field(default=None, alias='unregisteredDevice')
 
 
-class ArticlesDetailResponseSchema(BaseResponseSchema):
-    data: dict
+
+
+class BearerOrDeviceIdExtractorResult(BaseSchema):
+    is_authorized: bool = Field(alias='isAuthorized')
+    token: str = None
+    is_premium: Optional[bool] = Field(default=None, alias='isPremium')
+
+
+
 
 
 
@@ -127,6 +136,7 @@ class ArticleWithVideoSectionSchema(BaseModel):
 
 
 class ArticleDetailSchema(BaseSchema):
+    is_demo: bool = Field(default=False, alias='isDemo')
     id: int
     title: str
     main_image: str = Field(alias='mainImage')
@@ -136,14 +146,39 @@ class ArticleDetailSchema(BaseSchema):
     publication_date: str
     category_title: str = Field(alias='categoryTitle')
     article_sections: Optional[List] = Field(alias='articleSections')
-
-
+    is_premium: bool = Field(alias='isPremium')
+    viewing: int
 
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True,
         from_attributes=True,
     )
+
+
+class ArticleDetailDemoSchema(BaseSchema):
+    is_demo: bool = Field(default=True, alias='isDemo')
+    is_demo_cause: str = Field(alias='isDemoCause')
+    id: int
+    title: str
+    main_image: str = Field(alias='mainImage')
+    category_id: int
+    lead: str
+    author: str
+    publication_date: str
+    category_title: str = Field(alias='categoryTitle')
+    is_premium: bool = Field(alias='isPremium')
+    
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
+
+
+class ArticlesDetailResponseSchema(BaseResponseSchema):
+    data: ArticleDetailSchema|ArticleDetailDemoSchema
 
 
 class GetVideoSchema(BaseSchema):

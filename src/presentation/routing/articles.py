@@ -18,7 +18,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 GetSlideshowRequestSchema, \
                                                 SlideShowResponseSchema, \
                                                 GetVideoSchema, \
-                                                VideoResponseSchema
+                                                VideoResponseSchema,\
+                                                BearerOrDeviceIdExtractorResult
 from typing import Annotated, Optional
 from fastapi import Depends
 from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
@@ -54,22 +55,36 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
 
 
 def bearer_or_device_id_extractor(
-    token: Annotated[str, Depends(bearer_scheme)],
+    token: Annotated[str, Depends(bearer_scheme_for_pages_with_unregistered_users)],
     get_detail_article_schema: ArticlesDetailRequestSchema
-):
-    if not token:
-        print('================YOU ARE NOT WITH BEARER================')
-        print(token)
-        # return last_query
-    else:
-        print('=========YOU ARE WITH SCHEMA WIRH DEVICE ID=========')
+) -> BearerOrDeviceIdExtractorResult:
+    if token:
+        print('=========YOU ARE WITH SCHEMA WIRH TOKEN=========')
         print(get_detail_article_schema)
+        print('===')
+        print(token)
+        print('===')
+        result = BearerOrDeviceIdExtractorResult(is_authorized=True, token=token.credentials)
+        # если есть токен и юзер авторизован, то мы проверяем есть ли у пользователь премиум:
+        # 1.1. если есть - то открываем любую статью и добавляем единичку к количеству просмотров
+        # 1.2. если нет - то проверяем премиум ли статья.
+        # 1.2.1 если нет премиума - возвращаем только лид и не добавляем единицу к просмотрам
+        # 1.2.2 если есть премиум - открыавем всю статью и добавляем единицу к просмотру
+    else:
+        print('================YOU ARE Not authenticated user================')
+        result = BearerOrDeviceIdExtractorResult(is_authorized=False)
+        # print(token)
+        # если токена нет и пользователь не авторизован, то проверяем премиум ли статья:
+        # 2.1. если статья премиум - возвращаем только лид и не добавляем единицу к просмотрам
+        # 2.2. если статья НЕ премиум, то делаем запрос к unregistered_device с registration_id:
+        # 2.2.1. если readed_articles_today < 4, то добавляем к readed_articles_today 1 и добавляем единичку к просмотрам
+        # 2.2.2. если readed_articles_today >= 4, то к readed_articles_today и просмотрам не добавляем единицу и возвращаем толкьо лид
+        
+    return result
 
+from typing import Annotated
 
-
-
-
-
+from fastapi import Body, FastAPI
 
 
 # @router.post("/get_detail_article/", tags=["articles"])
@@ -81,21 +96,30 @@ def bearer_or_device_id_extractor(
 
 @router.post("/get_detail_article/", tags=["articles"])
 @inject
-async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
+async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetailRequestSchema, Body(
+    example=[
+                {"example1: Request for authorized user":{
+                    "articleId": 2 # Request for authorized user
+                }},
+                {"example2: Request for unauthorized user":{
+                    "articleId": 2, # Request for unauthorized user
+                    "unregisteredDevice": {
+                        "deviceId": "432423fdsfsd",
+                        "deviceType": "android",
+                        "registration_id": "fdafsdafsda"
+                    }
+                }}
+                
+            ]
+)],
                              interactor: FromDishka[GetArticlesDetailInteractor],
                              token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
 
-    # if token:
-    #     unformated_result = await interactor(get_detail_article_schema, token)
-    #     result = unformated_result.model_dump(by_alias=True)
+    # if token_or_device_id_extractor.is_authorized:
+    result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
     # else:
-    # unformated_result = await interactor(get_detail_article_schema, token)
-    # result = unformated_result.model_dump(by_alias=True)
-
-        # result = ArticlesDetailResponseSchema(error=False, message='', data={"result": "you want to register from other device!"})
-
-    # result = token_or_device_id_extractor
-    result = ArticlesDetailResponseSchema(error=False, message='', data={"result": "whatch the print!"})
+    #     print('--->You are not authorized<---')
+        
 
     return result
 

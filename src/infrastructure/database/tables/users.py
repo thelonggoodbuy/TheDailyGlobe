@@ -64,11 +64,9 @@ SubscriptionTable = Table(
     # expiration date of subscription
     Column("expiration_date",
         DateTimeUTC(timezone=True),
-        nullable=False,
+        nullable=True,
     ),
-    Column("subscription_type",
-        SQLAlchemyEnum(SubscriptionType, name="subscription_type"), 
-        nullable=False),
+    Column("is_active", Boolean),
 )
 
 # Map the Subscription class to the subscriptions_table
@@ -94,6 +92,7 @@ UnregisteredDeviceTable = Table(
     Column("device_type", SQLAlchemyEnum(DeviceType, name="device_type"), nullable=False),
     # readed articles today for unregistered device
     Column("readed_articles", Integer),
+    Column("registration_id", String(length=255), nullable=False),
 )
 
 mapper_registry.map_imperatively(

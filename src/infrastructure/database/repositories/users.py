@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from src.presentation.schemas.users import RegisterData
 from src.infrastructure.database.utilities.get_password_hash import get_password_hash
 from fastapi import HTTPException
+from sqlalchemy.orm import selectinload
 
 from sqlalchemy import select
 
@@ -30,7 +31,7 @@ class BaseUserRepository(ABC):
 class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
     async def get_user_by_email(self, user_email: str):
         """get user from db with users email"""
-        query = select(UserEntity).filter(UserEntity.email == user_email)
+        query = select(UserEntity).options(selectinload(UserEntity.subscription)).filter(UserEntity.email == user_email)
         user = await self._session.execute(query)
         result = user.scalar_one_or_none()
         return result

@@ -34,7 +34,9 @@ class BaseSubscribtionRepository(ABC):
     @abstractmethod
     async def return_user_subscribtion_by_user_id():
         raise NotImplementedError
-
+    
+    async def create_subscription():
+        raise NotImplementedError
 
 class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
     async def return_user_subscribtion_by_user_id(self, user_id) -> SubscriptionResponseSchema | None:
@@ -43,3 +45,15 @@ class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
         user = await self._session.execute(query)
         result = user.scalar_one_or_none()
         return result
+    
+    
+    async def create_subscription(self, user_id):
+        new_subscription = SubscriptionEntity(
+                user_id=user_id,
+                is_active=False
+            )
+        self._session.add(new_subscription)
+        await self._session.commit()
+        return new_subscription
+
+    # async def return_subscription_byt_jwt_token(self, token):

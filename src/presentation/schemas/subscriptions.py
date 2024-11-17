@@ -1,9 +1,12 @@
-from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from src.presentation.schemas.base_schemas import BaseSchema
+from pydantic import Field
 
 
 
-class SubscriptionResponseSchema(BaseModel):
-    user_id: int
-    expiration_date: str = None
-    subscription_type: str = None
+
+
+class SubscriptionResponseSchema(BaseSchema):
+    # user_id: int
+    expiration_date: Optional[str] = Field(default=None, alias='expirationDate')
+    is_active: bool = Field(alias='isActive')

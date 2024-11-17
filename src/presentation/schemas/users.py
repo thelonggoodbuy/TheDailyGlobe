@@ -5,7 +5,7 @@ from pydantic.networks import EmailStr
 from pydantic_core.core_schema import FieldValidationInfo
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
-
+from src.presentation.schemas.subscriptions import SubscriptionResponseSchema
 
 class BaseModelWithCamelCase(BaseModel):
     model_config = ConfigDict(
@@ -56,28 +56,6 @@ class RegisterData(BaseSchema):
     password: str
     repeat_password: str = Field(alias='repeatPassword')
 
-    # model_config = ConfigDict(
-    #     alias_generator=AliasGenerator(
-    #         validation_alias=to_snake,
-    #         serialization_alias=to_camel,
-    #     ),
-    #     populate_by_name=True,
-    #     from_attributes=True,
-        
-    # )
-
-    
-
-
-    # model_config = ConfigDict(
-    #     alias_generator=lambda field_name: ''.join(
-    #         word.capitalize() if i > 0 else word
-    #         for i, word in enumerate(field_name.split('_'))
-    #     ),
-    #     populate_by_name=True,
-    #     from_attributes=True,
-    # )
-
 
     @field_validator("email")
     def email_have_not_be_empty(cls, value):
@@ -127,12 +105,15 @@ class LoginUserSuccessData(BaseModel):
     id: int
     email: str
 
+
+
+
 class LoginSuccessDataSchema(BaseSchema):
     access_token: str
     refresh_token: str
     user_data: dict
     #TODO subscription это пока заглушка
-    subscription_data: str
+    subscription_data: SubscriptionResponseSchema
 
 
 class DeleteUsersData(BaseModel):

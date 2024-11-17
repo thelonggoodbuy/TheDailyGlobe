@@ -22,6 +22,8 @@ from src.main.config.settings import Settings
 from fastapi import status
 from fastapi.responses import JSONResponse
 
+from src.presentation.schemas.subscriptions import SubscriptionResponseSchema
+
 
 import asyncpg
 
@@ -195,14 +197,20 @@ class RegistrationInteractor(BaseInteractor):
 
         try:
             user_obj = await self.user_repository.register_user(register_data)
+            await self.subscription_repository.create_subscription(user_id=user_obj.id)
             access_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
             subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
 
+            print('--->>subscription data<<---')
+            print(subscription)
+            print('---------------------------')
+
             if subscription:
-                subscription_data = subscription
+                subscription_data = SubscriptionResponseSchema(expiration_date=subscription.expiration_date, 
+                                                               is_active=subscription.is_active)
             else:
-                subscription_data = 'unregistered_user'
+                subscription_data = None
 
             user_data = LoginUserSuccessData(id=user_obj.id,
                                                 email=user_obj.email)
@@ -220,6 +228,7 @@ class RegistrationInteractor(BaseInteractor):
         except IntegrityError as e:
 
             if 'duplicate key value violates unique constraint "users_email_key"' in str(e.orig):
+                # TODO глючит
                 await self.db_session.rollback()
                 # raise ValueError("Користувач з таким емейлом існує.")
                 result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})

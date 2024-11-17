@@ -124,3 +124,18 @@ class JWTTokenService(ITokenService):
         print(user_obj)
         print('===============================')
         return user_obj
+    
+
+    async def return_subscription_by_token(self, token: str):
+        status = await self.get_user_by_token(token)
+        email = status.user_email
+        user = await self.user_repository.get_user_by_email(user_email=email)
+        print('----this is user----')
+        print(user)
+        print('--------------------')
+        if user:
+            result = user.subscription[0]
+        else:
+            result = None
+        # subscription = user.subscription[0]
+        return result

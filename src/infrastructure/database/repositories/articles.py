@@ -34,6 +34,7 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
 from sqlalchemy.orm import selectinload
+from sqlalchemy import update
 
 from babel.dates import format_datetime
 
@@ -95,7 +96,8 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                 title=article_obj.title,
                 author=article_obj.author,
                 main_image=article_obj.main_image,
-                publication_date=str(article_obj.publication_date)
+                publication_date=str(article_obj.publication_date),
+                is_premium=article_obj.is_premium
             )
             article_list.append(article.model_dump(by_alias=True))
 
@@ -110,7 +112,8 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                     .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
         article_rows = await self._session.execute(query)
         article_object = article_rows.scalars().first()
-        article_dict = ArticleDetailSchema(id=article_object.id,
+        article_dict = ArticleDetailSchema(is_demo=False,
+                                        id=article_object.id,
                                         title=article_object.title,
                                         main_image=article_object.main_image,
                                         category_id=article_object.category_id,
@@ -118,7 +121,9 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                         author=article_object.author,
                                         publication_date=str(article_object.publication_date),
                                         category_title=article_object.category.title,
-                                        article_sections=[])
+                                        article_sections=[],
+                                        is_premium=article_object.is_premium,
+                                        viewing=article_object.viewing)
 
 
         sections_list = []
@@ -167,9 +172,23 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         )
 
         article_dict.article_sections = sorted_list
-        response = ArticlesDetailResponseSchema(error=False, message='', data=article_dict.model_dump(by_alias=True))
+        response = ArticlesDetailResponseSchema(error=False, message='', data=article_dict)
         return response
     
+
+    async def update_reading_status(self, article_id: int):
+
+        article = (
+        update(ArticleEntity)
+        .where(ArticleEntity.id == article_id)
+        .values(viewing=ArticleEntity.viewing + 1)
+        )
+        await self._session.execute(article)
+        await self._session.commit()
+
+        return True
+    
+
 
     async def return_slideshow(self, get_slideshow_schema: GetSlideshowRequestSchema) -> SlideShowResponseSchema:
         

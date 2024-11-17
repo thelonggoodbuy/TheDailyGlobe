@@ -18,6 +18,8 @@ class ArticleEntity(Entity):
     lead: str
     author: str
     publication_date: DateTimeUTC
+    viewing: str
+    is_premium: bool
 
     # def to_dict(self, exclude: set[str] | None = None) -> dict[str, Any]:
     #     """Convert entity to dictionary, including related plain text sections."""

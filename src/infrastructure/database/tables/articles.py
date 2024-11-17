@@ -1,6 +1,6 @@
 from sqlalchemy import Table
 from sqlalchemy import Column
-from sqlalchemy import Integer, String, ForeignKey, Text
+from sqlalchemy import Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 # from sqlalchemy.orm import registry
 from advanced_alchemy.types import DateTimeUTC
@@ -58,7 +58,9 @@ ArticleTable = Table(
     Column("publication_date", 
         DateTimeUTC(timezone=True),
         nullable=False,
-        )
+        ),
+    Column("viewing", Integer, default=0),
+    Column("is_premium", Boolean, default=False)
 )
 
 # Map the Category class to the category_table

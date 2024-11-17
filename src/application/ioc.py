@@ -44,6 +44,8 @@ from src.application.interactors.comments import CreateCommentInteractor, ShowCo
 from src.infrastructure.database.repositories.users import BaseUserRepository
 from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository, BaseCategoryRepository
 from src.infrastructure.database.repositories.comments import BaseCommentsRepository, CommentsAlchemyRepository
+from src.infrastructure.database.repositories.unregistered_device import BaseUnregisteredDeviceRepository, UnregisteredDeviceRepository
+
 
 from src.application.interfaces.repositories import IAlchemyRepository
 
@@ -148,6 +150,12 @@ class ArticleProvider(Provider):
         source = CategoryAlchemyRepository,
         scope=Scope.REQUEST,
         provides=AnyOf[BaseCategoryRepository, IAlchemyRepository]
+    )
+
+    unregistered_device_repository = provide(
+        source=UnregisteredDeviceRepository,
+        scope=Scope.REQUEST,
+        provides=AnyOf[BaseUnregisteredDeviceRepository, IAlchemyRepository]
     )
 
     # gateways
