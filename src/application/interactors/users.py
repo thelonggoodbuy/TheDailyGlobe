@@ -137,9 +137,11 @@ class LoginGmailRequestToCloudInteractor(BaseInteractor):
 
         auth_url = await auth_obj.google.create_authorization_url(redirect_uri, **{"prompt": 'select_account'})
         await auth_obj.google.save_authorize_data(request, redirect_uri=str(redirect_uri), **auth_url)
-        resp = UserLoginResponse(result = {'response':auth_url})
+        # resp = UserLoginResponse(result = {'response':auth_url})
+        response_data = {'error': False, 'message': '', 'data': auth_url}
+        return JSONResponse(status_code=302, content=response_data)
 
-        return resp
+        # return resp
     
 
 class LoginGmailResponseFromCloudInteractor(BaseInteractor):
@@ -180,7 +182,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
 
             data = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
-            result = JSONResponse(status_code=302, content=data)
+            result = JSONResponse(status_code=200, content=data)
         
         return result
 
