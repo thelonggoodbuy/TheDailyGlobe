@@ -10,7 +10,9 @@ from src.presentation.schemas.comments import CreateCommentRequestData,\
                                                 CommentListrIteamSchema
 
 from src.application.interfaces.services import ITokenService
+from fastapi.responses import JSONResponse
 
+from fastapi import HTTPException
 
 
 
@@ -50,6 +52,8 @@ class CreateCommentInteractor(BaseInteractor):
                 message=user_obj.error_text,
                 data=None
             )
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
 
         return result
     
@@ -101,6 +105,8 @@ class ShowCommentInteractor(BaseInteractor):
                 message=user_obj.error_text,
                 data=None
             )
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
 
 
 

@@ -23,9 +23,12 @@ from fastapi import status
 from fastapi.responses import JSONResponse
 
 from src.presentation.schemas.subscriptions import SubscriptionResponseSchema
-
+from fastapi import HTTPException
 
 import asyncpg
+from dotenv import load_dotenv
+import os
+
 
 
 
@@ -59,14 +62,18 @@ class LoginRegularInteractor(BaseInteractor):
   
     async def __call__(self,
                     login_data: LoginRequestData) -> BaseResponseSchema:
-        # TODO return!!!   
         user_obj = await self.user_repository.get_user_by_email(user_email=login_data.email)
         if user_obj is None:
             # result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
             result = BaseResponseSchema(error=True, message='Користувача з таким емейлом не існує', data={})
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+
         elif not self.verify_password(login_data.password, user_obj.password):
             # result = {'status': 'error', 'text': 'помилка в паролі'}
             result = BaseResponseSchema(error=True, message='помилка в паролі', data={})
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
         else:
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
@@ -124,7 +131,10 @@ class LoginGmailRequestToCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
-        redirect_uri = 'http://127.0.0.1:3004/users/login_gmail_response_from_cloud'
+        # redirect_uri = 'http://127.0.0.1:3004/users/login_gmail_response_from_cloud'
+        redirect_uri = os.environ.get('GOOGLE_REDIRECT_URL')
+
+
         auth_url = await auth_obj.google.create_authorization_url(redirect_uri, **{"prompt": 'select_account'})
         await auth_obj.google.save_authorize_data(request, redirect_uri=str(redirect_uri), **auth_url)
         resp = UserLoginResponse(result = {'response':auth_url})
@@ -161,11 +171,17 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
         user_obj = await self.user_repository.get_user_by_email(user_email=user_email)
         if user_obj is None:
             result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
+            # raise HTTPException(status_code=401, detail=result)
+            return JSONResponse(status_code=401, content=result)
+            
         else:
+            # jwt_token = await self.token_service.create_access_token(user_obj.email)
             jwt_token = await self.token_service.create_access_token(user_obj.email)
-            result = {'status': 'success', 'access_jwt_token': jwt_token}
-        resp = UserLoginResponse(result = result)
-        return resp
+            refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
+
+            result = {'error': 'False', 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
+        # resp = UserLoginResponse(result = result)
+        return result
 
 
 class RegistrationInteractor(BaseInteractor):
@@ -202,10 +218,6 @@ class RegistrationInteractor(BaseInteractor):
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
             subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
 
-            print('--->>subscription data<<---')
-            print(subscription)
-            print('---------------------------')
-
             if subscription:
                 subscription_data = SubscriptionResponseSchema(expiration_date=subscription.expiration_date, 
                                                                is_active=subscription.is_active)
@@ -222,7 +234,6 @@ class RegistrationInteractor(BaseInteractor):
                     subscription_data=subscription_data)
 
             result_data = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
-            # data = result_data.model_dump()
             result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_200_OK)
 
         except IntegrityError as e:
@@ -267,13 +278,17 @@ class DeleteUserInteractor(BaseInteractor):
         if not user_obj.is_valid:
             # return {"error": user_obj.error_text}
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
-            return result
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+            # return result
         password_valid = self.verify_password(plain_password=delete_user_data.password, 
                                    hashed_password=user_obj.user_password)
         if not password_valid:
             # return {"error": "Помилка в паролі."}
             result = BaseResponseSchema(error=True, message="Помилка в паролі", data={})
-            return result
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+            # return result
         result_message = await self.user_repository.delete_user(user_obj.user_email)
         result = BaseResponseSchema(error=False, message="", data=result_message)
         return result
@@ -310,12 +325,16 @@ class UpdatePasswordUserInteractor(BaseInteractor):
         user_obj = await self.token_service.get_user_by_token(token)
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
-            return result
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+            # return result
         password_valid = self.verify_password(plain_password=update_password_users_data.old_password, 
                                    hashed_password=user_obj.user_password)
         if not password_valid:
             result = BaseResponseSchema(error=True, message="Помилка в паролі.", data={})
-            return result
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+            # return result
         user = await self.user_repository.get_user_by_email(user_obj.user_email)
         repository_result = await self.user_repository.update_user(user, **{"password": update_password_users_data.new_password})
         result = BaseResponseSchema(error=False, message="", data=repository_result)
@@ -353,10 +372,14 @@ class RefreshTokendUserInteractor(BaseInteractor):
         user_obj = await self.token_service.get_user_by_token(refresh_token_obj.refresh_token)
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
-            return result
+            print('-(((((((((((((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))))))))')
+            # raise HTTPException(status_code=401, detail=result.model_dump())
+            return JSONResponse(status_code=401, content=result.model_dump())
+            # return result
         
         token_dict = await self.token_service.refresh_token(refresh_token=refresh_token_obj.refresh_token)
         result = BaseResponseSchema(error=False, message="", data=token_dict)
+        # raise HTTPException(status_code=401, detail=result.model_dump())
         return result
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:

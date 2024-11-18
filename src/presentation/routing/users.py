@@ -32,8 +32,7 @@ router = APIRouter(route_class=DishkaRoute)
 async def login_regular(login_data: LoginRequestData, 
                         interactor: FromDishka[LoginRegularInteractor]) -> BaseResponseSchema:
 
-    result_unformated = await interactor(login_data)
-    result = result_unformated.model_dump(by_alias=True)
+    result = await interactor(login_data)
 
     return result
 
@@ -105,7 +104,6 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
 async def refresh_token(refresh_token: RefreshTokenUsersData,
                       interactor: FromDishka[RefreshTokendUserInteractor]):
 
-    result_unformated = await interactor(refresh_token)
-    result = result_unformated.model_dump(by_alias=True)
+    result = await interactor(refresh_token)
 
     return result
