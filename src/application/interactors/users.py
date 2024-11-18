@@ -179,8 +179,9 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
 
-            result = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
-        # resp = UserLoginResponse(result = result)
+            data = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
+            result = JSONResponse(status_code=302, content=data)
+        
         return result
 
 
