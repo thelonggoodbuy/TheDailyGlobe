@@ -16,6 +16,7 @@ from src.presentation.schemas.users import RegisterData
 from src.infrastructure.database.utilities.get_password_hash import get_password_hash
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select
+from sqlalchemy import desc
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
@@ -29,13 +30,14 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleSectionSlideShowSchema, \
                                                 ArticleWithVideoSectionSchema, \
                                                 ArticleDetailSchema, \
-                                                VideoArticlSections
+                                                VideoArticlSections, \
+                                                ArticlesFeedTopStoriesRequestSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
 from sqlalchemy.orm import selectinload
 from sqlalchemy import update
-
+from datetime import datetime, timedelta, timezone
 from babel.dates import format_datetime
 
 
@@ -67,6 +69,7 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
     async def return_article_feed(self, article_feed_request_schema: ArticlesFeedRequestSchema) -> ArticleFeedResponseSchema:
 
         offset_value = article_feed_request_schema.pagination_length * article_feed_request_schema.current_pagination_position
+
 
         query = (
         select(ArticleEntity)
@@ -105,6 +108,62 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                             message='', 
                                             data={"content": article_list, "last": is_last_page})
         return response
+    
+    # ===================================================================================================================
+
+
+    async def return_top_stories_article_feed(self, article_feed_top_stories_request_schema: ArticlesFeedTopStoriesRequestSchema) -> ArticleFeedResponseSchema:
+
+        offset_value = article_feed_top_stories_request_schema.pagination_length * article_feed_top_stories_request_schema.current_pagination_position
+        current_date = datetime.now(timezone.utc)
+
+
+        query = (
+        select(ArticleEntity)
+        .options(selectinload(ArticleEntity.category))
+        .filter(ArticleEntity.publication_date >= current_date - timedelta(days=28))
+        .order_by(desc(ArticleEntity.viewing))
+        .offset(offset_value)
+        .limit(article_feed_top_stories_request_schema.pagination_length)
+        )
+        article_rows = await self._session.execute(query)
+        article_objects = article_rows.scalars().all()
+
+        total_articles_query = (
+        select(func.count(ArticleEntity.id))
+        .filter(ArticleEntity.publication_date >= current_date - timedelta(days=28))
+        )
+        total_articles = (await self._session.execute(total_articles_query)).scalar()
+
+        is_last_page = (offset_value + article_feed_top_stories_request_schema.pagination_length) >= total_articles
+
+        article_list = []
+        for article_obj in article_objects:
+            print('+++')
+            # print(f"{article_obj.id}: ")
+            print(article_obj.viewing)
+            print(article_obj)
+            print('+++')
+            article = ArticleItem(
+                category_title=article_obj.category.title,
+                id=article_obj.id,
+                title=article_obj.title,
+                author=article_obj.author,
+                main_image=article_obj.main_image,
+                publication_date=str(article_obj.publication_date),
+                is_premium=article_obj.is_premium,
+                viewing=article_obj.viewing
+            )
+            article_list.append(article.model_dump(by_alias=True))
+
+        response = ArticleFeedResponseSchema(error=False, 
+                                            message='', 
+                                            data={"content": article_list, "last": is_last_page})
+        return response
+    
+
+
+    # ===================================================================================================================
     
 
     async def return_detail_article(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:

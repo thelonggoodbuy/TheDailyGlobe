@@ -29,7 +29,8 @@ from src.application.interactors.articles import ArticleInteractor, \
                                             GetArticlesFeedInteractor,\
                                             GetArticlesDetailInteractor,\
                                             GetSlideShowInteractor,\
-                                            GetVideoInteractor
+                                            GetVideoInteractor,\
+                                            GetArticlesFeedTopStoriesInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -119,6 +120,11 @@ class ArticleProvider(Provider):
 
     get_articles_feed_interactor = provide(
         source=GetArticlesFeedInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_article_top_stories_feed_interactor = provide(
+        source=GetArticlesFeedTopStoriesInteractor,
         scope=Scope.REQUEST
     )
 

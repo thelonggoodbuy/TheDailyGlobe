@@ -18,6 +18,10 @@ class ArticlesFeedRequestSchema(BaseSchema):
     current_pagination_position: int = Field(alias='currentPaginationPosition')
 
 
+class ArticlesFeedTopStoriesRequestSchema(BaseSchema):
+    pagination_length: int = Field(alias='paginationLength')
+    current_pagination_position: int = Field(alias='currentPaginationPosition')
+
 
 class ArticleItem(BaseSchema):
     category_title: str = Field(alias='categoryTitle')
@@ -27,6 +31,7 @@ class ArticleItem(BaseSchema):
     main_image: str = Field(alias='mainImage')
     publication_date: str = Field(alias='publicationDate')
     is_premium: bool = Field(alias='isPremium')
+    viewing: int
 
 
 class ArticleFeedResponseSchema(BaseResponseSchema):

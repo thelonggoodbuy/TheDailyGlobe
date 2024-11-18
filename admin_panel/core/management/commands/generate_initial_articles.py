@@ -72,7 +72,8 @@ class Command(BaseCommand):
                 lead=fake.paragraph(nb_sentences=10),
                 author=fake.name(),
                 publication_date=self.generate_timestamp(),
-                is_premium=random.choices([False, True], weights=[70, 30], k=1)[0]
+                is_premium=random.choices([False, True], weights=[70, 30], k=1)[0],
+                viewing=random.randint(1, 150)
             )
             random_image_path = self.get_random_image()
             with open(random_image_path, 'rb') as image_file:

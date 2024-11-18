@@ -18,7 +18,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 GetVideoSchema, \
                                                 VideoArticlSections, \
                                                 VideoResponseSchema, \
-                                                ArticleDetailDemoSchema
+                                                ArticleDetailDemoSchema,\
+                                                ArticlesFeedTopStoriesRequestSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 from src.application.interfaces.services import ITokenService
@@ -101,6 +102,25 @@ class GetArticlesFeedInteractor(BaseInteractor):
         result = result_unformated.model_dump(by_alias=True)
         return result
          
+
+
+
+class GetArticlesFeedTopStoriesInteractor(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+    async def __call__(self, article_feed_request_schema: ArticlesFeedTopStoriesRequestSchema) -> ArticleFeedResponseSchema:
+        result_unformated = await self.article_repository.return_top_stories_article_feed(article_feed_request_schema)
+        result = result_unformated.model_dump(by_alias=True)
+        return result
+
+
 
 
 

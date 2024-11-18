@@ -8,7 +8,9 @@ from src.application.interactors.articles import ArticleInteractor,\
                                                 GetArticlesFeedInteractor, \
                                                 GetArticlesDetailInteractor,\
                                                 GetSlideShowInteractor,\
-                                                GetVideoInteractor
+                                                GetVideoInteractor,\
+                                                GetArticlesFeedTopStoriesInteractor
+
 from src.application.ioc import ArticleProvider
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
@@ -19,7 +21,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 SlideShowResponseSchema, \
                                                 GetVideoSchema, \
                                                 VideoResponseSchema,\
-                                                BearerOrDeviceIdExtractorResult
+                                                BearerOrDeviceIdExtractorResult, \
+                                                ArticlesFeedTopStoriesRequestSchema
 from typing import Annotated, Optional
 from fastapi import Depends
 from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
@@ -48,6 +51,12 @@ async def get_articles_feed(article_feed_request_schema: ArticlesFeedRequestSche
 
 
 
+@router.post("/get_top_stories_feed/", tags=["articles"])
+@inject
+async def get_top_stories_feed(article_feed_top_stories_request_schema: ArticlesFeedTopStoriesRequestSchema, 
+                        interactor: FromDishka[GetArticlesFeedTopStoriesInteractor]):
+    result = await interactor(article_feed_top_stories_request_schema)
+    return result
 
 
 
