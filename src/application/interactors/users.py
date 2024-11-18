@@ -170,7 +170,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
 
         user_obj = await self.user_repository.get_user_by_email(user_email=user_email)
         if user_obj is None:
-            result = {'status': 'error', 'text': 'Користувача з таким емейлом не існує'}
+            result = {'error': True, 'message': 'Користувача з таким емейлом не існує', 'data': []}
             # raise HTTPException(status_code=401, detail=result)
             return JSONResponse(status_code=401, content=result)
             
@@ -179,7 +179,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
 
-            result = {'error': 'False', 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
+            result = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
         # resp = UserLoginResponse(result = result)
         return result
 
