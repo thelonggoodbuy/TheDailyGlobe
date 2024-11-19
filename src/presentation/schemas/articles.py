@@ -31,7 +31,7 @@ class ArticleItem(BaseSchema):
     main_image: str = Field(alias='mainImage')
     publication_date: str = Field(alias='publicationDate')
     is_premium: bool = Field(alias='isPremium')
-    viewing: int
+    viewing: Optional[int] = None
 
 
 class ArticleFeedResponseSchema(BaseResponseSchema):
