@@ -31,7 +31,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleWithVideoSectionSchema, \
                                                 ArticleDetailSchema, \
                                                 VideoArticlSections, \
-                                                ArticlesFeedTopStoriesRequestSchema
+                                                ArticlesFeedTopStoriesRequestSchema, \
+                                                SearchSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -311,3 +312,25 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         query_sections_with_slide_show_objects = query_row.scalars().first()
 
         return query_sections_with_slide_show_objects
+
+
+
+    async def search_in_article_title(self, search_schema: SearchSchema):
+        print('====HEre repository!!!')
+        print(search_schema.text)
+        similatiry_threshold = 0.01
+        term = search_schema.text
+        # query = select(ArticleEntity).filter(func.similarity(ArticleEntity.title, search_schema.text) > similatiry_threshold)
+        query = select(ArticleEntity)\
+                .filter(func.similarity(ArticleEntity.title, term))\
+                .where(ArticleEntity.title.bool_op('%')(term))
+        print('---query---')
+        print(str(query))
+        print('-----------')
+        # result = await self._session.query(ArticleEntity).filter(func.similarity(ArticleEntity.title, search_schema.text) > similatiry_threshold)
+        query_row = await self._session.execute(query)
+        result = query_row.scalars().all()
+        print('Repository result:')
+        print(result)
+        print('=================')
+        return result 

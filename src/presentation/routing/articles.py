@@ -9,7 +9,8 @@ from src.application.interactors.articles import ArticleInteractor,\
                                                 GetArticlesDetailInteractor,\
                                                 GetSlideShowInteractor,\
                                                 GetVideoInteractor,\
-                                                GetArticlesFeedTopStoriesInteractor
+                                                GetArticlesFeedTopStoriesInteractor,\
+                                                SearchInteractors
 
 from src.application.ioc import ArticleProvider
 
@@ -22,10 +23,12 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 GetVideoSchema, \
                                                 VideoResponseSchema,\
                                                 BearerOrDeviceIdExtractorResult, \
-                                                ArticlesFeedTopStoriesRequestSchema
+                                                ArticlesFeedTopStoriesRequestSchema, \
+                                                SearchSchema
 from typing import Annotated, Optional
 from fastapi import Depends
 from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
+from fastapi.responses import JSONResponse
 
 
 
@@ -81,6 +84,8 @@ def bearer_or_device_id_extractor(
         # 1.2.2 если есть премиум - открыавем всю статью и добавляем единицу к просмотру
     else:
         print('================YOU ARE Not authenticated user================')
+        if get_detail_article_schema.unregistered_device == None:
+            return JSONResponse(status_code=403, content={"error": True, "message": "Для незареєстрованиих користувачів потрібна дата про девайс", "data":[]})
         result = BearerOrDeviceIdExtractorResult(is_authorized=False)
         # print(token)
         # если токена нет и пользователь не авторизован, то проверяем премиум ли статья:
@@ -115,7 +120,7 @@ async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetail
                     "unregisteredDevice": {
                         "deviceId": "432423fdsfsd",
                         "deviceType": "android",
-                        "registration_id": "fdafsdafsda"
+                        "registrationId": "fdafsdafsda"
                     }
                 }}
                 
@@ -125,6 +130,8 @@ async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetail
                              token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
 
     # if token_or_device_id_extractor.is_authorized:
+    if type(token_or_device_id_extractor) == JSONResponse:
+        return token_or_device_id_extractor
     result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
     # else:
     #     print('--->You are not authorized<---')
@@ -151,6 +158,16 @@ async def get_video(get_video_schema: GetVideoSchema,
     return result
 
 
+
+
+
+@router.post("/full_text_search/", tags=["search"])
+@inject
+async def full_text_search(search_schema: SearchSchema,
+                           interactor: FromDishka[SearchInteractors]):
+
+    result = await interactor(search_schema)
+    return result
 
 
 # --------------------------TEST--------DATA----------ROUTINGS-----------------------------

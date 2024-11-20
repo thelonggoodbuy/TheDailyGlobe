@@ -79,4 +79,14 @@ done
 # done
 # >&2 echo 'PostgreSQL unfold is available'
 
+
+
+# Add pg_trgm extension
+echo 'Enabling pg_trgm extension...'
+psql "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}" <<-EOSQL
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+EOSQL
+echo 'pg_trgm extension enabled.'
+
+
 exec "$@"

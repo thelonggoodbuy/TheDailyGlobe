@@ -8,3 +8,10 @@ class ITokenService(ABC):
     @abstractmethod
     async def create_access_token(self):
         pass
+
+
+class ISearchService(ABC):
+
+    @abstractmethod
+    async def full_text_search():
+        pass

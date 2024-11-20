@@ -9,6 +9,7 @@ from src.main.config.settings import Settings
 
 from jwt.exceptions import DecodeError, InvalidTokenError
 from src.application.interfaces.repositories import IAlchemyRepository
+from src.infrastructure.database.repositories.users import BaseUserRepository
 
 
 from pydantic import BaseModel
@@ -31,7 +32,7 @@ class JWTTokenService(ITokenService):
     def __init__(
         self,
         settings: Settings,
-        user_repository: IAlchemyRepository
+        user_repository: BaseUserRepository
     ):
         """Initialize Jwt token settings."""
         self.secret_key: str = settings.jwt_token.SECRET_KEY

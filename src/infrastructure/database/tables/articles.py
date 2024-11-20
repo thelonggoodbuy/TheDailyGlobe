@@ -16,6 +16,9 @@ from src.domain.entities.comments.comments_entities import CommentEntity
 
 from src.infrastructure.database.metadata import mapper_registry
 from src.infrastructure.database.utilities.save_file_field import SaveFileField
+from sqlalchemy import Index, text
+
+
 
 
 # category table
@@ -60,9 +63,22 @@ ArticleTable = Table(
         nullable=False,
         ),
     Column("viewing", Integer, default=0),
-    Column("is_premium", Boolean, default=False)
+    Column("is_premium", Boolean, default=False),
+
+    Index('title_index', "title", postgresql_using="gin"),
+
+    # __table_args__ = (
+         
+    # )
+
+    # __table_args__ = (
+    #     Index("article_title_idx", "title", postgresql_using="gin", postgresql_ops={"title": "gin_trgm_ops"}),
+    #     Index("article_lead_idx", "lead", postgresql_using="gin", postgresql_ops={"lead": "gin_trgm_ops"}),
+    # )
+    
 )
 
+    
 # Map the Category class to the category_table
 # print("Mapping ArticleTable...")
 

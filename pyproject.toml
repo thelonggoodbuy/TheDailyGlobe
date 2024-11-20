@@ -6,7 +6,7 @@ authors = ["thelonggoodbuy <thelonggoodbuy1991@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.12.5"
+python = "3.12.7"
 fastapi = "^0.112.2"
 make = "^0.1.6.post2"
 uvicorn = "^0.30.6"

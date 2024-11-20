@@ -30,7 +30,8 @@ from src.application.interactors.articles import ArticleInteractor, \
                                             GetArticlesDetailInteractor,\
                                             GetSlideShowInteractor,\
                                             GetVideoInteractor,\
-                                            GetArticlesFeedTopStoriesInteractor
+                                            GetArticlesFeedTopStoriesInteractor,\
+                                            SearchInteractors
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -52,7 +53,8 @@ from src.application.interfaces.repositories import IAlchemyRepository
 
 from src.main.config.settings import Settings
 from src.application.services.jwt_token_service import JWTTokenService
-from src.application.interfaces.services import ITokenService
+from src.application.services.search import SearchPostgresqlService
+from src.application.interfaces.services import ITokenService, ISearchService
 
 
 
@@ -143,6 +145,16 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST
     )
 
+    search_request_interactor = provide(
+        source=SearchInteractors,
+        scope=Scope.REQUEST,
+    )
+
+    search_request_service = provide(
+        source=SearchPostgresqlService,
+        scope=Scope.REQUEST,
+        provides=ISearchService,
+    )
 
     # repository
     article_repository = provide(

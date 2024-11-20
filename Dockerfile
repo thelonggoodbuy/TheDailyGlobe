@@ -1,6 +1,6 @@
-FROM python:3.12.5
+FROM python:3.12.7
 
-# set environment variables
+# Set environment variables
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
     PYTHONUNBUFFERED=1 \
@@ -11,53 +11,51 @@ RUN mkdir -p $PYTHONPATH
 RUN mkdir -p $PYTHONPATH/static
 RUN mkdir -p $PYTHONPATH/media
 
-# RUN echo ls
-# RUN echo pwd
-
+# Debugging output for current directory and contents
 RUN echo "Current Directory:" && pwd && echo "Contents of /usr/src/app:" && ls
 
-
-# where the code lives
-# where the code lives
+# Set working directory
 WORKDIR $PYTHONPATH
 
+# Update package lists and install system dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
-  # dependencies for building Python packages
+  # Dependencies for building Python packages
   build-essential \
   # psycopg2 dependencies
   libpq-dev \
   # curl
   curl \
-  # translations
-  gettext\
-  vim
+  # gettext for translations
+  gettext \
+  # Text editor
+  vim \
+  # PostgreSQL client for psql
+  postgresql-client
 
-# install dependencies
+# Upgrade pip and install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install setuptools
 
-# install poetry
+# Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "/root/.local/bin:$PATH"
 
-# copy python dependencies
+# Copy Python dependencies
 COPY pyproject.toml poetry.lock ./
-# disable virtualenv creation
+# Disable Poetry's virtualenv creation and install dependencies
 RUN poetry config virtualenvs.create false
-# install python dependencies
 RUN poetry install --only main --no-interaction
 
+# Debugging: Show installed packages
 RUN poetry show
 
-# copy entrypoint.sh
+# Copy entrypoint script
 COPY ./entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
 
-# RUN pip install django
-
-# install app
+# Copy application code
 COPY . .
 
-# run entrypoint.sh
+# Run entrypoint.sh as the container's entry point
 ENTRYPOINT ["/entrypoint"]

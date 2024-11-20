@@ -19,10 +19,12 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 VideoArticlSections, \
                                                 VideoResponseSchema, \
                                                 ArticleDetailDemoSchema,\
-                                                ArticlesFeedTopStoriesRequestSchema
+                                                ArticlesFeedTopStoriesRequestSchema,\
+                                                SearchSchema, \
+                                                DemoCauseSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
-from src.application.interfaces.services import ITokenService
+from src.application.interfaces.services import ITokenService, ISearchService
 from datetime import datetime
 
 
@@ -183,11 +185,11 @@ class GetArticlesDetailInteractor(BaseInteractor):
                 unregistered_data = await self.unregistered_device_repository.add_one_view(unregistered_data)
                 result = article.model_dump(by_alias=True)
             else:
-                demo_article = await self.transform_to_demo(article, demo_cause="Ви вже прочитали доступні сьогодні 4 статті. Будьласка зареєструйтеся")    
+                demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.four_article_limit.value)    
                 result = demo_article.model_dump(by_alias=True)
 
         else:
-            demo_article = await self.transform_to_demo(article, demo_cause="Преміум статті не доступні для незареєстрованих читачів.")
+            demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.article_is_premium.value)
             result = demo_article.model_dump(by_alias=True)
 
 
@@ -206,11 +208,11 @@ class GetArticlesDetailInteractor(BaseInteractor):
             print('---111subscription111---')
             print(subscription)
             print('------------------------')
-            if subscription.is_active == False:
-                demo_article = await self.transform_to_demo(article, demo_cause="Ваша підписка не активна.")
+            if subscription.is_active == False or subscription.expiration_date == None:
+                demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.article_is_premium.value)
                 result = demo_article.model_dump(by_alias=True)
-            if subscription.expiration_date or subscription.expiration_date >= datetime.now():
-                demo_article = await self.transform_to_demo(article, demo_cause="Ваша підписка застаріла і не активна. Оплатіть період користування.")
+            if subscription.expiration_date and subscription.expiration_date >= datetime.now():
+                demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.subscription_expired.value)
                 result = demo_article.model_dump(by_alias=True)
 
 
@@ -294,6 +296,27 @@ class GetVideoInteractor(BaseInteractor):
 
 
         return result
+
+
+class SearchInteractors(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        search_service: ISearchService,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.search_service = search_service
+        self.settings = settings
+
+
+    async def __call__(self, search_schema: SearchSchema):
+        result = await self.search_service.full_text_search(search_schema)
+        return result
+
+
+
 
 
 # =========================TEST========INTERACTORS=========================

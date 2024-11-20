@@ -40,9 +40,6 @@ class ArticleFeedResponseSchema(BaseResponseSchema):
 
 
 
-
-
-
 class DeviceType(str, Enum):
     android = "android"
     apple = "apple"
@@ -52,6 +49,14 @@ class UnregisteredDeviceSchema(BaseSchema):
     device_id: str = Field(default=None, alias='deviceId')
     device_type: DeviceType = Field(default=any, alias='deviceType')
     registration_id: str = Field(default=None, alias='registrationId')
+
+
+class DemoCauseSchema(str, Enum):
+    four_article_limit = "four_article_limit"
+    article_is_premium = "article_is_premium"
+    subscription_expired = "subscription_expired"
+
+
 
 
 class ArticlesDetailRequestSchema(BaseSchema):
@@ -163,7 +168,7 @@ class ArticleDetailSchema(BaseSchema):
 
 class ArticleDetailDemoSchema(BaseSchema):
     is_demo: bool = Field(default=True, alias='isDemo')
-    is_demo_cause: str = Field(alias='isDemoCause')
+    is_demo_cause: DemoCauseSchema = Field(alias='isDemoCause')
     id: int
     title: str
     main_image: str = Field(alias='mainImage')
@@ -216,3 +221,7 @@ class VideoResponseSchema(BaseResponseSchema):
     - id (int) - id of concrete concrete video article section.
     """
     data: Optional[VideoArticlSections]
+
+
+class SearchSchema(BaseSchema):
+    text: str
