@@ -101,41 +101,72 @@ from typing import Annotated
 from fastapi import Body, FastAPI
 
 
+
+
 # @router.post("/get_detail_article/", tags=["articles"])
 # @inject
-# async def get_detail_article(get_detail_article_schema: ArticlesDetailRequestSchema,
+# async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetailRequestSchema, Body(
+#     example=[
+#                 {"example1: Request for authorized user":{
+#                     "articleId": 2 # Request for authorized user
+#                 }},
+#                 {"example2: Request for unauthorized user":{
+#                     "articleId": 2, # Request for unauthorized user
+#                     "unregisteredDevice": {
+#                         "deviceId": "432423fdsfsd",
+#                         "deviceType": "android",
+#                         "registrationId": "fdafsdafsda"
+#                     }
+#                 }}
+                
+#             ]
+# )],
 #                              interactor: FromDishka[GetArticlesDetailInteractor],
-#                              token: Annotated[str, Depends(bearer_scheme_for_pages_with_unregistered_users)])-> ArticlesDetailResponseSchema:
-    
+#                              token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
+
+#     if type(token_or_device_id_extractor) == JSONResponse:
+#         return token_or_device_id_extractor
+#     result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
+       
+
+#     return result
+
+
 
 @router.post("/get_detail_article/", tags=["articles"])
 @inject
 async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetailRequestSchema, Body(
-    example=[
-                {"example1: Request for authorized user":{
-                    "articleId": 2 # Request for authorized user
-                }},
-                {"example2: Request for unauthorized user":{
-                    "articleId": 2, # Request for unauthorized user
-                    "unregisteredDevice": {
-                        "deviceId": "432423fdsfsd",
-                        "deviceType": "android",
-                        "registrationId": "fdafsdafsda"
-                    }
-                }}
-                
-            ]
-)],
+            openapi_examples={
+                "Request for authorized user": {
+                    "summary": "Request for authorized user",
+                    "description": "This request required JWT token too.",
+                    "value": {
+                        "articleId": 2
+                    },
+                },
+                "Request for unauthorized user": {
+                    "summary": "Request for unauthorized user",
+                    "description": "Request require data about device operation system and data about device.",
+                    "value": {
+                        "articleId": 2,
+                        "unregisteredDevice": {
+                            "deviceId": "432423fdsfsd",
+                            "deviceType": "android",
+                            "registrationId": "fdafsdafsda"
+                        }
+                    },
+                },
+            },
+        ),
+
+],
                              interactor: FromDishka[GetArticlesDetailInteractor],
                              token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
 
-    # if token_or_device_id_extractor.is_authorized:
     if type(token_or_device_id_extractor) == JSONResponse:
         return token_or_device_id_extractor
     result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
-    # else:
-    #     print('--->You are not authorized<---')
-        
+       
 
     return result
 

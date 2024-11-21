@@ -65,7 +65,8 @@ ArticleTable = Table(
     Column("viewing", Integer, default=0),
     Column("is_premium", Boolean, default=False),
 
-    Index('title_index', "title", postgresql_using="gin"),
+    Index('title_index', "title", postgresql_using="gin", postgresql_ops={"title": "gin_trgm_ops"}),
+    
 
     # __table_args__ = (
          

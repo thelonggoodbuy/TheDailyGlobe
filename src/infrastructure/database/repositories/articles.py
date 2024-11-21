@@ -36,6 +36,7 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
+from src.infrastructure.database.tables.articles import ArticleTable
 from sqlalchemy.orm import selectinload
 from sqlalchemy import update
 from datetime import datetime, timedelta, timezone
@@ -318,12 +319,21 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
     async def search_in_article_title(self, search_schema: SearchSchema):
         print('====HEre repository!!!')
         print(search_schema.text)
-        similatiry_threshold = 0.01
+        # similatiry_threshold = 0.01
+        similatiry_threshold = 0.1
         term = search_schema.text
-        # query = select(ArticleEntity).filter(func.similarity(ArticleEntity.title, search_schema.text) > similatiry_threshold)
-        query = select(ArticleEntity)\
-                .filter(func.similarity(ArticleEntity.title, term))\
-                .where(ArticleEntity.title.bool_op('%')(term))
+
+        # Work but only with complete word
+        # query = select(ArticleEntity).filter(func.similarity(ArticleEntity.title, term) > similatiry_threshold)
+
+        # work but not correct
+        # query = select(ArticleEntity, func.similarity(ArticleEntity.title, term)).where(ArticleEntity.title.bool_op('%')(term))
+
+        # with two fields
+        self._session.execute(func.set_limit(0.1))
+        columns = func.coalesce(ArticleEntity.title, '').concat(func.coalesce(ArticleEntity.lead, ''))
+        columns = columns.self_group()
+        query = select(ArticleEntity.title, ArticleEntity.lead, func.similarity(columns, term)).where(columns.bool_op('%')(term),)
         print('---query---')
         print(str(query))
         print('-----------')
