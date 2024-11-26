@@ -15,7 +15,7 @@ from src.application.interfaces.gateways import IWriteFileStorageGateway
 
 
 from src.infrastructure.database.repositories.users import UserAlchemyRepository
-from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository, BaseArticleRepository
+from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository
 from src.infrastructure.database.repositories.subscriptions import SubscriptionRepository, BaseSubscribtionRepository
 
 from src.infrastructure.database.gateways.write_file_disc_storage_gateway import WriteFileDiscStorageGateway
@@ -23,8 +23,7 @@ from src.infrastructure.database.gateways.write_file_disc_storage_gateway import
 from collections.abc import AsyncIterable
 
 
-from src.application.interactors.articles import ArticleInteractor, \
-                                            TestSaveObjectInteractor,\
+from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             GetAllCategorysInteractor,\
                                             GetArticlesFeedInteractor,\
                                             GetArticlesDetailInteractor,\
@@ -43,13 +42,17 @@ from src.application.interactors.users import LoginRegularInteractor,\
 
 from src.application.interactors.comments import CreateCommentInteractor, ShowCommentInteractor
 
-from src.infrastructure.database.repositories.users import BaseUserRepository
-from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository, BaseCategoryRepository
-from src.infrastructure.database.repositories.comments import BaseCommentsRepository, CommentsAlchemyRepository
-from src.infrastructure.database.repositories.unregistered_device import BaseUnregisteredDeviceRepository, UnregisteredDeviceRepository
+from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository
+from src.infrastructure.database.repositories.comments import CommentsAlchemyRepository
+from src.infrastructure.database.repositories.unregistered_device import UnregisteredDeviceRepository
 
 
-from src.application.interfaces.repositories import IAlchemyRepository
+from src.application.interfaces.repositories import IAlchemyRepository, \
+                                                    BaseArticleRepository, \
+                                                    BaseCategoryRepository, \
+                                                    BaseCommentsRepository, \
+                                                    BaseUnregisteredDeviceRepository,\
+                                                    BaseUserRepository
 
 from src.main.config.settings import Settings
 from src.application.services.jwt_token_service import JWTTokenService
@@ -110,10 +113,6 @@ class ArticleProvider(Provider):
     settings = from_context(provides=Settings, scope=Scope.APP)
 
     # article interactors
-    article_interactor = provide(
-        source=ArticleInteractor,
-        scope=Scope.REQUEST
-    )
 
     get_all_categorys_interactor = provide(
         source=GetAllCategorysInteractor,

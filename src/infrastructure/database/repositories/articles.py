@@ -1,22 +1,13 @@
-from contextlib import asynccontextmanager
-
-from src.infrastructure.database.tables.users import UserTable
-from src.infrastructure.database.tables.articles import CategortyTable
-from src.domain.entities.users.users_entities import UserEntity
 from sqlalchemy import func
 
 from src.domain.entities.articles.articles_entities import ArticleSectionSlideShowEntity,\
                                                         ArticleWithPlainTextSectionEntity,\
                                                         ArticleWithVideoSectionEntity
+from src.application.interfaces.repositories import IAlchemyRepository, BaseArticleRepository
 
-
-from src.application.interfaces.repositories import IAlchemyRepository
-from abc import ABC, abstractmethod
-from src.presentation.schemas.users import RegisterData
-from src.infrastructure.database.utilities.get_password_hash import get_password_hash
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select
-from sqlalchemy import desc
+from sqlalchemy import desc, union_all
 
 from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleFeedResponseSchema, \
@@ -30,27 +21,17 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleSectionSlideShowSchema, \
                                                 ArticleWithVideoSectionSchema, \
                                                 ArticleDetailSchema, \
-                                                VideoArticlSections, \
                                                 ArticlesFeedTopStoriesRequestSchema, \
                                                 SearchSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
-from src.infrastructure.database.tables.articles import ArticleTable
 from sqlalchemy.orm import selectinload
 from sqlalchemy import update
 from datetime import datetime, timedelta, timezone
-from babel.dates import format_datetime
 
 
-# # TODO -> application interfaces
-class BaseArticleRepository(ABC):
-    @abstractmethod
-    async def save_section_with_image():
-        raise NotImplementedError
-    @abstractmethod
-    async def return_article_feed():
-        raise NotImplementedError
+
 
 
 class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
@@ -67,7 +48,7 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                                                         section_type='article_section_with_slide_show')
         self._session.add(new_article_sections_slide_show)
         return self._session
-    
+
     async def return_article_feed(self, article_feed_request_schema: ArticlesFeedRequestSchema) -> ArticleFeedResponseSchema:
 
         offset_value = article_feed_request_schema.pagination_length * article_feed_request_schema.current_pagination_position
@@ -110,9 +91,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                             message='', 
                                             data={"content": article_list, "last": is_last_page})
         return response
-    
-    # ===================================================================================================================
-
 
     async def return_top_stories_article_feed(self, article_feed_top_stories_request_schema: ArticlesFeedTopStoriesRequestSchema) -> ArticleFeedResponseSchema:
 
@@ -141,11 +119,7 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
         article_list = []
         for article_obj in article_objects:
-            print('+++')
-            # print(f"{article_obj.id}: ")
-            print(article_obj.viewing)
-            print(article_obj)
-            print('+++')
+
             article = ArticleItem(
                 category_title=article_obj.category.title,
                 id=article_obj.id,
@@ -162,12 +136,7 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                             message='', 
                                             data={"content": article_list, "last": is_last_page})
         return response
-    
-
-
-    # ===================================================================================================================
-    
-
+       
     async def return_detail_article(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
         query = select(ArticleEntity)\
                                     .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
@@ -236,7 +205,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         response = ArticlesDetailResponseSchema(error=False, message='', data=article_dict)
         return response
     
-
     async def update_reading_status(self, article_id: int):
 
         article = (
@@ -249,8 +217,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
         return True
     
-
-
     async def return_slideshow(self, get_slideshow_schema: GetSlideshowRequestSchema) -> SlideShowResponseSchema:
         
         query_sections_with_slide_show_query = select(ArticleSectionSlideShowEntity).filter(ArticleSectionSlideShowEntity.article_id == get_slideshow_schema.article_id)
@@ -258,24 +224,11 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         query_sections_with_slide_show_objects = query_sections_with_slide_show_rows.scalars().all()
 
         result_list = []
-        print('--->get_slideshow_schema.article_section_with_slideshow_id:<---')
-        print(get_slideshow_schema.article_section_with_slideshow_id)
-        print(type(get_slideshow_schema.article_section_with_slideshow_id))
-        print('--------------------------------------------------------------')
-
-
 
         for slide in query_sections_with_slide_show_objects:
-            print('***')
-            print('slide.id')
-            print(slide.id)
-            print(type(slide.id))
-            print('***')
             if slide.id == get_slideshow_schema.article_section_with_slideshow_id:
-                print('#1')
                 is_opened_status = True
             else:
-                print('#2')
                 is_opened_status = False
             slide = SingleSlideSchema(
                 id=slide.id,
@@ -284,26 +237,12 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                 is_opened=is_opened_status,
                 author=slide.author
             )
-            print('slide result:')
-            print(slide)
             result_list.append(slide.model_dump(by_alias=True))
 
-        
-
-        print('--->result_list<---')
-        print(result_list)
-        print('------------------')        
-
         result = SlideShowResponseSchema(error=False, message="", data=result_list)
-        print('--->result_schema<---')
-        print(result)
-        print('------------------')
         return result
         
-
     async def get_video_section_by_id(self, section_video_id):
-        print('==============get==vide====repository=================')
-        # query = select(ArticleWithVideoSectionEntity).filter(ArticleWithVideoSectionEntity.id == section_video_id)
         query = (
             select(ArticleWithVideoSectionEntity)
             .filter(ArticleWithVideoSectionEntity.id == section_video_id)
@@ -314,26 +253,33 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
         return query_sections_with_slide_show_objects
 
-
-
     async def search_in_article_title(self, search_schema: SearchSchema):
-        print('====HEre repository!!!')
-        print(search_schema.text)
+        # print('====HEre repository!!!')
+        # print(search_schema.text)
         # similatiry_threshold = 0.01
         similatiry_threshold = 0.1
         term = search_schema.text
 
-        # Work but only with complete word
-        # query = select(ArticleEntity).filter(func.similarity(ArticleEntity.title, term) > similatiry_threshold)
 
-        # work but not correct
-        # query = select(ArticleEntity, func.similarity(ArticleEntity.title, term)).where(ArticleEntity.title.bool_op('%')(term))
 
-        # with two fields
-        self._session.execute(func.set_limit(0.1))
-        columns = func.coalesce(ArticleEntity.title, '').concat(func.coalesce(ArticleEntity.lead, ''))
-        columns = columns.self_group()
-        query = select(ArticleEntity.title, ArticleEntity.lead, func.similarity(columns, term)).where(columns.bool_op('%')(term),)
+        # query = select(ArticleEntity.title, func.similarity(ArticleEntity.title, term),)\
+        # .where(ArticleEntity.title.bool_op('%')(term),)\
+        # .order_by(func.similarity(ArticleEntity.title, term).desc(), )
+
+        # работает, но только кроме правильного результата дает пачку лишних со слабыми совпадениями
+        query = select(ArticleEntity.title, func.similarity(ArticleEntity.title, term),)\
+                .where(func.similarity(ArticleEntity.title, term) > 0.01)\
+                .order_by(func.similarity(ArticleEntity.title, term).desc(), )
+
+
+        query = (
+                select(ArticleEntity.title)\
+                .where(ArticleEntity.title.ilike(f'%{term}%'))  # Условие ILIKE
+                # .order_by(text("title <-> 'пор'"))  # Сортировка по расстоянию
+                # .limit(10)  # Лимит
+            )
+
+
         print('---query---')
         print(str(query))
         print('-----------')

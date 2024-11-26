@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from common.base.interactor import BaseInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
-from src.infrastructure.database.repositories.users import IAlchemyRepository
-from src.infrastructure.database.repositories.articles import BaseArticleRepository
+
+from src.application.interfaces.repositories import BaseArticleRepository
+
 from src.infrastructure.database.repositories.categories import BaseCategoryRepository
 from src.infrastructure.database.repositories.unregistered_device import BaseUnregisteredDeviceRepository
 from src.main.config.settings import Settings
@@ -30,33 +31,7 @@ from datetime import datetime
 
 class ArtictleResponse(BaseModel):
     result: str
-    
-
-class Service_One():
-    async def __call__(self):
-        print('Service One called by interactor')
-        return 'Article from service one'
-
-
-class Service_Two():
-    async def __call__(self):
-        print('Service Two called by interactor')
-        return 'Article from service two'
-
-
-class ArticleInteractor(BaseInteractor):
-    """
-    Test Interactor for returning random object
-    """
-
-    async def __call__(self) -> ArtictleResponse:
-        print('===You want to get all articles!===')
-        resp = ArtictleResponse(result = 'Articles!')
-        # resp.
-        return resp
-    
-
-    
+       
 
 
 class GetAllCategorysInteractor(BaseInteractor):
@@ -73,16 +48,9 @@ class GetAllCategorysInteractor(BaseInteractor):
 
     async def __call__(self) -> CategorysResponse:
         categorys_obj = await self.category_repository.get_all()
-
-        print('===========!!!==============')
-
         data = {"categories":[]}
         for categoty_item in categorys_obj.categories:
             data["categories"].append(categoty_item.model_dump(by_alias=True))
-
-        print('--->data<----')
-        print(data)
-        print('--------------')
 
         result = BaseResponseSchema(error=False, message="", data=data)
         return result
@@ -142,31 +110,12 @@ class GetArticlesDetailInteractor(BaseInteractor):
         self.unregistered_device_repository = unregistered_device_repository
 
     async def __call__(self, get_detail_article_schema: ArticlesDetailRequestSchema, token_or_device_id_extractor) -> ArticlesDetailResponseSchema:
-        print('++++++++++++++++ESTRACTOR DATA++++++++++++++++++++++++++')
-        print(token_or_device_id_extractor)
-        print(get_detail_article_schema)
-        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 
         if token_or_device_id_extractor.is_authorized:
             subscription = await self.jwt_token_service.return_subscription_by_token(token_or_device_id_extractor.token)
         else:
             subscription = None
-            
-            
-
-            # print('--->subscriptions<---')
-            # print(subscription)
-            # print(type(subscription))
-            # print(subscription.expiration_date)
-            # print(type(subscription.expiration_date))
-            # # print(type(subscription.expiration_date))
-            # print('---------------------')
-
-        print('====================================================================')
-        print(subscription)
-        print('====================================================================')
-        
-        # if not subscription or subscription.is_active == False or subscription.expiration_date >= datetime.now():
+                    
         if not subscription:
             result = await self.return_article_for_unregistered_user(get_detail_article_schema)
         else:
@@ -178,7 +127,6 @@ class GetArticlesDetailInteractor(BaseInteractor):
         article = await self.article_repository.return_detail_article(get_detail_article_schema)
 
         if not article.data.is_premium:
-            # здесь мы проверяем 
             unregistered_data = await self.unregistered_device_repository.get_or_create_unregistered_device(get_detail_article_schema)
             if unregistered_data.readed_articles < 4:
                 await self.article_repository.update_reading_status(article.data.id)
@@ -192,22 +140,15 @@ class GetArticlesDetailInteractor(BaseInteractor):
             demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.article_is_premium.value)
             result = demo_article.model_dump(by_alias=True)
 
-
-
-
         return result
 
 
     async def return_article_for_registered_user(self, get_detail_article_schema, subscription):
         article = await self.article_repository.return_detail_article(get_detail_article_schema)
         if not article.data.is_premium:
-            # if subscription
             await self.article_repository.update_reading_status(article.data.id)
             result = article.model_dump(by_alias=True)
         else:
-            print('---111subscription111---')
-            print(subscription)
-            print('------------------------')
             if subscription.is_active == False or subscription.expiration_date == None:
                 demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.article_is_premium.value)
                 result = demo_article.model_dump(by_alias=True)
@@ -215,21 +156,11 @@ class GetArticlesDetailInteractor(BaseInteractor):
                 demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.subscription_expired.value)
                 result = demo_article.model_dump(by_alias=True)
 
-
-        # print('***')
-        # print('------------article-for-REGISTERED-user------------')
-        # print(article.data)
-        # print('***')
-        # result = article.model_dump(by_alias=True)
         return result 
 
 
     async def transform_to_demo(self, article_response: ArticlesDetailResponseSchema, demo_cause: str):
-        print('----aritle_response----')
-        # print(artile_response)
-        print(type(article_response.data))
-        print(article_response.data)
-        print('aritle_response')
+
         full_version = article_response.data
         article_response.data = ArticleDetailDemoSchema(
             is_demo = True,
@@ -277,16 +208,12 @@ class GetVideoInteractor(BaseInteractor):
 
     async def __call__(self, 
                        get_video_schema: GetVideoSchema):
-        print('==============get==vide====interactor=========1========')
         article_video_sections = await self.article_repository.get_video_section_by_id(get_video_schema.id)
-        print('==============get==vide====interactor=========2========')
         video_section = VideoArticlSections(id=article_video_sections.id,
                                             text=article_video_sections.text,
                                             video_url=article_video_sections.video_url,
                                             title=article_video_sections.title,
                                             categoty_title=article_video_sections.article.category.title)
-                                            # categoty_title='заглушка')
-        print('==============get==vide====interactor=========3========')
 
         result = VideoResponseSchema(
              error=False,

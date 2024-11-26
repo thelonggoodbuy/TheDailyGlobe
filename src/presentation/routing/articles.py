@@ -2,8 +2,7 @@ from fastapi import APIRouter
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, setup_dishka, inject
-from src.application.interactors.articles import ArticleInteractor,\
-                                                TestSaveObjectInteractor,\
+from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 GetAllCategorysInteractor,\
                                                 GetArticlesFeedInteractor, \
                                                 GetArticlesDetailInteractor,\
@@ -99,37 +98,6 @@ def bearer_or_device_id_extractor(
 from typing import Annotated
 
 from fastapi import Body, FastAPI
-
-
-
-
-# @router.post("/get_detail_article/", tags=["articles"])
-# @inject
-# async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetailRequestSchema, Body(
-#     example=[
-#                 {"example1: Request for authorized user":{
-#                     "articleId": 2 # Request for authorized user
-#                 }},
-#                 {"example2: Request for unauthorized user":{
-#                     "articleId": 2, # Request for unauthorized user
-#                     "unregisteredDevice": {
-#                         "deviceId": "432423fdsfsd",
-#                         "deviceType": "android",
-#                         "registrationId": "fdafsdafsda"
-#                     }
-#                 }}
-                
-#             ]
-# )],
-#                              interactor: FromDishka[GetArticlesDetailInteractor],
-#                              token_or_device_id_extractor: Annotated[str, Depends(bearer_or_device_id_extractor)])-> ArticlesDetailResponseSchema:
-
-#     if type(token_or_device_id_extractor) == JSONResponse:
-#         return token_or_device_id_extractor
-#     result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
-       
-
-#     return result
 
 
 

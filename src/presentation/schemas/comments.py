@@ -42,12 +42,19 @@ class CommentListrIteamSchema(BaseSchema):
 
 
 
-class CommentResponseData(BaseResponseSchema):
+class MultipleCommentResponseData(BaseResponseSchema):
     """
     Schema of response for comments.
     """
-    data: Optional[List[CommentSchema] | CommentSchema | List[CommentListrIteamSchema]]
-    # data: dict
+    data: Optional[List[CommentListrIteamSchema]]
+    
+
+class SingleCommentResponseData(BaseResponseSchema):
+    """
+    Schema of response for comments.
+    """
+    data: Optional[CommentSchema]
+
 
 
 class AllCommentRequestData(BaseSchema):

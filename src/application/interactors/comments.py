@@ -1,19 +1,17 @@
 from common.base.interactor import BaseInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
-from src.infrastructure.database.repositories.comments import BaseCommentsRepository
+
 from src.main.config.settings import Settings
-from src.presentation.schemas.base_schemas import BaseResponseSchema
 from src.presentation.schemas.comments import CreateCommentRequestData,\
                                                 CommentSchema, \
-                                                CommentResponseData, \
+                                                MultipleCommentResponseData, \
+                                                SingleCommentResponseData,\
                                                 AllCommentRequestData, \
                                                 CommentListrIteamSchema
 
 from src.application.interfaces.services import ITokenService
+from src.application.interfaces.repositories import BaseCommentsRepository
 from fastapi.responses import JSONResponse
-
-from fastapi import HTTPException
-
 
 
 
@@ -34,25 +32,24 @@ class CreateCommentInteractor(BaseInteractor):
 
     async def __call__(self, 
                        create_comment_schema: CreateCommentRequestData,
-                       token: str) -> CommentResponseData:
+                       token: str) -> SingleCommentResponseData:
         
         user_obj = await self.token_service.get_user_by_token(token.credentials)
         if user_obj.is_valid:
             comment_entity = await self.comment_repository.create_comment(create_comment_schema, user_obj.id)
             comment_obj = CommentSchema(is_sender=True, user_email=user_obj.user_email, **comment_entity.to_dict())
             
-            result = CommentResponseData(
+            result = SingleCommentResponseData(
                 error=False,
                 message="",
                 data=comment_obj.model_dump(by_alias=True)
             )
         else:
-            result = CommentResponseData(
+            result = SingleCommentResponseData(
                 error=True,
                 message=user_obj.error_text,
                 data=None
             )
-            # raise HTTPException(status_code=401, detail=result.model_dump())
             return JSONResponse(status_code=401, content=result.model_dump())
 
         return result
@@ -72,8 +69,12 @@ class ShowCommentInteractor(BaseInteractor):
 
     async def __call__(self, 
                        create_comment_schema: AllCommentRequestData,
-                       token: str) -> CommentResponseData:
+                       token: str) -> MultipleCommentResponseData:
 
+
+        print('----------------------')
+        print(token.credentials)
+        print('----------------------')
         user_obj = await self.token_service.get_user_by_token(token.credentials)
         if user_obj.is_valid:
             
@@ -94,18 +95,13 @@ class ShowCommentInteractor(BaseInteractor):
                                   )
                 comment_list.append(comment.model_dump(by_alias=True))
 
-                print('=================================')
-                print(comment_list)
-                print('=================================')
-
-            result = CommentResponseData(error=False, message="", data=comment_list)
+            result = MultipleCommentResponseData(error=False, message="", data=comment_list)
         else:
-            result = CommentResponseData(
+            result = MultipleCommentResponseData(
                 error=True,
                 message=user_obj.error_text,
                 data=None
             )
-            # raise HTTPException(status_code=401, detail=result.model_dump())
             return JSONResponse(status_code=401, content=result.model_dump())
 
 

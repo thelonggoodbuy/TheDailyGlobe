@@ -5,7 +5,8 @@ from src.infrastructure.openapi.openapi import bearer_scheme
 from typing import Annotated
 
 from src.presentation.schemas.comments import CreateCommentRequestData,\
-                                                CommentResponseData,\
+                                                SingleCommentResponseData,\
+                                                MultipleCommentResponseData, \
                                                 AllCommentRequestData
 
 from src.application.interactors.comments import CreateCommentInteractor,\
@@ -18,7 +19,7 @@ router = APIRouter(route_class=DishkaRoute)
 @inject
 async def create_comment(comment_data: CreateCommentRequestData,
                         token: Annotated[str, Depends(bearer_scheme)],
-                        interractor: FromDishka[CreateCommentInteractor]) -> CommentResponseData:
+                        interractor: FromDishka[CreateCommentInteractor]) -> SingleCommentResponseData:
 
     result = await interractor(comment_data, token)
     return result
@@ -29,7 +30,7 @@ async def create_comment(comment_data: CreateCommentRequestData,
 @inject
 async def show_article_comment(comment_request_data: AllCommentRequestData,
                         token: Annotated[str, Depends(bearer_scheme)],
-                        interractor: FromDishka[ShowCommentInteractor]) -> CommentResponseData:
+                        interractor: FromDishka[ShowCommentInteractor]) -> MultipleCommentResponseData:
 
     result = await interractor(comment_request_data, token)
     print("***")

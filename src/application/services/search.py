@@ -1,7 +1,9 @@
 from src.application.interfaces.services import ISearchService
 from src.main.config.settings import Settings
 
-from src.infrastructure.database.repositories.articles import BaseArticleRepository
+
+from src.application.interfaces.repositories import BaseArticleRepository
+
 
 from src.presentation.schemas.articles import SearchSchema
 

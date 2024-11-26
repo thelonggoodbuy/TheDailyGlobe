@@ -133,6 +133,7 @@ class ArticleWithVideoSectionSchema(BaseModel):
     id: int
     # article_id: int = Field(alias='articleId')
     text: str
+    title: str
     intex_number_in_article: int
     video_url: str
     image_preview: str = Field(alias='imagePreview')
