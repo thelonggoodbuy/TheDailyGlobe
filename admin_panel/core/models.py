@@ -26,7 +26,7 @@ class ArticleSectionWithSlideShowUnfold(models.Model):
     image = models.ImageField(upload_to="galery/")
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
-    intex_number_in_article = models.IntegerField()
+    index_number_in_article = models.IntegerField()
     section_type = models.CharField(max_length=50, default='article_section_with_slide_show', null=False)
     author = models.CharField(max_length=255)
 
@@ -43,7 +43,7 @@ class ArticleSectionWithVideoUnfold(models.Model):
     video_url = models.CharField(max_length=255)
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
-    intex_number_in_article = models.IntegerField()
+    index_number_in_article = models.IntegerField()
     section_type = models.CharField(max_length=50, default='article_section_with_video', null=False)
     title = models.CharField(max_length=255)
     image_preview = models.ImageField(upload_to="galery/")
@@ -58,7 +58,7 @@ class ArticleSectionsWithPlainTextUnfold(models.Model):
     id = models.AutoField(primary_key=True)
     article = models.ForeignKey('ArticlesUnfold', models.CASCADE, blank=True, null=True)
     text = models.TextField()
-    intex_number_in_article = models.IntegerField()
+    index_number_in_article = models.IntegerField()
     section_type = models.CharField(max_length=50, default='article_sections_with_plain_text', null=False)
 
     class Meta:

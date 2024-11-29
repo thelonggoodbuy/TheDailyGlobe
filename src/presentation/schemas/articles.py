@@ -99,7 +99,7 @@ class ArticleSectionPlainTextSchema(BaseModel):
     id: int
     # article_id: int = Field(alias='articleId')
     text: str
-    intex_number_in_article: int = Field(alias='intexNumberInArticle')
+    index_number_in_article: int = Field(alias='indexNumberInArticle')
     # section_type: str = Field(default="article_sections_with_plain_text", alias='sectionType')
     section_type: str = Field(default="article_sections_with_plain_text", alias='sectionType')
 
@@ -115,7 +115,7 @@ class ArticleSectionSlideShowSchema(BaseModel):
     id: int
     # article_id: int = Field(alias='articleId')
     text: str
-    intex_number_in_article: int
+    index_number_in_article: int
     image: str
     section_type: str = Field(default="article_section_with_slide_show", alias='sectionType')
 
@@ -134,7 +134,7 @@ class ArticleWithVideoSectionSchema(BaseModel):
     # article_id: int = Field(alias='articleId')
     text: str
     title: str
-    intex_number_in_article: int
+    index_number_in_article: int
     video_url: str
     image_preview: str = Field(alias='imagePreview')
     section_type: str = Field(default="article_section_with_video", alias='sectionType')
@@ -212,7 +212,8 @@ class VideoArticlSections(BaseSchema):
     text: str
     video_url: str
     title: str
-    categoty_title: str
+    category_title: str
+    image_preview: str
 
 
 class VideoResponseSchema(BaseResponseSchema):
@@ -226,3 +227,13 @@ class VideoResponseSchema(BaseResponseSchema):
 
 class SearchSchema(BaseSchema):
     text: str
+
+
+class SearchResultSchema(BaseSchema):
+    id: int
+    title: str
+    publication_date: str = Field(alias='publicationDate')
+
+
+class SearchResponseSchema(BaseResponseSchema):
+    data: Optional[List[SearchResultSchema]]

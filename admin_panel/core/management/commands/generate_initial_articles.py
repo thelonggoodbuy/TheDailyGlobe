@@ -99,7 +99,7 @@ class Command(BaseCommand):
             section_with_plain_text = ArticleSectionsWithPlainTextUnfold(
                 article=article,
                 text=fake.paragraph(nb_sentences=10),
-                intex_number_in_article=i
+                index_number_in_article=i
             )
             section_with_plain_text.save()
 
@@ -110,7 +110,7 @@ class Command(BaseCommand):
                 article_section_with_slide_show_unfold = ArticleSectionWithSlideShowUnfold(
                     article=article,
                     text=fake.paragraph(nb_sentences=10),
-                    intex_number_in_article=i,
+                    index_number_in_article=i,
                     author=author_of_photos
                 )
                 article_section_with_slide_show_unfold.image.save(os.path.basename(random_image_path), File(image_file))
@@ -124,7 +124,7 @@ class Command(BaseCommand):
                     article=article,
                     text=fake.paragraph(nb_sentences=2),
                     title=fake.paragraph(nb_sentences=1),
-                    intex_number_in_article=i,
+                    index_number_in_article=i,
                 )
                 article_section_with_video_unfold.image_preview.save(os.path.basename(random_image_path), File(image_file))
                 article_section_with_video_unfold.save()

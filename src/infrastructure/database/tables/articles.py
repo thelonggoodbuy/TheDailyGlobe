@@ -105,7 +105,7 @@ ArticleSectionPlainTextTable = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("article_id", ForeignKey("articles.id")),
     Column("text", Text, nullable=False),
-    Column("intex_number_in_article", Integer, nullable=False),
+    Column("index_number_in_article", Integer, nullable=False),
     Column("section_type", String(length=50), default="article_sections_with_plain_text", nullable=False)
 )
 
@@ -126,7 +126,7 @@ ArticleSectionSlideShowTable = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("article_id", ForeignKey("articles.id")),
     Column("text", Text, nullable=False),
-    Column("intex_number_in_article", Integer, nullable=False),
+    Column("index_number_in_article", Integer, nullable=False),
     Column("image", String(length=255), nullable=False),
     Column("author", String(length=255), nullable=False),
     Column("section_type", String(length=50), default="article_section_with_slide_show", nullable=False)
@@ -152,7 +152,7 @@ ArticleSectionVideoTable = Table(
     Column("article_id", ForeignKey("articles.id")),
     Column("title", String(length=255), nullable=False),
     Column("text", Text, nullable=False),
-    Column("intex_number_in_article", Integer, nullable=False),
+    Column("index_number_in_article", Integer, nullable=False),
     Column("video_url", String(length=255), nullable=False),
     Column("section_type", String(length=50), default="article_section_with_video", nullable=False),
     Column("image_preview", String(length=255), nullable=False),

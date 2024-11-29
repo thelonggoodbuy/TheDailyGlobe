@@ -131,6 +131,10 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
+        print('***')
+        print(request)
+        print(request.body)
+        print('***')
         token = await auth_obj.google.authorize_access_token(request)
         data = token.get('userinfo')
         user_email = data['email']

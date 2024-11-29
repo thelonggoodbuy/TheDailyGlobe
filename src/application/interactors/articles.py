@@ -22,7 +22,9 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleDetailDemoSchema,\
                                                 ArticlesFeedTopStoriesRequestSchema,\
                                                 SearchSchema, \
-                                                DemoCauseSchema
+                                                DemoCauseSchema,\
+                                                SearchResultSchema,\
+                                                SearchResponseSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 from src.application.interfaces.services import ITokenService, ISearchService
@@ -213,7 +215,8 @@ class GetVideoInteractor(BaseInteractor):
                                             text=article_video_sections.text,
                                             video_url=article_video_sections.video_url,
                                             title=article_video_sections.title,
-                                            categoty_title=article_video_sections.article.category.title)
+                                            category_title=article_video_sections.article.category.title,
+                                            image_preview=article_video_sections.image_preview)
 
         result = VideoResponseSchema(
              error=False,
@@ -240,7 +243,17 @@ class SearchInteractors(BaseInteractor):
 
     async def __call__(self, search_schema: SearchSchema):
         result = await self.search_service.full_text_search(search_schema)
-        return result
+        result_list = []
+        for article in result:
+            single_result = SearchResultSchema(
+                id=article.id,
+                title=article.title,
+                publication_date=str(article.publication_date)
+            )
+            result_list.append(single_result)
+
+        result_response = SearchResponseSchema(error=False, message='', data=result_list)
+        return result_response.model_dump(by_alias=True)
 
 
 
@@ -269,14 +282,14 @@ class TestSaveObjectInteractor(BaseInteractor):
     async def __call__(self,
                         article_id, 
                         text, 
-                        intex_number_in_article, 
+                        index_number_in_article, 
                         file) -> ArtictleResponse:
         
 
         upload_directory ="/galery/"
         stopped_session = await self.article_repository.save_section_with_image(article_id=article_id,
                                                               text=text,
-                                                              intex_number_in_article=intex_number_in_article,
+                                                              index_number_in_article=index_number_in_article,
                                                               image=f"{upload_directory}{file.filename}")
         await stopped_session.flush()
         success: bool = await self.write_file_gateway.safe_file_in_storage(upload_directory, file)

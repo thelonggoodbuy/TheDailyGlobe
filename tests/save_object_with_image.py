@@ -12,7 +12,7 @@ engine = create_async_engine(ASYNCSQLALCHEMY_DATABASE_URL)
 
 
 
-async def save_test_obj_with_photo(article_id, text, intex_number_in_article, image):
+async def save_test_obj_with_photo(article_id, text, index_number_in_article, image):
     async_session = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session() as session:
         print('===>saving image procedure<===')
@@ -25,7 +25,7 @@ async def save_test_obj_with_photo(article_id, text, intex_number_in_article, im
         article = result.scalars().one()
 
         article_section = ArticleSectionSlideShowEntity(text='some text',
-                                                        intex_number_in_article=1,
+                                                        index_number_in_article=1,
                                                         image=image)
         article_section.article = article
         print('==============================')

@@ -176,12 +176,12 @@ from fastapi import UploadFile, File
 @router.post("/test_section_with_slider/", tags=["test_endpoint"])
 async def save_article_section_with_image(article_id: int, 
                                         text: str,
-                                        intex_number_in_article: int,
+                                        index_number_in_article: int,
                                         interactor: FromDishka[TestSaveObjectInteractor],
                                         image: UploadFile = File(...)):
     
 
-    result = await interactor(article_id=article_id, text=text, intex_number_in_article=intex_number_in_article, file=image)
+    result = await interactor(article_id=article_id, text=text, index_number_in_article=index_number_in_article, file=image)
     return result
 
 

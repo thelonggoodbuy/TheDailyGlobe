@@ -57,7 +57,7 @@ class ArticleSectionEntity(Entity):
 
     article_id: int
     text: str
-    intex_number_in_article: int
+    index_number_in_article: int
     section_type: str
 
 
@@ -67,7 +67,7 @@ class ArticleWithPlainTextSectionEntity(Entity):
     id: int
     article_id: int
     text: str
-    intex_number_in_article: int
+    index_number_in_article: int
     section_type: str
 
 
@@ -78,7 +78,7 @@ class ArticleSectionSlideShowEntity(Entity):
     
     article_id: int
     text: str
-    intex_number_in_article: int
+    index_number_in_article: int
     image: str
     section_type: str
     author: str
@@ -93,7 +93,7 @@ class ArticleWithVideoSectionEntity(Entity):
     article_id: int
     title: str
     text: str
-    intex_number_in_article: int
+    index_number_in_article: int
     video_url: str
     section_type: str
     image_preview: str
