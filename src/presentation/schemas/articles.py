@@ -33,7 +33,6 @@ class ArticleItem(BaseSchema):
     is_premium: bool = Field(alias='isPremium')
     viewing: Optional[int] = None
 
-
 class ArticleFeedResponseSchema(BaseResponseSchema):
     
     data: Optional[dict]
@@ -237,3 +236,25 @@ class SearchResultSchema(BaseSchema):
 
 class SearchResponseSchema(BaseResponseSchema):
     data: Optional[List[SearchResultSchema]]
+
+
+
+
+class SearchRequestState(str, Enum):
+    updated = "search request updated"
+    created = "search request created"
+
+
+class ReturnSimilarRequestResponseSchema(BaseResponseSchema):
+    data: List[str|None]
+
+
+
+
+class PopularArticleForSearchItem(BaseSchema):
+    id: int
+    title: str
+    author: str
+    main_image: str = Field(alias='mainImage')
+    publication_date: str = Field(alias='publicationDate')
+    viewing: Optional[int] = None

@@ -30,7 +30,9 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             GetSlideShowInteractor,\
                                             GetVideoInteractor,\
                                             GetArticlesFeedTopStoriesInteractor,\
-                                            SearchInteractors
+                                            SearchInteractors,\
+                                            SaveOrUpdateSearchWordInteractor,\
+                                            ReturnPopularArticlesInSearch
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -45,6 +47,7 @@ from src.application.interactors.comments import CreateCommentInteractor, ShowCo
 from src.infrastructure.database.repositories.categories import CategoryAlchemyRepository
 from src.infrastructure.database.repositories.comments import CommentsAlchemyRepository
 from src.infrastructure.database.repositories.unregistered_device import UnregisteredDeviceRepository
+from src.infrastructure.database.repositories.search import SearchAlchemyRepository
 
 
 from src.application.interfaces.repositories import IAlchemyRepository, \
@@ -52,7 +55,8 @@ from src.application.interfaces.repositories import IAlchemyRepository, \
                                                     BaseCategoryRepository, \
                                                     BaseCommentsRepository, \
                                                     BaseUnregisteredDeviceRepository,\
-                                                    BaseUserRepository
+                                                    BaseUserRepository,\
+                                                    BaseSearchRepository
 
 from src.main.config.settings import Settings
 from src.application.services.jwt_token_service import JWTTokenService
@@ -149,11 +153,23 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST,
     )
 
+    get_most_popular_articles_interactor = provide(
+        source=ReturnPopularArticlesInSearch,
+        scope=Scope.REQUEST
+    )
+
     search_request_service = provide(
         source=SearchPostgresqlService,
         scope=Scope.REQUEST,
         provides=ISearchService,
     )
+
+
+    save_or_update_search_interactor = provide(
+        source=SaveOrUpdateSearchWordInteractor,
+        scope=Scope.REQUEST
+    )
+    
 
     # repository
     article_repository = provide(
@@ -162,6 +178,11 @@ class ArticleProvider(Provider):
         provides=AnyOf[BaseArticleRepository, IAlchemyRepository]
     )
 
+    search_repository = provide(
+        source=SearchAlchemyRepository,
+        scope=Scope.REQUEST,
+        provides=AnyOf[BaseSearchRepository, IAlchemyRepository]
+    )
     
     category_repository = provide(
         source = CategoryAlchemyRepository,

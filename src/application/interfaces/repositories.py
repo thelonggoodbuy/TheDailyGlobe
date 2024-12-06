@@ -114,3 +114,14 @@ class BaseUserRepository(ABC):
     @abstractmethod
     async def update_user():
         raise NotImplementedError
+    
+
+
+class BaseSearchRepository(ABC):
+    @abstractmethod
+    async def check_if_word_exist_and_update():
+        raise NotImplementedError
+
+    @abstractmethod
+    async def save_search_word():
+        raise NotImplementedError

@@ -22,7 +22,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleWithVideoSectionSchema, \
                                                 ArticleDetailSchema, \
                                                 ArticlesFeedTopStoriesRequestSchema, \
-                                                SearchSchema
+                                                SearchSchema,\
+                                                PopularArticleForSearchItem
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -30,7 +31,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy import update
 from datetime import datetime, timedelta, timezone
 
-
+import time
 
 
 
@@ -137,6 +138,53 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
                                             data={"content": article_list, "last": is_last_page})
         return response
        
+
+    async def return_most_popular_articles(self, article_most_popular_request_schema: ArticlesFeedTopStoriesRequestSchema) -> ArticleFeedResponseSchema:
+        
+        offset_value = article_most_popular_request_schema.pagination_length * article_most_popular_request_schema.current_pagination_position
+        current_date = datetime.now(timezone.utc)
+
+        query = (
+        select(ArticleEntity)
+        .options(selectinload(ArticleEntity.category))
+        .filter(ArticleEntity.publication_date >= current_date - timedelta(days=28))
+        .order_by(desc(ArticleEntity.viewing))
+        .offset(offset_value)
+        .limit(article_most_popular_request_schema.pagination_length)
+        )
+        article_rows = await self._session.execute(query)
+        article_objects = article_rows.scalars().all()
+
+        total_articles_query = (
+        select(func.count(ArticleEntity.id))
+        .filter(ArticleEntity.publication_date >= current_date - timedelta(days=28))
+        )
+        total_articles = (await self._session.execute(total_articles_query)).scalar()
+
+        is_last_page = (offset_value + article_most_popular_request_schema.pagination_length) >= total_articles
+
+        article_list = []
+        for article_obj in article_objects:
+
+            article = PopularArticleForSearchItem(
+                # category_title=article_obj.category.title,
+                id=article_obj.id,
+                title=article_obj.title,
+                author=article_obj.author,
+                main_image=article_obj.main_image,
+                publication_date=str(article_obj.publication_date),
+                # is_premium=article_obj.is_premium,
+                viewing=article_obj.viewing
+            )
+            article_list.append(article.model_dump(by_alias=True))
+
+        response = ArticleFeedResponseSchema(error=False, 
+                                            message='', 
+                                            data={"content": article_list, "last": is_last_page})
+        return response
+       
+
+
     async def return_detail_article(self, get_detail_article_schema: ArticlesDetailRequestSchema) -> ArticlesDetailResponseSchema:
         query = select(ArticleEntity)\
                                     .options(selectinload(ArticleEntity.category)).filter(ArticleEntity.id == get_detail_article_schema.article_id)
@@ -256,133 +304,103 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         similarity_threshold = 0.05
         term = search_schema.text
 
+        start_time = time.time()
 
-
-        # работает, но только кроме правильного результата дает пачку лишних со слабыми совпадениями
-        # query = select(ArticleEntity, func.similarity(ArticleEntity.title, term),)\
-        #         .where(func.similarity(ArticleEntity.title, term) > similatiry_threshold)\
-        #         .order_by(func.similarity(ArticleEntity.title, term).desc(), )
-
-
-        # хорошо работает, сейчай добавлю связные обьекты
-        # query = select(
-        #             ArticleEntity, 
-        #                 func.greatest(
-        #                     func.similarity(ArticleEntity.title, term),
-        #                     func.similarity(ArticleEntity.lead, term)
-        #                 )
-        #             ).where(
-        #                 func.greatest(
-        #                     func.similarity(ArticleEntity.title, term),
-        #                     func.similarity(ArticleEntity.lead, term)
-        #                 ) > similatiry_threshold
-        #             ).order_by(
-        #                 func.greatest(
-        #                     func.similarity(ArticleEntity.title, term),
-        #                     func.similarity(ArticleEntity.lead, term)
-        #                 ).desc()
-        #             )
-
-        # Работает, теперь делаем все результаты уникальными и отдаем только 10 наиболее похожих результатов
-        # query = select(
-        # ArticleEntity,
-        # func.greatest(
-        #     func.similarity(ArticleEntity.title, term),
-        #     func.similarity(ArticleEntity.lead, term),
-        #     func.similarity(ArticleWithPlainTextSectionEntity.text, term)
-        # )
-        # ).join(
-        #     ArticleWithPlainTextSectionEntity, 
-        #     ArticleEntity.id == ArticleWithPlainTextSectionEntity.article_id,  # Условие соединения
-        #     isouter=True  # Левое соединение, чтобы учитывать статьи без связанных секций
-        # ).where(
-        #     func.greatest(
-        #         func.similarity(ArticleEntity.title, term),
-        #         func.similarity(ArticleEntity.lead, term),
-        #         func.similarity(ArticleWithPlainTextSectionEntity.text, term)
-        #     ) > similatiry_threshold
-        # ).order_by(
-        #     func.greatest(
-        #         func.similarity(ArticleEntity.title, term),
-        #         func.similarity(ArticleEntity.lead, term),
-        #         func.similarity(ArticleWithPlainTextSectionEntity.text, term)
-        #     ).desc()
-        # )
-
-
-        # все работает, добавляю 2 поля
         # query = select(
         #     ArticleEntity,
         #     func.greatest(
         #         func.similarity(ArticleEntity.title, term),
         #         func.similarity(ArticleEntity.lead, term),
         #         func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
-        #     ).label("relevance")  # Добавляем поле для релевантности
+        #         func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
+        #     ).label("relevance")
         # ).join(
         #     ArticleWithPlainTextSectionEntity,
         #     ArticleEntity.id == ArticleWithPlainTextSectionEntity.article_id,
+        #     isouter=True
+        # ).join(
+        #     ArticleSectionSlideShowEntity,
+        #     ArticleEntity.id == ArticleSectionSlideShowEntity.article_id,
         #     isouter=True
         # ).where(
         #     func.greatest(
         #         func.similarity(ArticleEntity.title, term),
         #         func.similarity(ArticleEntity.lead, term),
-        #         func.coalesce(func.similarity(ArticleWithPlainTextSectionEntity.text, term), 0)  # Для отсутствующих секций
+        #         func.coalesce(func.similarity(ArticleWithPlainTextSectionEntity.text, term), 0),
+        #         func.coalesce(func.similarity(ArticleSectionSlideShowEntity.text, term), 0)
         #     ) > similarity_threshold
         # ).group_by(
-        #     ArticleEntity.id  # Уникальность по статье
+        #     ArticleEntity.id
         # ).order_by(
         #     func.greatest(
         #         func.similarity(ArticleEntity.title, term),
         #         func.similarity(ArticleEntity.lead, term),
-        #         func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term))
+        #         func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
+        #         func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
         #     ).desc()
         # ).limit(10)
 
 
-        query = select(
-            ArticleEntity,
-            func.greatest(
-                func.similarity(ArticleEntity.title, term),
-                func.similarity(ArticleEntity.lead, term),
-                func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
-                func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
-            ).label("relevance")
-        ).join(
-            ArticleWithPlainTextSectionEntity,
-            ArticleEntity.id == ArticleWithPlainTextSectionEntity.article_id,
-            isouter=True
-        ).join(
-            ArticleSectionSlideShowEntity,
-            ArticleEntity.id == ArticleSectionSlideShowEntity.article_id,
-            isouter=True
-        ).where(
-            func.greatest(
-                func.similarity(ArticleEntity.title, term),
-                func.similarity(ArticleEntity.lead, term),
-                func.coalesce(func.similarity(ArticleWithPlainTextSectionEntity.text, term), 0),
-                func.coalesce(func.similarity(ArticleSectionSlideShowEntity.text, term), 0)
-            ) > similarity_threshold
-        ).group_by(
-            ArticleEntity.id
-        ).order_by(
-            func.greatest(
-                func.similarity(ArticleEntity.title, term),
-                func.similarity(ArticleEntity.lead, term),
-                func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
-                func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
-            ).desc()
-        ).limit(10)
+        # =================================================
 
 
-        print('---query---')
-        print(str(query))
-        print('-----------')
-        # result = await self._session.query(ArticleEntity).filter(func.similarity(ArticleEntity.title, search_schema.text) > similatiry_threshold)
+        title_similarity = func.similarity(ArticleEntity.title, term)
+        lead_similarity = func.similarity(ArticleEntity.lead, term)
+        plain_text_similarity = func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term))
+        slide_show_similarity = func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
+
+        # Вычисляем максимальное значение "релевантности"
+        relevance = func.greatest(
+            title_similarity,
+            lead_similarity,
+            plain_text_similarity,
+            slide_show_similarity
+        )
+
+        # Основной запрос
+        query = (
+            select(
+                ArticleEntity,
+                relevance.label("relevance")
+            )
+            .join(
+                ArticleWithPlainTextSectionEntity,
+                ArticleEntity.id == ArticleWithPlainTextSectionEntity.article_id,
+                isouter=True
+            )
+            .join(
+                ArticleSectionSlideShowEntity,
+                ArticleEntity.id == ArticleSectionSlideShowEntity.article_id,
+                isouter=True
+            )
+            .where(
+                func.greatest(
+                    title_similarity,
+                    lead_similarity,
+                    func.coalesce(func.similarity(ArticleWithPlainTextSectionEntity.text, term), 0),
+                    func.coalesce(func.similarity(ArticleSectionSlideShowEntity.text, term), 0)
+                ) > similarity_threshold
+            )
+            .group_by(ArticleEntity.id)
+            .order_by(relevance.desc())
+            .limit(10)
+        )
+
+
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        # print('---query---')
+        # print(str(query))
+        # print('-----------')
         query_row = await self._session.execute(query)
         result = query_row.scalars().all()
         
+        end_time = time.time()
 
-        print('Repository result:')
-        print(result)
-        print('=================')
+        execution_time = end_time - start_time
+        print(f"Execution time: {execution_time:.5f} seconds")
+
+        # print('Repository result:')
+        # print(result)
+        # print('=================')
         return result 

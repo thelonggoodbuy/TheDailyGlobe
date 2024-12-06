@@ -9,7 +9,9 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 GetSlideShowInteractor,\
                                                 GetVideoInteractor,\
                                                 GetArticlesFeedTopStoriesInteractor,\
-                                                SearchInteractors
+                                                SearchInteractors,\
+                                                SaveOrUpdateSearchWordInteractor,\
+                                                ReturnPopularArticlesInSearch
 
 from src.application.ioc import ArticleProvider
 
@@ -157,15 +159,30 @@ async def get_video(get_video_schema: GetVideoSchema,
     return result
 
 
-
-
-
 @router.post("/full_text_search/", tags=["search"])
 @inject
 async def full_text_search(search_schema: SearchSchema,
                            interactor: FromDishka[SearchInteractors]):
 
     result = await interactor(search_schema)
+    return result
+
+
+@router.post("/save_search_word_and_return_similar/", tags=["search"])
+@inject
+async def save_or_update_search_word(search_word: str,
+                           interactor:FromDishka[SaveOrUpdateSearchWordInteractor]):
+    result = await interactor(search_word)
+    
+    return result
+
+
+@router.post("/return_popular_articles/", tags=["search"])
+@inject
+async def return_similar_search(interactor:FromDishka[ReturnPopularArticlesInSearch],
+                                return_popular_article_in_search: ArticlesFeedTopStoriesRequestSchema):
+    result = await interactor(return_popular_article_in_search)
+    
     return result
 
 

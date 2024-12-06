@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from common.base.interactor import BaseInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
 
-from src.application.interfaces.repositories import BaseArticleRepository
+from src.application.interfaces.repositories import BaseArticleRepository, BaseSearchRepository
 
 from src.infrastructure.database.repositories.categories import BaseCategoryRepository
 from src.infrastructure.database.repositories.unregistered_device import BaseUnregisteredDeviceRepository
@@ -24,7 +24,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 SearchSchema, \
                                                 DemoCauseSchema,\
                                                 SearchResultSchema,\
-                                                SearchResponseSchema
+                                                SearchResponseSchema,\
+                                                ReturnSimilarRequestResponseSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 from src.application.interfaces.services import ITokenService, ISearchService
@@ -257,6 +258,45 @@ class SearchInteractors(BaseInteractor):
 
 
 
+class SaveOrUpdateSearchWordInteractor(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        search_repository: BaseSearchRepository,
+        search_service: ISearchService,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.search_repository = search_repository
+        self.search_service = search_service
+        self.settings = settings
+
+
+    async def __call__(self, search_word: str):
+
+        save_or_update_search = await self.search_repository.check_if_word_exist_and_update(search_word)
+        search_response = await self.search_repository.return_similar_search_request(search_word)
+        result = ReturnSimilarRequestResponseSchema(error=False, message="", data=search_response)
+        return result
+
+
+class ReturnPopularArticlesInSearch(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+
+
+    async def __call__(self, return_popular_article_in_search: ArticlesFeedTopStoriesRequestSchema):
+
+        result = await self.article_repository.return_most_popular_articles(return_popular_article_in_search)
+        # result = CreateOrUpdateSearchResponseSchema(error=False, message="", data=search_response)
+        return result
 
 
 # =========================TEST========INTERACTORS=========================
