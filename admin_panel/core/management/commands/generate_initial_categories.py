@@ -23,16 +23,19 @@ class Command(BaseCommand):
 
         obj, created = CategoryUnfold.objects.get_or_create(
             title='екоміка',
+            extended_title='Останні новини економіки',
         )
         if created: print("Категорія 'економіка' створена...")
 
         obj, created = CategoryUnfold.objects.get_or_create(
             title='культура',
+            extended_title='Останні новини культури',
         )
         if created: print("Категорія 'культура' створена...")
 
         obj, created = CategoryUnfold.objects.get_or_create(
             title='технології',
+            extended_title='Останні новини технологій',
         )
         if created: print("Категорія 'технології' створена...")
 

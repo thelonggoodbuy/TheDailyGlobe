@@ -86,6 +86,7 @@ class ArticlesUnfold(models.Model):
 
 class CategoryUnfold(models.Model):
     title = models.CharField(max_length=255)
+    extended_title = models.CharField(max_length=255)
 
     class Meta:
         managed = False

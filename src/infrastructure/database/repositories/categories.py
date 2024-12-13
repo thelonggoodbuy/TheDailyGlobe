@@ -17,6 +17,10 @@ class CategoryAlchemyRepository(BaseCategoryRepository, IAlchemyRepository):
             one_category = {}
             one_category['id'] = category.id
             one_category['title'] = category.title
+            one_category['extended_title'] = category.extended_title
+            print('*')
+            print(category.extended_title)
+            print('*')
             categorys_list.append(one_category)
 
         result = CategorysResponse(categories=categorys_list)

@@ -12,7 +12,8 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 SearchInteractors,\
                                                 SaveOrUpdateSearchWordInteractor,\
                                                 ReturnPopularArticlesInSearch,\
-                                                ReturnMostPopularSearchRequests
+                                                ReturnMostPopularSearchRequests,\
+                                                GetRelatedStoriesInteractor
 
 from src.application.ioc import ArticleProvider
 
@@ -26,7 +27,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 VideoResponseSchema,\
                                                 BearerOrDeviceIdExtractorResult, \
                                                 ArticlesFeedTopStoriesRequestSchema, \
-                                                SearchSchema
+                                                SearchSchema,\
+                                                RelatedStoriesResponseSchema
 from typing import Annotated, Optional
 from fastapi import Depends
 from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
@@ -139,6 +141,16 @@ async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetail
     result = await interactor(get_detail_article_schema, token_or_device_id_extractor)
        
 
+    return result
+
+
+
+
+@router.post("/get_related_stories/", tags=["articles"])
+@inject
+async def get_related_stories(article_id: int,
+                            interactor: FromDishka[GetRelatedStoriesInteractor]) -> RelatedStoriesResponseSchema:
+    result = await interactor(article_id)
     return result
 
 

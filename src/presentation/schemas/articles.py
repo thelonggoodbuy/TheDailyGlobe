@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
@@ -33,10 +33,28 @@ class ArticleItem(BaseSchema):
     is_premium: bool = Field(alias='isPremium')
     viewing: Optional[int] = None
 
-class ArticleFeedResponseSchema(BaseResponseSchema):
-    
-    data: Optional[dict]
 
+class ArticleResultItem(BaseSchema):
+    content: List[Any]
+    last: bool
+
+
+class ArticleFeedResponseSchema(BaseResponseSchema):
+    data: ArticleResultItem
+
+
+
+class PopularArticleForSearchItem(BaseSchema):
+    id: int
+    title: str
+    author: str
+    main_image: str = Field(alias='mainImage')
+    publication_date: str = Field(alias='publicationDate')
+    viewing: Optional[int] = None
+
+
+class RelatedStoriesResponseSchema(BaseResponseSchema):
+    data: List[PopularArticleForSearchItem]
 
 
 class DeviceType(str, Enum):
@@ -250,11 +268,3 @@ class ReturnSimilarRequestResponseSchema(BaseResponseSchema):
 
 
 
-
-class PopularArticleForSearchItem(BaseSchema):
-    id: int
-    title: str
-    author: str
-    main_image: str = Field(alias='mainImage')
-    publication_date: str = Field(alias='publicationDate')
-    viewing: Optional[int] = None

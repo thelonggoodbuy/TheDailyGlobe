@@ -105,3 +105,4 @@ class ArticleWithVideoSectionEntity(Entity):
 class CategoryEntity(Entity):
     id: str
     title: str
+    extended_title: str

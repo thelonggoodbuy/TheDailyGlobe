@@ -26,7 +26,8 @@ CategortyTable = Table(
     "category",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(length=255), nullable=False)
+    Column("title", String(length=255), nullable=False),
+    Column("extended_title", String(length=255), nullable=False),
 
 )
 

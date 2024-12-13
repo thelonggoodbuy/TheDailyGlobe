@@ -33,7 +33,8 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             SearchInteractors,\
                                             SaveOrUpdateSearchWordInteractor,\
                                             ReturnPopularArticlesInSearch,\
-                                            ReturnMostPopularSearchRequests
+                                            ReturnMostPopularSearchRequests,\
+                                            GetRelatedStoriesInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -173,6 +174,11 @@ class ArticleProvider(Provider):
 
     save_or_update_search_interactor = provide(
         source=SaveOrUpdateSearchWordInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_semilar_stories = provide(
+        source=GetRelatedStoriesInteractor,
         scope=Scope.REQUEST
     )
     

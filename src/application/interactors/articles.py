@@ -320,6 +320,28 @@ class ReturnMostPopularSearchRequests(BaseInteractor):
         result = ReturnSimilarRequestResponseSchema(error=False, message="", data=search_response)
         return result
 
+
+
+class GetRelatedStoriesInteractor(BaseInteractor):
+
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.settings = settings
+    
+
+
+    async def __call__(self, article_id: int):
+        result = await self.article_repository.return_related_stories(article_id)
+        # result = CreateOrUpdateSearchResponseSchema(error=False, message="", data=search_response)
+        return result
+
+
+
 # =========================TEST========INTERACTORS=========================
 
 
@@ -360,3 +382,4 @@ class TestSaveObjectInteractor(BaseInteractor):
         result = ArtictleResponse(result = 'sawing file work!!')
 
         return result
+

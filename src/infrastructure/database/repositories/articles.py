@@ -23,7 +23,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ArticleDetailSchema, \
                                                 ArticlesFeedTopStoriesRequestSchema, \
                                                 SearchSchema,\
-                                                PopularArticleForSearchItem
+                                                PopularArticleForSearchItem,\
+                                                RelatedStoriesResponseSchema
 
 
 from src.domain.entities.articles.articles_entities import ArticleEntity
@@ -306,44 +307,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
         start_time = time.time()
 
-        # query = select(
-        #     ArticleEntity,
-        #     func.greatest(
-        #         func.similarity(ArticleEntity.title, term),
-        #         func.similarity(ArticleEntity.lead, term),
-        #         func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
-        #         func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
-        #     ).label("relevance")
-        # ).join(
-        #     ArticleWithPlainTextSectionEntity,
-        #     ArticleEntity.id == ArticleWithPlainTextSectionEntity.article_id,
-        #     isouter=True
-        # ).join(
-        #     ArticleSectionSlideShowEntity,
-        #     ArticleEntity.id == ArticleSectionSlideShowEntity.article_id,
-        #     isouter=True
-        # ).where(
-        #     func.greatest(
-        #         func.similarity(ArticleEntity.title, term),
-        #         func.similarity(ArticleEntity.lead, term),
-        #         func.coalesce(func.similarity(ArticleWithPlainTextSectionEntity.text, term), 0),
-        #         func.coalesce(func.similarity(ArticleSectionSlideShowEntity.text, term), 0)
-        #     ) > similarity_threshold
-        # ).group_by(
-        #     ArticleEntity.id
-        # ).order_by(
-        #     func.greatest(
-        #         func.similarity(ArticleEntity.title, term),
-        #         func.similarity(ArticleEntity.lead, term),
-        #         func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term)),
-        #         func.max(func.similarity(ArticleSectionSlideShowEntity.text, term))
-        #     ).desc()
-        # ).limit(10)
-
-
-        # =================================================
-
-
         title_similarity = func.similarity(ArticleEntity.title, term)
         lead_similarity = func.similarity(ArticleEntity.lead, term)
         plain_text_similarity = func.max(func.similarity(ArticleWithPlainTextSectionEntity.text, term))
@@ -386,12 +349,6 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
             .limit(10)
         )
 
-
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-        # print('---query---')
-        # print(str(query))
-        # print('-----------')
         query_row = await self._session.execute(query)
         result = query_row.scalars().all()
         
@@ -400,7 +357,49 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time:.5f} seconds")
 
-        # print('Repository result:')
-        # print(result)
-        # print('=================')
         return result 
+    
+
+    async def return_related_stories(self, article_id: int):
+        query = (
+            select(ArticleEntity)
+            .filter(ArticleEntity.id == article_id)
+        )
+        query_rows = await self._session.execute(query)
+        article = query_rows.scalars().first()
+
+        print('===>Category id:<===')
+        print(article.category_id)
+        print('====================')
+
+
+
+        query = (select(ArticleEntity)
+            .filter(ArticleEntity.category_id == article.category_id)
+            .order_by(desc(ArticleEntity.viewing))
+            .limit(5)
+            )
+        
+
+
+        article_rows = await self._session.execute(query)
+        article_objects = article_rows.scalars().all()
+
+
+        article_list = []
+        for article_obj in article_objects:
+            article = PopularArticleForSearchItem(
+                id=article_obj.id,
+                title=article_obj.title,
+                author=article_obj.author,
+                main_image=article_obj.main_image,
+                publication_date=str(article_obj.publication_date),
+                viewing=article_obj.viewing
+            )
+            article_list.append(article.model_dump(by_alias=True))
+
+        response = RelatedStoriesResponseSchema(error=False, 
+                                            message='', 
+                                            data=article_list)
+        return response
+
