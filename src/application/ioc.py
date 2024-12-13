@@ -32,7 +32,8 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             GetArticlesFeedTopStoriesInteractor,\
                                             SearchInteractors,\
                                             SaveOrUpdateSearchWordInteractor,\
-                                            ReturnPopularArticlesInSearch
+                                            ReturnPopularArticlesInSearch,\
+                                            ReturnMostPopularSearchRequests
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -155,6 +156,11 @@ class ArticleProvider(Provider):
 
     get_most_popular_articles_interactor = provide(
         source=ReturnPopularArticlesInSearch,
+        scope=Scope.REQUEST
+    )
+
+    get_most_popular_search_request = provide (
+        source=ReturnMostPopularSearchRequests,
         scope=Scope.REQUEST
     )
 

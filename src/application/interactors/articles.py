@@ -299,6 +299,27 @@ class ReturnPopularArticlesInSearch(BaseInteractor):
         return result
 
 
+class ReturnMostPopularSearchRequests(BaseInteractor):
+    def __init__(self,
+        db_session: IDatabaseSession,
+        article_repository: BaseArticleRepository,
+        search_repository: BaseSearchRepository,
+        search_service: ISearchService,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.article_repository = article_repository
+        self.search_repository = search_repository
+        self.search_service = search_service
+        self.settings = settings
+
+
+    async def __call__(self):
+
+        search_response = await self.search_repository.return_most_popular_search_requests()
+        result = ReturnSimilarRequestResponseSchema(error=False, message="", data=search_response)
+        return result
+
 # =========================TEST========INTERACTORS=========================
 
 

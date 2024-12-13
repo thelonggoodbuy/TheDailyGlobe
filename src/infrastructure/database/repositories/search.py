@@ -72,3 +72,11 @@ class SearchAlchemyRepository(BaseSearchRepository, IAlchemyRepository):
         query_row = await self._session.execute(query)
         search_request = query_row.scalars().all()
         return search_request
+    
+
+
+    async def return_most_popular_search_requests(self):
+        query = select(SearchRequestEntity.text).order_by(SearchRequestEntity.quantity_of_search_requests.desc()).limit(6)
+        query_row = await self._session.execute(query)
+        search_request = query_row.scalars().all()
+        return search_request

@@ -11,7 +11,8 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 GetArticlesFeedTopStoriesInteractor,\
                                                 SearchInteractors,\
                                                 SaveOrUpdateSearchWordInteractor,\
-                                                ReturnPopularArticlesInSearch
+                                                ReturnPopularArticlesInSearch,\
+                                                ReturnMostPopularSearchRequests
 
 from src.application.ioc import ArticleProvider
 
@@ -184,6 +185,15 @@ async def return_similar_search(interactor:FromDishka[ReturnPopularArticlesInSea
     result = await interactor(return_popular_article_in_search)
     
     return result
+
+
+@router.post("/return_most_popular_requests/", tags=["search"])
+@inject
+async def return_similar_search(interactor:FromDishka[ReturnMostPopularSearchRequests]):
+    result = await interactor()
+    
+    return result
+
 
 
 # --------------------------TEST--------DATA----------ROUTINGS-----------------------------
