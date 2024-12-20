@@ -28,7 +28,7 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 ReturnSimilarRequestResponseSchema
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
-from src.application.interfaces.services import ITokenService, ISearchService
+from src.application.interfaces.services import ITokenService, ISearchService, INotificationService
 from datetime import datetime
 
 
@@ -383,3 +383,65 @@ class TestSaveObjectInteractor(BaseInteractor):
 
         return result
 
+
+
+
+
+
+class TestNotificationThrowTokenInteractor():
+    def __init__(self,
+        db_session: IDatabaseSession,
+        notification_service: INotificationService,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.notification_service = notification_service
+        self.settings = settings
+
+
+    async def __call__(self, registration_token: str, message: str):
+        await self.notification_service.notificate_throw_token(registration_token, message)
+
+
+
+
+class TestNotificationThrowTopicInteractor():
+    def __init__(self,
+        db_session: IDatabaseSession,
+        notification_service: INotificationService,
+        settings: Settings):
+
+        self.db_session = db_session
+        self.notification_service = notification_service
+        self.settings = settings
+
+    async def __call__(self, topic: str, message: str):
+        await self.notification_service.notificate_throw_topic(topic, message)
+
+
+
+
+
+
+
+# class SaveOrUpdateSearchWordInteractor(BaseInteractor):
+#     def __init__(self,
+#         db_session: IDatabaseSession,
+#         article_repository: BaseArticleRepository,
+#         search_repository: BaseSearchRepository,
+#         search_service: ISearchService,
+#         settings: Settings):
+
+#         self.db_session = db_session
+#         self.article_repository = article_repository
+#         self.search_repository = search_repository
+#         self.search_service = search_service
+#         self.settings = settings
+
+
+#     async def __call__(self, search_word: str):
+
+#         save_or_update_search = await self.search_repository.check_if_word_exist_and_update(search_word)
+#         search_response = await self.search_repository.return_similar_search_request(search_word)
+#         result = ReturnSimilarRequestResponseSchema(error=False, message="", data=search_response)
+#         return result

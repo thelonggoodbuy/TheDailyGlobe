@@ -34,7 +34,9 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             SaveOrUpdateSearchWordInteractor,\
                                             ReturnPopularArticlesInSearch,\
                                             ReturnMostPopularSearchRequests,\
-                                            GetRelatedStoriesInteractor
+                                            GetRelatedStoriesInteractor,\
+                                            TestNotificationThrowTokenInteractor,\
+                                            TestNotificationThrowTopicInteractor
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -63,7 +65,8 @@ from src.application.interfaces.repositories import IAlchemyRepository, \
 from src.main.config.settings import Settings
 from src.application.services.jwt_token_service import JWTTokenService
 from src.application.services.search import SearchPostgresqlService
-from src.application.interfaces.services import ITokenService, ISearchService
+from src.application.services.notification import NotificationFirebaseService
+from src.application.interfaces.services import ITokenService, ISearchService, INotificationService
 
 
 
@@ -171,7 +174,6 @@ class ArticleProvider(Provider):
         provides=ISearchService,
     )
 
-
     save_or_update_search_interactor = provide(
         source=SaveOrUpdateSearchWordInteractor,
         scope=Scope.REQUEST
@@ -181,7 +183,26 @@ class ArticleProvider(Provider):
         source=GetRelatedStoriesInteractor,
         scope=Scope.REQUEST
     )
-    
+
+    notificate_throw_token = provide(
+        source=TestNotificationThrowTokenInteractor,
+        scope=Scope.REQUEST
+    )
+
+    notificate_throw_topic = provide(
+        source=TestNotificationThrowTopicInteractor,
+        scope=Scope.REQUEST
+    )
+
+
+
+
+    # service
+    notification_firebase_service = provide(
+        source=NotificationFirebaseService,
+        scope=Scope.APP,
+        provides=INotificationService,
+    )
 
     # repository
     article_repository = provide(

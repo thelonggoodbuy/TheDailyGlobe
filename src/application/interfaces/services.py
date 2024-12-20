@@ -15,3 +15,16 @@ class ISearchService(ABC):
     @abstractmethod
     async def full_text_search():
         pass
+
+
+
+
+class INotificationService(ABC):
+
+    @abstractmethod
+    async def notificate_throw_token():
+        pass
+
+    @abstractmethod
+    async def notificate_throw_topic():
+        pass

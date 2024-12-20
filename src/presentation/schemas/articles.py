@@ -53,6 +53,9 @@ class PopularArticleForSearchItem(BaseSchema):
     viewing: Optional[int] = None
 
 
+class RelatedStoriesRequestSchema(BaseSchema):
+    article_id: int = Field(alias='articleId')
+
 class RelatedStoriesResponseSchema(BaseResponseSchema):
     data: List[PopularArticleForSearchItem]
 

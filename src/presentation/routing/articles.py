@@ -13,7 +13,9 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 SaveOrUpdateSearchWordInteractor,\
                                                 ReturnPopularArticlesInSearch,\
                                                 ReturnMostPopularSearchRequests,\
-                                                GetRelatedStoriesInteractor
+                                                GetRelatedStoriesInteractor,\
+                                                TestNotificationThrowTokenInteractor,\
+                                                TestNotificationThrowTopicInteractor
 
 from src.application.ioc import ArticleProvider
 
@@ -28,7 +30,8 @@ from src.presentation.schemas.articles import ArticlesFeedRequestSchema, \
                                                 BearerOrDeviceIdExtractorResult, \
                                                 ArticlesFeedTopStoriesRequestSchema, \
                                                 SearchSchema,\
-                                                RelatedStoriesResponseSchema
+                                                RelatedStoriesResponseSchema,\
+                                                RelatedStoriesRequestSchema
 from typing import Annotated, Optional
 from fastapi import Depends
 from src.infrastructure.openapi.openapi import bearer_scheme, bearer_scheme_for_pages_with_unregistered_users
@@ -148,9 +151,9 @@ async def get_detail_article(get_detail_article_schema: Annotated[ArticlesDetail
 
 @router.post("/get_related_stories/", tags=["articles"])
 @inject
-async def get_related_stories(article_id: int,
+async def get_related_stories(related_stories:RelatedStoriesRequestSchema,
                             interactor: FromDishka[GetRelatedStoriesInteractor]) -> RelatedStoriesResponseSchema:
-    result = await interactor(article_id)
+    result = await interactor(related_stories.article_id)
     return result
 
 
@@ -225,3 +228,21 @@ async def save_article_section_with_image(article_id: int,
 
 
 
+
+
+
+
+@router.post("/test_send_one_notification_throw_token", tags=["test_endpoint"])
+async def test_send_one_notification_throw_token(registration_token: str,
+                                                    message: str,
+                                                    interactor: FromDishka[TestNotificationThrowTokenInteractor]):
+    await interactor(registration_token, message)
+
+
+
+
+@router.post("/test_send_one_notification_throw_topic", tags=["test_endpoint"])
+async def test_send_one_notification_throw_topic(topic: str,
+                                                    message: str,
+                                                    interactor: FromDishka[TestNotificationThrowTopicInteractor]):
+    await interactor(topic, message)

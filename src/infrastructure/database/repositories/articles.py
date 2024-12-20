@@ -375,9 +375,9 @@ class ArticleAlchemyRepository(BaseArticleRepository, IAlchemyRepository):
 
 
         query = (select(ArticleEntity)
-            .filter(ArticleEntity.category_id == article.category_id)
+            .filter(ArticleEntity.category_id == article.category_id, ArticleEntity.id != article_id)
             .order_by(desc(ArticleEntity.viewing))
-            .limit(5)
+            .limit(3)
             )
         
 
