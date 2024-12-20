@@ -27,29 +27,7 @@ class NotificationFirebaseService(INotificationService):
         print('================================================')
 
 
-        # import json
-        # file_path = "./serviceAccountKey.json"
-        # try:
-        #     with open(file_path, "r") as file:
-        #         credentials = json.load(file)
-        #         # Печатаем содержимое для проверки
-        #         print("Firebase Service Account Credentials:")
-        #         print(json.dumps(credentials, indent=4))  # Форматируем вывод для удобства
-        # except FileNotFoundError:
-        #     print(f"Файл {file_path} не найден. Проверьте путь.")
-        # except json.JSONDecodeError:
-        #     print(f"Файл {file_path} не является валидным JSON.")
-
-
-
-        # cred = credentials.Certificate("./serviceAccountKey.json")
-        # firebase_admin.initialize_app(cred)
-
-# 
-        # registration_token = 'dbRRC-ntSA2KvR0Q_X5h_N:APA91bGJ9_qTMI9Z-MezsiHaROVoTBZpbCrOsKd5FVhmRma3xXZzi7W2U2NzSSHr8GLqBY7n12hp-rWfq4Jp2xsdfkwkFE8OtkV3HO4U7Kd0KgHvDoIYXSQ'
-
-        # This registration token comes from the client FCM SDKs.
-        # See documentation on defining a message payload.
+        
         message = messaging.Message(
             data={
                 'message_text': message_text
@@ -60,7 +38,7 @@ class NotificationFirebaseService(INotificationService):
         # Send a message to the device corresponding to the provided
         # registration token.
         response = messaging.send(message)
-        
+
         # if response.failure_count > 0:
         #     print(f"Failed to send {response.failure_count} messages: {response.responses}")
         # Response is a message ID string.

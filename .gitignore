@@ -81,3 +81,4 @@ admin/models.py
 .idea/
 test.py
 staticfiles
+serviceAccountKey.json
