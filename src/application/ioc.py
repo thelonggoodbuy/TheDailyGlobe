@@ -17,6 +17,7 @@ from src.application.interfaces.gateways import IWriteFileStorageGateway
 from src.infrastructure.database.repositories.users import UserAlchemyRepository
 from src.infrastructure.database.repositories.articles import ArticleAlchemyRepository
 from src.infrastructure.database.repositories.subscriptions import SubscriptionRepository, BaseSubscribtionRepository
+from src.infrastructure.database.repositories.notifications import NotificationsAlchemyRepository, BaseNotificationsRepository
 
 from src.infrastructure.database.gateways.write_file_disc_storage_gateway import WriteFileDiscStorageGateway
 
@@ -35,8 +36,15 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                             ReturnPopularArticlesInSearch,\
                                             ReturnMostPopularSearchRequests,\
                                             GetRelatedStoriesInteractor,\
-                                            TestNotificationThrowTokenInteractor,\
                                             TestNotificationThrowTopicInteractor
+
+
+from src.application.interactors.notifications import TestNotificationThrowTokenInteractor,\
+                                                        ReturnNotificationCredentialsInteractor,\
+                                                        UpdateNotificationCredentialsInteractor,\
+                                                        GetNotificationsStatusInteractor,\
+                                                        UpdateNotificationsStatusInteractor
+
 
 from src.application.interactors.users import LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
@@ -184,25 +192,12 @@ class ArticleProvider(Provider):
         scope=Scope.REQUEST
     )
 
-    notificate_throw_token = provide(
-        source=TestNotificationThrowTokenInteractor,
-        scope=Scope.REQUEST
-    )
 
     notificate_throw_topic = provide(
         source=TestNotificationThrowTopicInteractor,
         scope=Scope.REQUEST
     )
 
-
-
-
-    # service
-    notification_firebase_service = provide(
-        source=NotificationFirebaseService,
-        scope=Scope.APP,
-        provides=INotificationService,
-    )
 
     # repository
     article_repository = provide(
@@ -327,6 +322,55 @@ class UserProvider(Provider):
         source=SubscriptionRepository,
         scope=Scope.APP,
         provides=AnyOf[BaseSubscribtionRepository, IAlchemyRepository]
+    )
+
+
+class NotificationProvider(Provider):
+
+    notificate_throw_token = provide(
+        source=TestNotificationThrowTokenInteractor,
+        scope=Scope.REQUEST
+    )
+
+    return_notification_credentials = provide(
+        source=ReturnNotificationCredentialsInteractor,
+        scope=Scope.REQUEST
+    )
+
+    update_notification_credentials = provide(
+        source=UpdateNotificationCredentialsInteractor,
+        scope=Scope.REQUEST
+    )
+
+    
+    get_notifications_status = provide(
+        source=GetNotificationsStatusInteractor,
+        scope=Scope.REQUEST
+    )
+
+    
+    update_notifications_status = provide(
+        source=UpdateNotificationsStatusInteractor,
+        scope=Scope.REQUEST
+    )
+
+
+    
+
+    # service
+    notification_firebase_service = provide(
+        source=NotificationFirebaseService,
+        scope=Scope.APP,
+        provides=INotificationService,
+    )
+
+
+
+    # repositories
+    notifications_alchemy_repository = provide(
+        source=NotificationsAlchemyRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseNotificationsRepository, IAlchemyRepository]
     )
 
 

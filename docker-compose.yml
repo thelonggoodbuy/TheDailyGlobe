@@ -5,6 +5,7 @@ volumes:
   db_admin:
   static_volume:
   media_volume:
+  redis_volume:
 
 
 
@@ -53,6 +54,25 @@ services:
       - media_volume:/usr/src/app/media
     depends_on:
     - admin_db
+
+  redis:
+    image: redis
+    container_name: redis
+    volumes:
+      - redis_volume:/data
+    depends_on:
+      - api
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: make worker
+    env_file:
+      - ./.env
+    depends_on:
+      - api
+      - redis
 
 
   nginx:

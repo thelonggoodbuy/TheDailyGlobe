@@ -13,6 +13,7 @@ from src.domain.entities.comments.comments_entities import CommentEntity
 
 # TODO Trouble with mapper registry path here!
 from src.infrastructure.database.metadata import mapper_registry
+from src.domain.entities.notifications.notification_entities import NotificationCredentialEntity
 
 
 
@@ -47,7 +48,8 @@ mapper_registry.map_imperatively(
     UserTable,
     properties={
         "subscription": relationship(SubscriptionEntity, back_populates="user"),
-        "comments": relationship(CommentEntity, back_populates="user")
+        "comments": relationship(CommentEntity, back_populates="user"),
+        "user_notification": relationship(NotificationCredentialEntity, back_populates="user")
 
     }    
 )

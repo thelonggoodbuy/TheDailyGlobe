@@ -38,6 +38,9 @@ run-migrator-docker:
 	python admin_panel/manage.py generate_initial_categories
 	python admin_panel/manage.py generate_initial_articles
 
+worker:
+
+	celery -A src.infrastructure.celery_app.celery_app worker -l INFO
 
 # run-initial-data:
 # 	python admin_panel/manage.py generate_initial_admin_user.py

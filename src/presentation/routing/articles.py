@@ -13,9 +13,7 @@ from src.application.interactors.articles import TestSaveObjectInteractor,\
                                                 SaveOrUpdateSearchWordInteractor,\
                                                 ReturnPopularArticlesInSearch,\
                                                 ReturnMostPopularSearchRequests,\
-                                                GetRelatedStoriesInteractor,\
-                                                TestNotificationThrowTokenInteractor,\
-                                                TestNotificationThrowTopicInteractor
+                                                GetRelatedStoriesInteractor
 
 from src.application.ioc import ArticleProvider
 
@@ -232,17 +230,17 @@ async def save_article_section_with_image(article_id: int,
 
 
 
-@router.post("/test_send_one_notification_throw_token", tags=["test_endpoint"])
-async def test_send_one_notification_throw_token(registration_token: str,
-                                                    message: str,
-                                                    interactor: FromDishka[TestNotificationThrowTokenInteractor]):
-    await interactor(registration_token, message)
+# @router.post("/test_send_one_notification_throw_token", tags=["test_endpoint"])
+# async def test_send_one_notification_throw_token(registration_token: str,
+#                                                     message: str,
+#                                                     interactor: FromDishka[TestNotificationThrowTokenInteractor]):
+#     await interactor(registration_token, message)
 
 
 
 
-@router.post("/test_send_one_notification_throw_topic", tags=["test_endpoint"])
-async def test_send_one_notification_throw_topic(topic: str,
-                                                    message: str,
-                                                    interactor: FromDishka[TestNotificationThrowTopicInteractor]):
-    await interactor(topic, message)
+# @router.post("/test_send_one_notification_throw_topic", tags=["test_endpoint"])
+# async def test_send_one_notification_throw_topic(topic: str,
+#                                                     message: str,
+#                                                     interactor: FromDishka[TestNotificationThrowTopicInteractor]):
+#     await interactor(topic, message)

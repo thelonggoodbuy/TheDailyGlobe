@@ -1,9 +1,13 @@
 from typing import TYPE_CHECKING
 
+
 from fastapi import FastAPI
 from src.presentation.routing.articles import router as articles_router
 from src.presentation.routing.users import router as users_router
 from src.presentation.routing.comments import router as comment_router
+from src.presentation.routing.notifications import router as notifications_router
+
+
 from src.main.config.settings import Settings
 from dishka.integrations.fastapi import setup_dishka
 from src.main.config.container import get_async_container
@@ -13,6 +17,9 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from src.presentation.schemas.base_schemas import BaseResponseSchema
+
+import firebase_admin
+from firebase_admin import credentials
 
 
 
@@ -31,11 +38,17 @@ def create_app() -> FastAPI:
     # from src.infrastructure.openapi.openapi import oauth2_scheme
 
 
+
     settings = Settings()
     
     alchemy_engine: AsyncEngine = get_alchemy_engine(db_settings=settings.db)
 
     app = FastAPI()
+
+
+    if not firebase_admin._apps:
+        cred = credentials.Certificate("./serviceAccountKey.json")
+        firebase_admin.initialize_app(credential=cred, name="firebase_app")
 
 
     @app.exception_handler(RequestValidationError)
@@ -86,6 +99,8 @@ def create_app() -> FastAPI:
     app.include_router(users_router)
     # include comment router
     app.include_router(comment_router)
+    # include notification router
+    app.include_router(notifications_router)
 
 
     container: AsyncContainer = get_async_container(

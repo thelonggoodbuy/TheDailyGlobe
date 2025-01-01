@@ -28,8 +28,15 @@ class Command(BaseCommand):
         username = "admin"
         email = "admin@example.com"
         password = "some_password"
+        is_staff = True
+        is_superuser = True
         if not User.objects.filter(username=username).exists():
-            User.objects.create_superuser(username=username, email=email, password=password)
+
+            admin = User.objects.create(username=username, email=email, is_staff=is_staff, is_superuser=is_superuser)
+
+            admin.set_password(password)
+            admin.save()
+
             print(f"Superuser {username} created successfully!")
         else:
             print(f"Superuser {username} already exists.")

@@ -385,26 +385,6 @@ class TestSaveObjectInteractor(BaseInteractor):
 
 
 
-
-
-
-class TestNotificationThrowTokenInteractor():
-    def __init__(self,
-        db_session: IDatabaseSession,
-        notification_service: INotificationService,
-        settings: Settings):
-
-        self.db_session = db_session
-        self.notification_service = notification_service
-        self.settings = settings
-
-
-    async def __call__(self, registration_token: str, message: str):
-        await self.notification_service.notificate_throw_token(registration_token, message)
-
-
-
-
 class TestNotificationThrowTopicInteractor():
     def __init__(self,
         db_session: IDatabaseSession,

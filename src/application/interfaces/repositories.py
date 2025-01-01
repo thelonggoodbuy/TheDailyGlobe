@@ -125,3 +125,9 @@ class BaseSearchRepository(ABC):
     @abstractmethod
     async def save_search_word():
         raise NotImplementedError
+    
+
+class BaseNotificationsRepository(ABC):
+    @abstractmethod
+    async def save_registration_token():
+        raise NotImplementedError

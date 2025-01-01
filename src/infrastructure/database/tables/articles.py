@@ -17,8 +17,8 @@ from src.domain.entities.comments.comments_entities import CommentEntity
 from src.infrastructure.database.metadata import mapper_registry
 from src.infrastructure.database.utilities.save_file_field import SaveFileField
 from sqlalchemy import Index, text
-
-
+from src.domain.entities.notifications.notification_entities import NotificationCredentialEntity
+from src.infrastructure.database.tables.notifications import CategoryNotificationCredetialTable
 
 
 # category table
@@ -28,6 +28,7 @@ CategortyTable = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(length=255), nullable=False),
     Column("extended_title", String(length=255), nullable=False),
+    # Column("notificated_credential, ForeignKey"(""))
 
 )
 
@@ -38,6 +39,7 @@ mapper_registry.map_imperatively(
     CategortyTable,
     properties={
         "article": relationship(ArticleEntity, back_populates="category"),
+        "notification_credential": relationship(NotificationCredentialEntity, secondary=CategoryNotificationCredetialTable, back_populates="choosen_categories")
     }
 )
 

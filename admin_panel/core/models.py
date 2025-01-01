@@ -8,8 +8,9 @@
 from django.db import models
 from django.core.files.storage import default_storage
 from django.utils.timezone import now
-import json
-import uuid
+from django.conf import settings
+from src.application.tasks.notification_tasks import send_notification
+
 
 
 class AlembicVersion(models.Model):
@@ -84,6 +85,19 @@ class ArticlesUnfold(models.Model):
         return f'{self.title}: {self.author}'
 
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        tokens = list(NotificationCredentialUnfold.objects.filter(choosen_categories__id=self.category.id)
+                                                    .values_list('registraion_token', flat=True))
+        send_notification.delay(category_title=self.category.title,
+                                article_title=self.title,
+                                article_author=self.author, 
+                                tokens=tokens)
+
+    
+
+
+
 class CategoryUnfold(models.Model):
     title = models.CharField(max_length=255)
     extended_title = models.CharField(max_length=255)
@@ -94,6 +108,28 @@ class CategoryUnfold(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+
+
+
+
+class NotificationCredentialUnfold(models.Model):
+    id = models.AutoField(primary_key=True)
+    registraion_token = models.CharField(max_length=255)
+    user = models.ForeignKey('UsersUnfold', on_delete=models.CASCADE, null=True, blank=True)
+    choosen_categories = models.ManyToManyField(CategoryUnfold, through='CategoryNotificationCredentialUnfold')
+
+    class Meta:
+        db_table = 'notification_credential'
+        managed = False
+
+
+class CategoryNotificationCredentialUnfold(models.Model):
+    category = models.ForeignKey(CategoryUnfold, on_delete=models.CASCADE)
+    notification_credential = models.ForeignKey(NotificationCredentialUnfold, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'category_notification_credetial'
+        managed = False
 
 
 class CommentsUnfold(models.Model):

@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials
+
+
 
 
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +28,12 @@ print('***BASE_DIR***')
 print(BASE_DIR)
 print('**************')
 load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+
+
+# cred = credentials.Certificate("./serviceAccountKey.json")
+
+# firebase_admin.initialize_app(cred)
 
 
 

@@ -26,4 +26,15 @@ class CategoryAlchemyRepository(BaseCategoryRepository, IAlchemyRepository):
         result = CategorysResponse(categories=categorys_list)
 
         return result
+    
+    
+    async def get_one_by_id(self, id):
+        print('======REQUEST TO REPOSITORY======')
+        print(id)
+        query = select(CategoryEntity).filter(CategoryEntity.id==id)
+        category_rows = await self._session.execute(query)
+        category_entitity = category_rows.scalar()
+        print(category_entitity)
+        print('================================')
+        return category_entitity
 
