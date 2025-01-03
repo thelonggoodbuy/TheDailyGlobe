@@ -89,9 +89,11 @@ class ArticlesUnfold(models.Model):
         super().save(*args, **kwargs)
         tokens = list(NotificationCredentialUnfold.objects.filter(choosen_categories__id=self.category.id)
                                                     .values_list('registraion_token', flat=True))
+
         send_notification.delay(category_title=self.category.title,
                                 article_title=self.title,
                                 article_author=self.author, 
+                                article_id = self.id,
                                 tokens=tokens)
 
     
