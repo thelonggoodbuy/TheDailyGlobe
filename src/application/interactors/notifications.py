@@ -125,11 +125,6 @@ class GetNotificationsStatusInteractor():
             )
 
 
-        # NotificationStatusItem,\
-        # ReturnNotificationStatusResponseSchema
-
-        # send_notification.delay(text="===>Send data from notification!<===")
-
         return result
 
 

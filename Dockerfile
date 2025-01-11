@@ -44,7 +44,7 @@ ENV PATH "/root/.local/bin:$PATH"
 COPY pyproject.toml poetry.lock ./
 # Disable Poetry's virtualenv creation and install dependencies
 RUN poetry config virtualenvs.create false
-RUN poetry install --only main --no-interaction
+RUN poetry install --only main --no-interaction --no-root
 
 # Debugging: Show installed packages
 RUN poetry show

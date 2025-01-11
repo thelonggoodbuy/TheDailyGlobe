@@ -9,20 +9,9 @@ import json
 @celery_app.task
 def send_notification(category_title, article_title, article_author, article_id, tokens):
     
-    # work code:
+    # TODO: add to .env
     cred = credentials.Certificate("./serviceAccountKey.json")
-
-    # try:
-    #     firebase_app = firebase_admin.initialize_app(cred, name="celery_firebase_admin")
-    # except ValueError:
-    #     firebase_app = firebase_admin.get_app(name="celery_firebase_admin")
-
-    print('===firebase admin===')
-    print(firebase_admin._apps)
-    print('====================')
-
     data_payload = json.dumps({"articleId": str(article_id)})
-
 
     try:
         firebase_app = firebase_admin.get_app(name="firebase_app")

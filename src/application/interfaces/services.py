@@ -25,6 +25,6 @@ class INotificationService(ABC):
     async def notificate_throw_token():
         pass
 
-    @abstractmethod
-    async def notificate_throw_topic():
-        pass
+    # @abstractmethod
+    # async def notificate_throw_topic():
+    #     pass

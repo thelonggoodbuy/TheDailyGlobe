@@ -37,7 +37,6 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         category = await self._session.merge(category)
         if update_notification_data.is_active == True and\
             category not in notification_credential.choosen_categories:
-        # notification_credential
             notification_credential.choosen_categories.append(category)
         elif update_notification_data.is_active == False and\
             category in notification_credential.choosen_categories:
@@ -45,9 +44,7 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
 
         self._session.add(notification_credential)
         await self._session.commit()
-        print("===current notification status===")
-        print(update_notification_data)
-        print("=================================")
+
         return update_notification_data
     
 
@@ -57,9 +54,7 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
                                                     ).where(NotificationCredentialEntity.registraion_token == registration_token)
         notification_credential_query_obj = await self._session.execute(query)
         notification_credential = notification_credential_query_obj.scalar()
-        print('==============================')
-        print(notification_credential)
-        print('==============================')
+
         return notification_credential
 
 
@@ -73,26 +68,12 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         category_obj = await self._session.execute(query)
         category = category_obj.scalar()
 
-        print('--------------category--------------------------')
-        print(category)
-        print('----------------------------------------')
-
         query = select(NotificationCredentialEntity).filter(NotificationCredentialEntity.id == notification_credential_id)
         notification_credential_obj = await self._session.execute(query)
         notification_credential = notification_credential_obj.scalar()
-
-        print('------------------notification_credential----------------------')
-        print(notification_credential)
-        print('----------------------------------------')
 
         notification_credential.choosen_categories.add(category)
         self._session.add(notification_credential)
         await self._session.commit()
 
-        print('------------------notification_credential----------------------')
-        print(notification_credential)
-        print('----------------------------------------')
-
         return True
-
-        # return result
