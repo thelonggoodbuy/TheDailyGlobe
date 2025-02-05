@@ -5,7 +5,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship
 # from sqlalchemy.orm import registry
 from advanced_alchemy.types import DateTimeUTC
-from src.domain.entities.users.users_entities import UserEntity,\
+from src.domain.entities.users.users_entities import TokenBlacklistEntity, UserEntity,\
                                                 SubscriptionEntity, SubscriptionType,\
                                                 UnregisteredDeviceEntity, DeviceType
 
@@ -103,6 +103,20 @@ mapper_registry.map_imperatively(
 )
 
 
+
+TokenBlacklistTable = Table(
+    "black_list",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("access_token", String(length=1000), nullable=False),
+    Column("refresh_token", String(length=1000), nullable=False),
+    Column("added_date", DateTimeUTC(timezone=True), nullable=False,)
+)
+
+mapper_registry.map_imperatively(
+    TokenBlacklistEntity,
+    TokenBlacklistTable
+)
 
 
 

@@ -1,5 +1,5 @@
 from src.infrastructure.interfaces.uow import IDatabaseSession
-from src.application.interfaces.services import INotificationService
+from src.application.interfaces.services import INotificationService, ITokenService
 from src.main.config.settings import Settings
 from src.application.interfaces.repositories import BaseCategoryRepository
 
@@ -42,16 +42,25 @@ class ReturnNotificationCredentialsInteractor():
     def __init__(self,
         db_session: IDatabaseSession,
         notification_service: INotificationService,
+        token_service: ITokenService,
         settings: Settings):
 
         self.db_session = db_session
         self.notification_service = notification_service
+        self.token_service = token_service
         self.settings = settings
 
 
     async def __call__(self, jwt_token: str, registration_token_data: SaveOrUpdateNotificationCredesRequestSchema):
-        
-        result = await self.notification_service.save_registration_token(jwt_token, registration_token_data)
+        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        if user_obj.is_valid:
+            result = await self.notification_service.save_registration_token(jwt_token, registration_token_data)
+        else:
+            result = BaseResponseSchema(
+                error=True,
+                message=user_obj.error_text,
+                data=None
+            )
         return result
 
 
@@ -59,10 +68,12 @@ class UpdateNotificationCredentialsInteractor():
     def __init__(self,
         db_session: IDatabaseSession,
         notification_service: INotificationService,
+        token_service: ITokenService,
         settings: Settings):
 
         self.db_session = db_session
         self.notification_service = notification_service
+        self.token_service = token_service
         self.settings = settings
 
 
@@ -79,16 +90,29 @@ class GetNotificationsStatusInteractor():
         db_session: IDatabaseSession,
         notification_service: INotificationService,
         category_repository: BaseCategoryRepository, 
+        token_service: ITokenService,
         settings: Settings):
 
         self.db_session = db_session
         self.notification_service = notification_service
         self.category_repository = category_repository
+        self.token_service = token_service
         self.settings = settings
 
-    async def __call__(self, registration_token_data):
+    async def __call__(self, registration_token_data, jwt_token):
         total_categories = await self.category_repository.get_all()
         notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
+
+
+        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        if user_obj.is_valid is False:
+            result = BaseResponseSchema(
+                error=True,
+                message=user_obj.error_text,
+                data=None
+            )
+            return result
+
 
         if not notification_statuses:
             result = BaseResponseSchema(error=True, message="token isnt saved in DB", data={})
@@ -134,25 +158,32 @@ class UpdateNotificationsStatusInteractor():
         notification_service: INotificationService,
         category_repository: BaseCategoryRepository, 
         notifications_repository: BaseNotificationsRepository,
+        token_service: ITokenService,
         settings: Settings):
 
         self.db_session = db_session
         self.notification_service = notification_service
         self.category_repository = category_repository
         self.notifications_repository = notifications_repository
+        self.token_service = token_service
         self.settings = settings
 
     async def __call__(self, jwt_token: str, update_notification_data: UpdateNotificationStateRequestSchema):
 
         from src.presentation.schemas.notifications import ChangedCategoryStatusResponseSchema
 
-        category = await self.category_repository.get_one_by_id(update_notification_data.category_id)
+        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        if user_obj.is_valid is False:
+            result = BaseResponseSchema(
+                error=True,
+                message=user_obj.error_text,
+                data=None
+            )
+            return result
 
+        category = await self.category_repository.get_one_by_id(update_notification_data.category_id)
         get_notification_credential = await self.notifications_repository.get_notification_credential(update_notification_data)
 
-        print('===get_notification_credential===')
-        print(get_notification_credential)
-        print('=================================')
         if get_notification_credential != None:
             print('1')
             result = await self.notification_service.update_notifications_status(jwt_token.credentials, update_notification_data, category, get_notification_credential)

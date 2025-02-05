@@ -159,3 +159,10 @@ class ChangePasswordUsersData(BaseSchema):
 
 class RefreshTokenUsersData(BaseModel):
     refresh_token: str
+
+
+
+class LogOutRequestData(BaseModelWithCamelCase):
+    access_token: str = Field(alias='accessToken')
+    refresh_token: str = Field(alias='refreshToken')
+    registration_id: str = Field(alias='registrationId')

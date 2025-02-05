@@ -23,3 +23,5 @@ class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
         self._session.add(new_subscription)
         await self._session.commit()
         return new_subscription
+    
+        

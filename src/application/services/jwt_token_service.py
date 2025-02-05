@@ -72,22 +72,34 @@ class JWTTokenService(ITokenService):
 
 
     async def validate_token(self, token: str):
-        try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            if int(payload['exp']) < int(time.time()):
-                raise InvalidTokenError
-            response = TokenResponse(is_valid=True, user_email=payload['email'])
-            return response
-        except DecodeError:
+        is_token_in_black_list = await self.user_repository.check_if_token_in_blacklist(token)
+        print('***is_token_in_black_list***')
+        print(is_token_in_black_list)
+        print('***')
+        if is_token_in_black_list:
+            print('***1***')
             response = TokenResponse(is_valid=False, error_text="Токен не валідний")
-            return response
-        except InvalidTokenError:
-            response = TokenResponse(is_valid=False, error_text="Токен застарів")
-            return response
+        else:
+            print('***2***')
+            try:
+                payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+                if int(payload['exp']) < int(time.time()):
+                    raise InvalidTokenError
+                response = TokenResponse(is_valid=True, user_email=payload['email'])
+                return response
+            except DecodeError:
+                response = TokenResponse(is_valid=False, error_text="Токен не валідний")
+                return response
+            except InvalidTokenError:
+                response = TokenResponse(is_valid=False, error_text="Токен застарів")
+        return response
             
 
     async def get_user_by_token(self, token: str):
         token_status = await self.validate_token(token)
+        print('****')
+        print(token_status)
+        print('****')
         match token_status.is_valid:
             case True:
                 user = await self.get_user_by_payload(token_status.user_email)

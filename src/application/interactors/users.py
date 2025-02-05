@@ -4,12 +4,12 @@ from src.infrastructure.interfaces.uow import IDatabaseSession
 
 from starlette.requests import Request
 
-from src.presentation.schemas.users import LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema
+from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 
 from sqlalchemy.exc import IntegrityError
 
-from src.application.interfaces.services import ITokenService
+from src.application.interfaces.services import INotificationService, ITokenService
 from src.application.interfaces.repositories import BaseSubscribtionRepository, BaseUserRepository
 from src.main.config.settings import Settings
 from fastapi import status
@@ -81,6 +81,35 @@ class LoginRegularInteractor(BaseInteractor):
     
     
 
+class LogOutRegularInteractor(BaseInteractor):
+    """
+    Interactor for request to base logout
+    """
+    def __init__(self,
+                 db_session: IDatabaseSession,
+                 user_repository: BaseUserRepository,
+                 subscription_repository: BaseSubscribtionRepository,
+                 notification_service: INotificationService,
+                 token_service: ITokenService):
+
+                 self.db_session = db_session
+                 self.user_repository = user_repository
+                 self.subscription_repository = subscription_repository
+                 self.notification_service = notification_service
+                 self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+                 self.token_service = token_service
+
+    async def __call__(self,
+                    logout_data: LogOutRequestData) -> BaseResponseSchema:
+
+        black_list_entity = await self.user_repository.add_to_blacklist(logout_data)
+        await self.notification_service.stop_notification(logout_data.registration_id)
+        print('=========================================')
+        print(black_list_entity)
+        print('=========================================')
+        return BaseResponseSchema(error=False, message='', data={"result": "success"})
+
+
 class LoginGmailRequestToCloudInteractor(BaseInteractor):
     """
     Interactor for request to gmail authorisation
@@ -99,14 +128,18 @@ class LoginGmailRequestToCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
+        print('***1***')
+        print(request.session)
+        print('***2***')
+
         redirect_uri = os.environ.get('GOOGLE_REDIRECT_URL')
 
 
+        # ***work only in browser
         auth_url = await auth_obj.google.create_authorization_url(redirect_uri, **{"prompt": 'select_account'})
         await auth_obj.google.save_authorize_data(request, redirect_uri=str(redirect_uri), **auth_url)
         response_data = {'error': False, 'message': '', 'data': auth_url}
         return JSONResponse(status_code=302, content=response_data)
-
     
 
 class LoginGmailResponseFromCloudInteractor(BaseInteractor):
@@ -131,10 +164,10 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
-        print('***')
-        print(request)
-        print(request.body)
-        print('***')
+        
+        print('=======================GOOGLE AUTH RESP====================')
+        print(request.session)
+        print('===========================================================')
         token = await auth_obj.google.authorize_access_token(request)
         data = token.get('userinfo')
         user_email = data['email']
@@ -150,7 +183,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
 
             data = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
             result = JSONResponse(status_code=200, content=data)
-        
+        # result = JSONResponse(status_code=200, content="test data")
         return result
 
 
@@ -233,7 +266,6 @@ class DeleteUserInteractor(BaseInteractor):
     async def __call__(self,
                        delete_user_data,
                        token):
-
         user_obj = await self.token_service.get_user_by_token(token)
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})

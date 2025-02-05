@@ -54,7 +54,6 @@ class GoogleAuthSettings(FastAPISettings):
     @property
     def google_auth_object(self):
         """Google auth object"""
-        print('--->You want to create google token!<---')
         config = GoogleStarletteConfig('.env')
         oauth = OAuth(config)
         CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'

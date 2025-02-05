@@ -8,5 +8,6 @@ class NotificationCredentialEntity(Entity):
     """Article model."""
     registraion_token: str
     user_id: int
+    is_active: bool
     
 

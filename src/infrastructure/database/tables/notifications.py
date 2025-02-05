@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Boolean
 
 from src.infrastructure.database.metadata import mapper_registry
 from src.domain.entities.notifications.notification_entities import NotificationCredentialEntity
@@ -18,6 +18,7 @@ NotificationCredentialTable = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("registraion_token", String(length=255), nullable=False),
     Column("user_id", ForeignKey("users.id")),
+    Column("is_active", Boolean, default=True)
 
 )
 

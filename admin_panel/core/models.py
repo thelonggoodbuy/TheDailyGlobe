@@ -87,8 +87,14 @@ class ArticlesUnfold(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        tokens = list(NotificationCredentialUnfold.objects.filter(choosen_categories__id=self.category.id)
+        tokens = list(NotificationCredentialUnfold.objects.filter(choosen_categories__id=self.category.id,
+                                                                  is_active=True)
                                                     .values_list('registraion_token', flat=True))
+
+        print('===tokens===')
+        print(tokens)
+        print(NotificationCredentialUnfold.objects.all())
+        print('===========')
 
         send_notification.delay(category_title=self.category.title,
                                 article_title=self.title,
@@ -118,11 +124,16 @@ class NotificationCredentialUnfold(models.Model):
     id = models.AutoField(primary_key=True)
     registraion_token = models.CharField(max_length=255)
     user = models.ForeignKey('UsersUnfold', on_delete=models.CASCADE, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     choosen_categories = models.ManyToManyField(CategoryUnfold, through='CategoryNotificationCredentialUnfold')
+
 
     class Meta:
         db_table = 'notification_credential'
         managed = False
+
+    def __str__(self):
+        return f"id: {self.id}\n registraion_token: {self.registraion_token}\n user: {self.user}\n is_active: {self.is_active}\n"
 
 
 class CategoryNotificationCredentialUnfold(models.Model):

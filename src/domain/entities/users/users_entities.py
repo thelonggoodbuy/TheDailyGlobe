@@ -34,3 +34,11 @@ class UnregisteredDeviceEntity(Entity):
     device_type: DeviceType
     readed_articles: int
     registration_id: str
+
+
+@dataclass
+class TokenBlacklistEntity(Entity):
+    """Blacklist model"""
+    access_token: str
+    refresh_token: str
+    added_date: DateTimeUTC

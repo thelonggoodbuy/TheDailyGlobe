@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, inject
-from src.application.interactors.users import LoginRegularInteractor,\
+from src.application.interactors.users import LogOutRegularInteractor, LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
@@ -11,7 +11,7 @@ from src.application.interactors.users import LoginRegularInteractor,\
                                             RefreshTokendUserInteractor
 from src.application.ioc import ArticleProvider
 from src.presentation.schemas.base_schemas import BaseResponseSchema
-from src.presentation.schemas.users import LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData, RefreshTokenUsersData, UserRegisterResponse
+from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, DeleteUsersData, ChangePasswordUsersData, RefreshTokenUsersData, UserRegisterResponse
 from starlette.requests import Request
 from src.main.config.settings import Settings
 from src.infrastructure.openapi.openapi import bearer_scheme
@@ -36,6 +36,15 @@ async def login_regular(login_data: LoginRequestData,
 
     return result
 
+
+@router.post("/users/logout_regular", tags=["Auth"])
+@inject
+async def login_regular(logout_data: LogOutRequestData, 
+                        interactor: FromDishka[LogOutRegularInteractor]) -> BaseResponseSchema:
+
+    result = await interactor(logout_data)
+
+    return result
 
 
 @router.get("/users/login_gmail_request_to_cloud", tags=["Auth"])

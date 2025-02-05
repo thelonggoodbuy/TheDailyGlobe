@@ -11,15 +11,21 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
     
     async def save_registration_token(self, token, user_id):
 
-        new_notification_credential = NotificationCredentialEntity(
-            registraion_token=token,
-            user_id=user_id
-        )
-        self._session.add(new_notification_credential)
-        await self._session.commit()
-        await self._session.refresh(new_notification_credential)
+        try:
+            new_notification_credential = NotificationCredentialEntity(
+                registraion_token=token,
+                user_id=user_id,
+                is_active=True
+            )
+            self._session.add(new_notification_credential)
+            await self._session.commit()
+            await self._session.refresh(new_notification_credential)
 
-        return new_notification_credential
+            return new_notification_credential
+        except Exception as e:
+            print('=============EROROR=============:')
+            print(e)
+            print("=================================")
     
 
     async def get_notification_credential(self, update_notification_data):
@@ -77,3 +83,35 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         await self._session.commit()
 
         return True
+
+
+    async def stop_notification(self, registration_token):
+        query = select(NotificationCredentialEntity).options(
+                                                    ).where(NotificationCredentialEntity.registraion_token == registration_token)
+        notification_credential_query_obj = await self._session.execute(query)
+        notification_credential = notification_credential_query_obj.scalar()
+        notification_credential.is_active = False
+        self._session.add(notification_credential)
+        await self._session.commit()
+
+        # return notification_credential
+
+    async def get_or_activate_notification_obj(self, registration_token, user_id):
+        query = select(NotificationCredentialEntity).options(
+                                                    ).where(NotificationCredentialEntity.registraion_token == registration_token,
+                                                            NotificationCredentialEntity.user_id == user_id)
+        notification_obj = await self._session.execute(query)
+        notification = notification_obj.scalar_one_or_none()
+        if notification:
+            activated_obj = await self.activate_notification_obj(notification)
+            return activated_obj
+        else:
+            False
+
+
+    async def activate_notification_obj(self, notification_obj):
+        notification_obj.is_active = True
+        self._session.add(notification_obj)
+        await self._session.commit()
+        return notification_obj
+        

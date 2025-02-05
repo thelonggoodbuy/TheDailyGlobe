@@ -53,34 +53,10 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request, exc):
-        print('***exc***')
-        print(exc)
-        print('*********')
-        print(exc.body)
-        print('*********')
-        # print(exc.errors()[0]['ctx']['error'])
-        # error_obj = exc.errors()[0]['ctx']['error']
         error_messages_str = ""
         for error in exc.errors():
-            print('--->error<---')
-            print(error)
-            print('-------------')
-
-            # error_obj = error['ctx']['error'].args[0] 
-
             error_dict = error['ctx']
-
-            print('-----------------')
-            print(error_dict)
-            print(error_dict.keys())
-            print('-----------------')
-
             for key in error_dict.keys(): 
-                print('-->key<---')
-                print(key)
-                print(error_dict[key])
-                print(f"{key}: {error_dict[key]}")
-                print('----------')
                 error_messages_str += f"{key}: {error_dict[key]}"
 
 

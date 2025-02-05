@@ -46,7 +46,7 @@ from src.application.interactors.notifications import TestNotificationThrowToken
                                                         UpdateNotificationsStatusInteractor
 
 
-from src.application.interactors.users import LoginRegularInteractor,\
+from src.application.interactors.users import LogOutRegularInteractor, LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
@@ -284,10 +284,21 @@ class UserProvider(Provider):
         scope=Scope.REQUEST
     )
 
+    login_interactor = provide(
+        source=LogOutRegularInteractor,
+        scope=Scope.REQUEST
+    )
+
     token_service = provide(
         source=JWTTokenService,
         scope=Scope.APP,
         provides=ITokenService,
+    )
+
+    notification_service = provide(
+        source=NotificationFirebaseService,
+        scope=Scope.APP,
+        provides=INotificationService,
     )
 
     registration_user = provide(

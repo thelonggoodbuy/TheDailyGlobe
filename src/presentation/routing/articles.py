@@ -82,6 +82,9 @@ def bearer_or_device_id_extractor(
         print(token)
         print('===')
         result = BearerOrDeviceIdExtractorResult(is_authorized=True, token=token.credentials)
+        # TODO: проверяем нет ли токена в blacklist
+
+
         # если есть токен и юзер авторизован, то мы проверяем есть ли у пользователь премиум:
         # 1.1. если есть - то открываем любую статью и добавляем единичку к количеству просмотров
         # 1.2. если нет - то проверяем премиум ли статья.

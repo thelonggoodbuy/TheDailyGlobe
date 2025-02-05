@@ -35,7 +35,7 @@ class NotificationFirebaseService(INotificationService):
 
     async def save_registration_token(self, jwt_token, registration_token):
         user = await self.token_service.get_user_by_token(jwt_token)
-
+        user_notification_obj = await self.notifications_repository.get_or_activate_notification_obj(registration_token, user.id)     
         try:
             firebase_app = firebase_admin.get_app(name="firebase_app")
 
@@ -47,8 +47,8 @@ class NotificationFirebaseService(INotificationService):
             token=registration_token,)
 
             response = messaging.send(message, app=firebase_app)
-            await self.notifications_repository.save_registration_token(registration_token, user_id=user.id)
-            # result = {"result": "success"}
+            if not user_notification_obj:
+                await self.notifications_repository.save_registration_token(registration_token, user_id=user.id)
             result = BaseResponseSchema(error=False, message="", data={})
             result = JSONResponse(status_code=200, content=result.model_dump())
         except UnregisteredError:
@@ -72,6 +72,8 @@ class NotificationFirebaseService(INotificationService):
         result_data = ChangedCategoryStatus(category_id=changed_category.category_id, is_active=changed_category.is_active)
         return result_data
 
+    async def stop_notification(self, registration_token):
+        await self.notifications_repository.stop_notification(registration_token)
 
     async def get_notifications_status(self, registration_token):
         notifications_status = await self.notifications_repository.return_all_notification_objects_per_registration_token(registration_token)
