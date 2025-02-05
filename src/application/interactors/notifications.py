@@ -52,7 +52,7 @@ class ReturnNotificationCredentialsInteractor():
 
 
     async def __call__(self, jwt_token: str, registration_token_data: SaveOrUpdateNotificationCredesRequestSchema):
-        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        user_obj = await self.token_service.get_user_by_token(jwt_token)
         if user_obj.is_valid:
             result = await self.notification_service.save_registration_token(jwt_token, registration_token_data)
         else:
@@ -104,7 +104,7 @@ class GetNotificationsStatusInteractor():
         notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
 
 
-        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        user_obj = await self.token_service.get_user_by_token(jwt_token)
         if user_obj.is_valid is False:
             result = BaseResponseSchema(
                 error=True,
@@ -172,7 +172,7 @@ class UpdateNotificationsStatusInteractor():
 
         from src.presentation.schemas.notifications import ChangedCategoryStatusResponseSchema
 
-        user_obj = await self.token_service.get_user_by_token(jwt_token.credentials)
+        user_obj = await self.token_service.get_user_by_token(jwt_token)
         if user_obj.is_valid is False:
             result = BaseResponseSchema(
                 error=True,
@@ -186,7 +186,7 @@ class UpdateNotificationsStatusInteractor():
 
         if get_notification_credential != None:
             print('1')
-            result = await self.notification_service.update_notifications_status(jwt_token.credentials, update_notification_data, category, get_notification_credential)
+            result = await self.notification_service.update_notifications_status(jwt_token, update_notification_data, category, get_notification_credential)
             return ChangedCategoryStatusResponseSchema(error=False, message="", data=result.model_dump(by_alias=True))
             
             

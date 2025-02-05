@@ -52,7 +52,7 @@ async def save_notification_credentials(token: Annotated[str, Depends(bearer_sch
 async def get_notifications_status(token: Annotated[str, Depends(bearer_scheme)],
                                 registration_token_data: SaveOrUpdateNotificationCredesRequestSchema,
                                 interactor: FromDishka[GetNotificationsStatusInteractor]):
-    result = await interactor(registration_token_data, token)
+    result = await interactor(registration_token_data, token.credentials)
     return result
 
 # # (4)
@@ -61,5 +61,5 @@ async def update_notifications_status(token: Annotated[str, Depends(bearer_schem
                                         update_notification_data: UpdateNotificationStateRequestSchema,
                                         interactor: FromDishka[UpdateNotificationsStatusInteractor]):
     
-    result = await interactor(token, update_notification_data)
+    result = await interactor(token.credentials, update_notification_data)
     return result
