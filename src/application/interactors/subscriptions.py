@@ -1,4 +1,4 @@
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, urlencode
 
 from fastapi import Request
 from src.infrastructure.interfaces.uow import IDatabaseSession
@@ -77,12 +77,19 @@ class ReceivePaymentRequestInteractor():
         # notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
         print('================***YOU HAVE RECEIVE MESSAGE***================')
         liqpay = LiqPay(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY, self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
+        raw_body = await request.body()
+        parsed_data = parse_qs(raw_body.decode("utf-8"))
+
+        data = parsed_data.get("data", [""])[0]
+        signature = parsed_data.get("signature", [""])[0]
+
+        
         print('request data:')
         print(request)
         print(request.json())
         print(await request.body())
-        data = request.POST.get('data')
-        signature = request.POST.get('signature')
+        # data = request.POST.get('data')
+        # signature = request.POST.get('signature')
         sign = liqpay.str_to_sign(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY + data + self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
         if sign == signature:
             print('callback is valid')
