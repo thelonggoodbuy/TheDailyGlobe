@@ -1,6 +1,6 @@
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.main.config.settings import Settings
-from liqpay import LiqPay
+from liqpay_lib.liqpay import LiqPay
 
 
 
