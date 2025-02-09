@@ -28,7 +28,7 @@ class SendPaymentRequestInteractor():
         params = {
             'action': 'pay',
             'amount': '1',
-            'currency': 'GRN',
+            'currency': 'UAH',
             'description': 'Payment for clothes',
             'order_id': 'order_id_1',
             'version': '3',
@@ -42,7 +42,9 @@ class SendPaymentRequestInteractor():
         print('=============data====================')
         print(data)
         print('=====================================')
-        return {{'signature': signature, 'data': data}}
+        payment_url = f"https://www.liqpay.ua/api/3/checkout/?{urlencode({'data': data, 'signature': signature})}"
+        return {"result": payment_url}
+        # return {{'signature': signature, 'data': data}}
         # return render(request, self.template_name, {'signature': signature, 'data': data})
 
 
