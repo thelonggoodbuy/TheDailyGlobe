@@ -1429,6 +1429,19 @@ yaml = ["PyYAML (>=3.10)"]
 zookeeper = ["kazoo (>=2.8.0)"]
 
 [[package]]
+name = "liqpay-python"
+version = "1.0"
+description = "LiqPay Python SDK"
+optional = false
+python-versions = "*"
+files = [
+    {file = "liqpay-python-1.0.tar.gz", hash = "sha256:dd58d2a2a945900ee3891196df236ba6df37776165f0d3fc2f4b38c827afa8a5"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "litestar"
 version = "2.12.1"
 description = "Litestar - A production-ready, highly performant, extensible ASGI API Framework"
@@ -2868,4 +2881,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.12.7"
-content-hash = "8fe474c6e77139931ab190d9372ef9eb817cd311bbbdb19898698cb7c9a6beae"
+content-hash = "27aa825f66ce831b7426b7a6a1990497a981be1e98d7a8fed788dadbcda9ac08"

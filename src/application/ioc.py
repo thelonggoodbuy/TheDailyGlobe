@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
+from src.application.interactors.subscriptions import ReceivePaymentRequestInteractor, SendPaymentRequestInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.application.interfaces.gateways import IWriteFileStorageGateway
 
@@ -383,6 +384,57 @@ class NotificationProvider(Provider):
         scope=Scope.APP,
         provides=AnyOf[BaseNotificationsRepository, IAlchemyRepository]
     )
+
+
+    @provide(scope=Scope.APP)
+    def get_alchemy_session_maker(
+        self,
+        async_engine: AsyncEngine,
+    ) -> async_sessionmaker[AsyncSession]:
+        """Provide async session maker."""
+        return async_sessionmaker(
+            async_engine,
+            class_=AsyncSession,
+            autoflush=False,
+            expire_on_commit=False,
+        )
+    
+    @provide(scope=Scope.APP)
+    async def get_alchemy_session(
+        self,
+        session_maker: async_sessionmaker[AsyncSession],
+    ) -> AsyncIterable[AnyOf[AsyncSession, IDatabaseSession]]:
+        """Provide async session."""
+        async with session_maker() as session:
+            yield session
+
+
+
+class SubscriptionProvider(Provider):
+
+    send_payment_request_interactor = provide(
+        source=SendPaymentRequestInteractor,
+        scope=Scope.REQUEST
+    )
+
+    receive_payment_request_interactor = provide(
+        source=ReceivePaymentRequestInteractor,
+        scope=Scope.REQUEST
+    )
+
+    # # service
+    # notification_firebase_service = provide(
+    #     source=NotificationFirebaseService,
+    #     scope=Scope.APP,
+    #     provides=INotificationService,
+    # )
+
+    # # repositories
+    # notifications_alchemy_repository = provide(
+    #     source=NotificationsAlchemyRepository,
+    #     scope=Scope.APP,
+    #     provides=AnyOf[BaseNotificationsRepository, IAlchemyRepository]
+    # )
 
 
     @provide(scope=Scope.APP)

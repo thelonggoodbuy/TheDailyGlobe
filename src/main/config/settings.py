@@ -51,6 +51,8 @@ class GoogleAuthSettings(FastAPISettings):
     GOOGLE_CONF_URL: str = os.environ.get('GOOGLE_CONF_URL')
 
 
+
+
     @property
     def google_auth_object(self):
         """Google auth object"""
@@ -72,11 +74,17 @@ class JWTTokenSettings(FastAPISettings):
     ALGORITHM: str = os.environ.get('JWT_ALGORITHM')
 
 
+class PaymentSettings(FastAPISettings):
+    LIQ_PAY_PUBLIC_KEY: str = os.environ.get('LIQ_PAY_PUBLIC_KEY')
+    LIQ_PAY_PRIVATE_KEY: str = os.environ.get('LIQ_PAY_PRIVATE_KEY')
+
+
 class Settings(FastAPISettings):
     app: AppSettings = Field(default_factory=AppSettings)
     db: DatabaseSettings = Field(default_factory=DatabaseSettings)
     google_auth: GoogleAuthSettings = Field(default_factory=GoogleAuthSettings)
     jwt_token: JWTTokenSettings = Field(default_factory=JWTTokenSettings)
+    payment_settings: PaymentSettings = Field(default_factory=PaymentSettings)
 
 
 

@@ -6,6 +6,7 @@ from src.presentation.routing.articles import router as articles_router
 from src.presentation.routing.users import router as users_router
 from src.presentation.routing.comments import router as comment_router
 from src.presentation.routing.notifications import router as notifications_router
+from src.presentation.routing.subscriptions import router as subscriptions_router
 
 
 from src.main.config.settings import Settings
@@ -77,6 +78,8 @@ def create_app() -> FastAPI:
     app.include_router(comment_router)
     # include notification router
     app.include_router(notifications_router)
+    # include subscription router
+    app.include_router(subscriptions_router)
 
 
     container: AsyncContainer = get_async_container(
