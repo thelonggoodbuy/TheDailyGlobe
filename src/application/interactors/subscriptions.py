@@ -80,7 +80,7 @@ class ReceivePaymentRequestInteractor():
         print('request data:')
         print(request)
         print(request.json())
-        print(request.data())
+        print(await request.body())
         data = request.POST.get('data')
         signature = request.POST.get('signature')
         sign = liqpay.str_to_sign(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY + data + self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
