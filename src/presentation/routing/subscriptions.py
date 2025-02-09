@@ -22,7 +22,6 @@ async def send_payment_request(token: Annotated[str, Depends(bearer_scheme)],
 
 @router.post("/receive_payment_callback", tags=["subscriptions"])
 @inject
-async def receive_payment_callback(token: Annotated[str, Depends(bearer_scheme)],
-                                    interactor: FromDishka[ReceivePaymentRequestInteractor]):
-    result = await interactor(token.credentials)
+async def receive_payment_callback(interactor: FromDishka[ReceivePaymentRequestInteractor]):
+    result = await interactor()
     return result

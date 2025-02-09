@@ -69,7 +69,8 @@ class ReceivePaymentRequestInteractor():
         # self.token_service = token_service
         self.settings = settings
 
-    async def __call__(self, token):
+    async def __call__(self):
         # total_categories = await self.category_repository.get_all()
         # notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
+        print('================***YOU HAVE RECEIVE MESSAGE***================')
         return {"result": "Success", "interactor": "ReceivePaymentRequestInteractor"}
