@@ -4,7 +4,8 @@ from fastapi import Request
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.main.config.settings import Settings
 from liqpay_lib.liqpay import LiqPay
-
+import hashlib
+import os
 
 
 
@@ -33,7 +34,7 @@ class SendPaymentRequestInteractor():
             'amount': '1',
             'currency': 'UAH',
             'description': 'Payment for clothes',
-            'order_id': 'order_id_1',
+            'order_id': hashlib.sha256(os.urandom(32)).hexdigest(),
             'version': '3',
             'sandbox': 1, # sandbox mode, set to 1 to enable it
             'server_url': 'https://tdg-admin.demodev.cc/receive_payment_callback/', # url to callback view
