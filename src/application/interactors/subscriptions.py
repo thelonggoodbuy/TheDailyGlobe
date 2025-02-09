@@ -37,7 +37,7 @@ class SendPaymentRequestInteractor():
             'order_id': hashlib.sha256(os.urandom(32)).hexdigest(),
             'version': '3',
             'sandbox': 1, # sandbox mode, set to 1 to enable it
-            'server_url': 'https://tdg-admin.demodev.cc/receive_payment_callback/', # url to callback view
+            'server_url': 'https://tdg-admin.demodev.cc/receive_payment_callback', # url to callback view
         }
         signature = liqpay.cnb_signature(params)
         data = liqpay.cnb_data(params)
