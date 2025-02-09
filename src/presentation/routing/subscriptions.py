@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, inject
 from typing import Annotated
 from fastapi import Depends
@@ -22,6 +22,7 @@ async def send_payment_request(token: Annotated[str, Depends(bearer_scheme)],
 
 @router.post("/receive_payment_callback", tags=["subscriptions"])
 @inject
-async def receive_payment_callback(interactor: FromDishka[ReceivePaymentRequestInteractor]):
-    result = await interactor()
+async def receive_payment_callback(request: Request, 
+                                    interactor: FromDishka[ReceivePaymentRequestInteractor]):
+    result = await interactor(request)
     return result

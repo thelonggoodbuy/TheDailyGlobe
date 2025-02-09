@@ -69,8 +69,16 @@ class ReceivePaymentRequestInteractor():
         # self.token_service = token_service
         self.settings = settings
 
-    async def __call__(self):
+    async def __call__(self, request: Request):
         # total_categories = await self.category_repository.get_all()
         # notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
         print('================***YOU HAVE RECEIVE MESSAGE***================')
-        return {"result": "Success", "interactor": "ReceivePaymentRequestInteractor"}
+        liqpay = LiqPay(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY, self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
+        data = request.POST.get('data')
+        signature = request.POST.get('signature')
+        sign = liqpay.str_to_sign(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY + data + self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
+        if sign == signature:
+            print('callback is valid')
+        response = liqpay.decode_data_from_str(data)
+        print('callback data', response)
+        print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
