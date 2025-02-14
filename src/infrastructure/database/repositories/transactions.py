@@ -48,7 +48,7 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
         print('new_status:')
         print(new_status)
         print('****')
-        transaction.status = TransactionsStatusEnum.SUCCESS
+        transaction.status = new_status
         self._session.add(transaction)
         await self._session.commit()
         print('+++++++++++++++++++++++++++++')
