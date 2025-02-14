@@ -3,7 +3,7 @@ from src.domain.common.entity import Entity
 
 from advanced_alchemy.types import DateTimeUTC
 from enum import Enum
-from src.domain.enums.database import SubscriptionType, DeviceType
+from src.domain.enums.database import SubscriptionType, DeviceType, TransactionsStatusEnum
 from typing import Optional
 
 # entity for user object
@@ -22,6 +22,7 @@ class SubscriptionEntity(Entity):
     """Subscription model."""
     user_id: int
     expiration_date: Optional[DateTimeUTC] = None
+    id: Optional[int] = None
     is_active: bool = False
 
 
@@ -42,3 +43,10 @@ class TokenBlacklistEntity(Entity):
     access_token: str
     refresh_token: str
     added_date: DateTimeUTC
+
+
+@dataclass
+class TranscationEntity(Entity):
+    status: TransactionsStatusEnum
+    subscription_id: int
+    order_id: str

@@ -66,6 +66,10 @@ class LoginRegularInteractor(BaseInteractor):
             user_data = LoginUserSuccessData(id=user_obj.id,
                                              email=user_obj.email)
 
+            print('========================')
+            print(subscription_data)
+            print('========================')
+
             data = LoginSuccessDataSchema(
                     access_token=jwt_token, 
                     refresh_token=refresh_token,

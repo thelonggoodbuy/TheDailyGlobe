@@ -194,3 +194,35 @@ class UsersUnfold(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
+
+
+
+class CurrencyType(models.TextChoices):
+    EUR = "EUR", "Euro"
+    USD = "USD", "US Dollar"
+    UAH = "UAH", "Ukrainian Hryvnia"
+
+
+class TimePeriod(models.TextChoices):
+    WEEK = "WEEK", "Week"
+    MONTH = "MONTH", "Month"
+    YEAR = "YEAR", "Year"
+
+
+class TariffUnfold(models.Model):
+    title = models.CharField(max_length=255)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_per_year = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    subscription_period =models.CharField(
+        max_length=10,
+        choices=TimePeriod.choices
+    ) 
+    curency = models.CharField(
+        max_length=3,
+        choices=CurrencyType.choices,
+        default=CurrencyType.USD
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'tariff'

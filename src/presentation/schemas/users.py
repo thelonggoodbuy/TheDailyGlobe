@@ -113,7 +113,7 @@ class LoginSuccessDataSchema(BaseSchema):
     refresh_token: str
     user_data: dict
     #TODO subscription это пока заглушка
-    subscription_data: SubscriptionResponseSchema
+    subscription_data: SubscriptionResponseSchema|str
 
 
 class DeleteUsersData(BaseModel):

@@ -1,18 +1,5 @@
 from django.core.management.base import BaseCommand
-
-# from django.core.management.base import BaseCommand
-# import random
-
-
 from admin_panel.core.models import CategoryUnfold
-# from django.contrib.auth import User
-
-
-# from faker import Faker
-
-# fake = Faker("ru")
-
-
 from django.contrib.auth import get_user_model
 
 

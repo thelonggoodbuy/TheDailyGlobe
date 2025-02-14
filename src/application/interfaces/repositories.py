@@ -131,3 +131,19 @@ class BaseNotificationsRepository(ABC):
     @abstractmethod
     async def save_registration_token():
         raise NotImplementedError
+    
+
+class BaseTariffRepository(ABC):
+    @abstractmethod
+    async def return_all():
+        raise NotImplementedError
+    
+
+class BaseTransactionsRepository(ABC):
+    @abstractmethod
+    async def create_transaction():
+        raise NotImplementedError
+    
+    @abstractmethod
+    async def print_all_transaction():
+        raise NotImplementedError

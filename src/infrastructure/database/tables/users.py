@@ -1,11 +1,13 @@
-from sqlalchemy import Table
+from sqlalchemy import Numeric, Table
 from sqlalchemy import Column
 from sqlalchemy import Integer, String, ForeignKey, Boolean
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship
 # from sqlalchemy.orm import registry
 from advanced_alchemy.types import DateTimeUTC
-from src.domain.entities.users.users_entities import TokenBlacklistEntity, UserEntity,\
+from src.domain.entities.tariffs.tariffs_entities import TariffEntity
+from src.domain.enums.database import CurencyType, PeriodTypeEnum, TransactionsStatusEnum
+from src.domain.entities.users.users_entities import TokenBlacklistEntity, TranscationEntity, UserEntity,\
                                                 SubscriptionEntity, SubscriptionType,\
                                                 UnregisteredDeviceEntity, DeviceType
 
@@ -15,13 +17,6 @@ from src.domain.entities.comments.comments_entities import CommentEntity
 from src.infrastructure.database.metadata import mapper_registry
 from src.domain.entities.notifications.notification_entities import NotificationCredentialEntity
 
-
-
-# mapper_registry = registry(metadata=metadata)
-
-# print('=======users tables==============')
-# print("Registering UserTable...")
-# print(f"Registry ID in {__name__}: {id(mapper_registry)}")
 
 UserTable = Table(
     # Table name
@@ -40,8 +35,6 @@ UserTable = Table(
     Column("is_active", Boolean, default=False, nullable=False)
     )
 
-# Map the User class to the user_table
-# print("Mapping UserTable...")
 
 mapper_registry.map_imperatively(
     UserEntity,
@@ -76,7 +69,8 @@ mapper_registry.map_imperatively(
     SubscriptionEntity,
     SubscriptionTable,
     properties={
-        "user": relationship(UserEntity, back_populates="subscription")
+        "user": relationship(UserEntity, back_populates="subscription"),
+        "transactions": relationship(TranscationEntity, back_populates="subscription"),
     }
 )
 
@@ -119,7 +113,39 @@ mapper_registry.map_imperatively(
 )
 
 
+TariffsTable = Table(
+    "tariff",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("title", String(length=255), nullable=False),
+    Column("subscription_period", SQLAlchemyEnum(PeriodTypeEnum, name="subscription_period")),
+    Column("cost", Numeric(10, 2), nullable=False),
+    Column("cost_per_year", Numeric(10, 2), nullable=True),
+    Column("curency", SQLAlchemyEnum(CurencyType, name="curency_type"), nullable=False),
+
+)
+
+mapper_registry.map_imperatively(
+    TariffEntity,
+    TariffsTable
+)
 
 
-# print("Registered tables in Users module:")
-# print(mapper_registry.metadata.tables.keys())
+
+TranscationsTable = Table(
+    "transactions",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("status", SQLAlchemyEnum(TransactionsStatusEnum, name="transaction_status")),
+    Column("subscription_id", ForeignKey("subscriptions.id")),
+    Column("order_id", String(length=255), nullable=False),
+)
+
+
+mapper_registry.map_imperatively(
+    TranscationEntity,
+    TranscationsTable,
+    properties={
+        "subscription": relationship(SubscriptionEntity, back_populates="transactions")
+    }
+)

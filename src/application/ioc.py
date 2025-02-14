@@ -10,7 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
-from src.application.interactors.subscriptions import ReceivePaymentRequestInteractor, SendPaymentRequestInteractor
+from src.infrastructure.database.repositories.transactions import TransactionsRepository
+from src.infrastructure.database.repositories.tariffs import TariffRepository
+from src.application.interactors.subscriptions import ReceivePaymentRequestInteractor, ReturnAllTariffsInteractor, SendPaymentRequestInteractor
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.application.interfaces.gateways import IWriteFileStorageGateway
 
@@ -63,7 +65,7 @@ from src.infrastructure.database.repositories.unregistered_device import Unregis
 from src.infrastructure.database.repositories.search import SearchAlchemyRepository
 
 
-from src.application.interfaces.repositories import IAlchemyRepository, \
+from src.application.interfaces.repositories import BaseTariffRepository, BaseTransactionsRepository, IAlchemyRepository, \
                                                     BaseArticleRepository, \
                                                     BaseCategoryRepository, \
                                                     BaseCommentsRepository, \
@@ -422,19 +424,35 @@ class SubscriptionProvider(Provider):
         scope=Scope.REQUEST
     )
 
-    # # service
-    # notification_firebase_service = provide(
-    #     source=NotificationFirebaseService,
-    #     scope=Scope.APP,
-    #     provides=INotificationService,
-    # )
+    retunr_all_tarifs = provide(
+        source=ReturnAllTariffsInteractor,
+        scope=Scope.REQUEST
+    )
+    # service
+    token_service = provide(
+        source=JWTTokenService,
+        scope=Scope.APP,
+        provides=ITokenService,
+    )
 
-    # # repositories
-    # notifications_alchemy_repository = provide(
-    #     source=NotificationsAlchemyRepository,
-    #     scope=Scope.APP,
-    #     provides=AnyOf[BaseNotificationsRepository, IAlchemyRepository]
-    # )
+    # repositories
+    tariff_alchemy_repository = provide(
+        source=TariffRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseTariffRepository, IAlchemyRepository]
+    )
+
+    subscription_repository = provide(
+        source=SubscriptionRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseSubscribtionRepository, IAlchemyRepository]
+    )
+
+    transaction_repository = provide(
+        source=TransactionsRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseTransactionsRepository, IAlchemyRepository]
+    )
 
 
     @provide(scope=Scope.APP)

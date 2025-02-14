@@ -37,6 +37,7 @@ run-migrator-docker:
 	python admin_panel/manage.py generate_initial_admin_user
 	python admin_panel/manage.py generate_initial_categories
 	python admin_panel/manage.py generate_initial_articles
+	python admin_panel/manage.py generate_initial_tariffs
 
 worker:
 
