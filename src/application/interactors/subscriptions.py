@@ -71,7 +71,7 @@ class SendPaymentRequestInteractor():
         params = {
             'action': 'pay',
             'amount': float(tariff.cost),
-            'currency': tariff.curency,
+            'currency': str(tariff.curency.value),
             'description': f'TDG: payment for subscription for {tariff.subscription_period}',
             'order_id': new_transaction.order_id,
             'version': '3',
