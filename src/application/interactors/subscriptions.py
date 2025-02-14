@@ -93,7 +93,7 @@ class SendPaymentRequestInteractor():
         payment_url = f"https://www.liqpay.ua/api/3/checkout/?{urlencode({'data': data, 'signature': signature})}"
 
 
-        # return {"result": payment_url}
+        return {"result": payment_url}
     
         # return {"result": "success"}
         
