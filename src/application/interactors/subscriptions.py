@@ -2,6 +2,7 @@ from urllib.parse import parse_qs, urlencode
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from src.domain.enums.database import TransactionsStatusEnum
 from src.application.interfaces.services import ITokenService
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 from src.application.interfaces.repositories import BaseSubscribtionRepository, BaseTariffRepository, BaseTransactionsRepository
@@ -50,18 +51,7 @@ class SendPaymentRequestInteractor():
         # 3 extract tariff
         tariff = await self.tariff_repository.return_tariff_by_id(tariff_id=tariff_id)
 
-        # print('==========extracted data=============')
-        # print(subscription_obj)
-        # print(user_obj)
-        # print(tariff)
-        # print('=====================================')
-
         # 4 create transaction object
-        print('==========extracted data=============')
-        print(subscription_obj)
-        print(user_obj)
-        print(tariff)
-        print('=====================================')
         subscription_obj = await self.subscription_repository.return_user_subscribtion_by_user_id(user_obj.id)
         new_transaction = await self.transaction_repository.create_transaction(subscription_obj.id)
         await self.transaction_repository.print_all_transaction()
@@ -78,16 +68,7 @@ class SendPaymentRequestInteractor():
             'sandbox': 1, # sandbox mode, set to 1 to enable it
             'server_url': 'https://tdg-admin.demodev.cc/receive_payment_callback', # url to callback view
         }
-        # params = {
-        #     'action': 'pay',
-        #     'amount': '1',
-        #     'currency': 'UAH',
-        #     'description': 'Payment for clothes',
-        #     'order_id': hashlib.sha256(os.urandom(32)).hexdigest(),
-        #     'version': '3',
-        #     'sandbox': 1, # sandbox mode, set to 1 to enable it
-        #     'server_url': 'https://tdg-admin.demodev.cc/receive_payment_callback', # url to callback view
-        # }
+
         signature = liqpay.cnb_signature(params)
         data = liqpay.cnb_data(params)
         payment_url = f"https://www.liqpay.ua/api/3/checkout/?{urlencode({'data': data, 'signature': signature})}"
@@ -101,12 +82,14 @@ class SendPaymentRequestInteractor():
 class ReceivePaymentRequestInteractor():
     def __init__(self,
         db_session: IDatabaseSession,
+        transaction_repository: BaseTransactionsRepository,
         # notification_service: INotificationService,
         # category_repository: BaseCategoryRepository, 
         # token_service: ITokenService,
         settings: Settings):
 
         self.db_session = db_session
+        self.transaction_repository = transaction_repository
         # self.notification_service = notification_service
         # self.category_repository = category_repository
         # self.token_service = token_service
@@ -122,12 +105,10 @@ class ReceivePaymentRequestInteractor():
 
         data = parsed_data.get("data", [""])[0]
         signature = parsed_data.get("signature", [""])[0]
-
-        
-        print('request data:')
-        print(request)
-        print(request.json())
-        print(await request.body())
+        # print('request data:')
+        # print(request)
+        # print(request.json())
+        # print(await request.body())
         # data = request.POST.get('data')
         # signature = request.POST.get('signature')
         sign = liqpay.str_to_sign(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY + data + self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
@@ -135,6 +116,13 @@ class ReceivePaymentRequestInteractor():
             print('callback is valid')
         response = liqpay.decode_data_from_str(data)
         print('callback data', response)
+
+        if response['status'] == 'sandbox':
+            order_id = response['order_id']
+            transaction = self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
+            print('====NEW TRANSACTION=====')
+            print(transaction)
+
         print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
 
 

@@ -147,3 +147,7 @@ class BaseTransactionsRepository(ABC):
     @abstractmethod
     async def print_all_transaction():
         raise NotImplementedError
+    
+    @abstractmethod
+    async def update_transaction_status_by_order_id():
+        raise NotImplementedError

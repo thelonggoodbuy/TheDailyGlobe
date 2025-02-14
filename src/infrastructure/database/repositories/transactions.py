@@ -34,6 +34,20 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
             if not transaction:
                 return new_transaction_code
 
+    async def return_transactio_by_order_id(self, order_id):
+        transaction_request = select(TranscationEntity).filter(order_id=order_id)
+        transaction_row = await self._session.execute(transaction_request)
+        transaction = transaction_row.scalar_one_or_none()
+        return transaction
+
+
+    async def update_transaction_status_by_order_id(self, order_id, new_status):
+        transaction = self.return_transactio_by_order_id(order_id=order_id)
+        transaction.status = new_status
+        await self._session.commit()
+        return transaction
+
+
 
     #TODO: test fuction only for debug:
     async def print_all_transaction(self):
