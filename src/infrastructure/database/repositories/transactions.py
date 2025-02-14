@@ -35,7 +35,7 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
                 return new_transaction_code
 
     async def return_transactio_by_order_id(self, order_id):
-        transaction_request = select(TranscationEntity).filter(order_id=order_id)
+        transaction_request = select(TranscationEntity).filter(TranscationEntity.order_id == order_id)
         transaction_row = await self._session.execute(transaction_request)
         transaction = transaction_row.scalar_one_or_none()
         return transaction
