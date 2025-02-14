@@ -70,7 +70,7 @@ class SendPaymentRequestInteractor():
         liqpay = LiqPay(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY, self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
         params = {
             'action': 'pay',
-            'amount': tariff.cost,
+            'amount': float(tariff.cost),
             'currency': tariff.curency,
             'description': f'TDG: payment for subscription for {tariff.subscription_period}',
             'order_id': new_transaction.order_id,
