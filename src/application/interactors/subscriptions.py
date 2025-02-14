@@ -119,7 +119,7 @@ class ReceivePaymentRequestInteractor():
 
         if response['status'] == 'sandbox':
             order_id = response['order_id']
-            transaction = self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
+            transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
             print('====NEW TRANSACTION=====')
             print(transaction)
 

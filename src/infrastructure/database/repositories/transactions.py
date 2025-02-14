@@ -42,7 +42,7 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
 
 
     async def update_transaction_status_by_order_id(self, order_id, new_status):
-        transaction = self.return_transactio_by_order_id(order_id=order_id)
+        transaction = await self.return_transactio_by_order_id(order_id=order_id)
         transaction.status = new_status
         await self._session.commit()
         return transaction
