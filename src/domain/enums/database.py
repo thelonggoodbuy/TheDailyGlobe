@@ -26,6 +26,6 @@ class PeriodTypeEnum(Enum):
 
 class TransactionsStatusEnum(Enum):
     IN_PROCESS = "IN_PROCESS"
-    SUCCESS = "IN_PROCESS"
+    SUCCESS = "SUCCESS"
     FAIL = "FAIL"
     TEST = "TEST"
