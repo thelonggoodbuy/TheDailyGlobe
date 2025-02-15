@@ -42,7 +42,9 @@ class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
         subscription_updated_period = await self.get_updated_period(period)
         subscription_obj.expiration_date = subscription_updated_period
         subscription_obj.is_active = True
-
+        self._session.add(subscription_obj)
+        await self._session.commit()
+        return subscription_obj
 
 
     async def get_updated_period(self, period: PeriodTypeEnum):
