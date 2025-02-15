@@ -6,7 +6,7 @@ from src.application.interfaces.repositories import BaseTransactionsRepository, 
 from abc import ABC, abstractmethod
 from src.presentation.schemas.subscriptions import SubscriptionResponseSchema
 from sqlalchemy import select
-
+from sqlalchemy.orm import joinedload
 
 
 class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
@@ -36,7 +36,7 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
                 return new_transaction_code
 
     async def return_transactio_by_order_id(self, order_id):
-        transaction_request = select(TranscationEntity).filter(TranscationEntity.order_id == order_id)
+        transaction_request = select(TranscationEntity).filter(TranscationEntity.order_id == order_id).options(joinedload(TranscationEntity.tariff))
         transaction_row = await self._session.execute(transaction_request)
         transaction = transaction_row.scalar_one_or_none()
         return transaction

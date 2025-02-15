@@ -7,6 +7,7 @@ from sqlalchemy import select
 from enum import Enum
 from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
+from sqlalchemy.orm import joinedload
 
 
 
