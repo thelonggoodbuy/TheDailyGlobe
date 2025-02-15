@@ -11,12 +11,13 @@ from sqlalchemy import select
 
 class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
 
-    async def create_transaction(self, subscription_id):
+    async def create_transaction(self, subscription_id, tariff_id):
         order_id = await self.generate_uniq_order_id()
         new_transaction = TranscationEntity(
             order_id=order_id,
             subscription_id=subscription_id,
-            status=TransactionsStatusEnum.IN_PROCESS
+            status=TransactionsStatusEnum.IN_PROCESS,
+            tariff=tariff_id
             )
         self._session.add(new_transaction)
         await self._session.commit()

@@ -53,7 +53,7 @@ class SendPaymentRequestInteractor():
 
         # 4 create transaction object
         subscription_obj = await self.subscription_repository.return_user_subscribtion_by_user_id(user_obj.id)
-        new_transaction = await self.transaction_repository.create_transaction(subscription_obj.id)
+        new_transaction = await self.transaction_repository.create_transaction(subscription_obj.id, tariff_id=tariff_id)
         await self.transaction_repository.print_all_transaction()
 
 
@@ -122,7 +122,8 @@ class ReceivePaymentRequestInteractor():
         if response['status'] == 'sandbox':
             order_id = response['order_id']
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
-            subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id)
+
+            subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id, period=transaction.tariff.subscription_period)
 
 
             print('====NEW TRANSACTION=====')

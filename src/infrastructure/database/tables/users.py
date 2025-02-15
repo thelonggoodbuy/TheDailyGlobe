@@ -127,7 +127,10 @@ TariffsTable = Table(
 
 mapper_registry.map_imperatively(
     TariffEntity,
-    TariffsTable
+    TariffsTable,
+    properties={
+        "transactions": relationship(TariffEntity, back_populates="tariff")
+    }
 )
 
 
@@ -139,6 +142,7 @@ TranscationsTable = Table(
     Column("status", SQLAlchemyEnum(TransactionsStatusEnum, name="transaction_status")),
     Column("subscription_id", ForeignKey("subscriptions.id")),
     Column("order_id", String(length=255), nullable=False),
+    Column("tariff_id", ForeignKey("tariff.id")),
 )
 
 
@@ -146,6 +150,7 @@ mapper_registry.map_imperatively(
     TranscationEntity,
     TranscationsTable,
     properties={
-        "subscription": relationship(SubscriptionEntity, back_populates="transactions")
+        "subscription": relationship(SubscriptionEntity, back_populates="transactions"),
+        "tariff": relationship(TariffEntity, back_populates="transactions")
     }
 )

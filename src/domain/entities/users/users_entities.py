@@ -50,3 +50,4 @@ class TranscationEntity(Entity):
     status: TransactionsStatusEnum
     subscription_id: int
     order_id: str
+    tariff_id: int
