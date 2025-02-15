@@ -97,7 +97,7 @@ class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
 
     async def handle_year(self, finish_date=None) -> datetime:
         if finish_date:
-            result = finish_date + relativedelta(months=1)
+            result = finish_date + relativedelta(years=1)
         else:
             now = datetime.now(timezone.utc)
             tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
