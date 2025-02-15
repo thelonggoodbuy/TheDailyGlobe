@@ -17,7 +17,7 @@ class TransactionsRepository(BaseTransactionsRepository, IAlchemyRepository):
             order_id=order_id,
             subscription_id=subscription_id,
             status=TransactionsStatusEnum.IN_PROCESS,
-            tariff=tariff_id
+            tariff_id=tariff_id
             )
         self._session.add(new_transaction)
         await self._session.commit()
