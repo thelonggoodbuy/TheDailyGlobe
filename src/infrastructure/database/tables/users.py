@@ -129,7 +129,7 @@ mapper_registry.map_imperatively(
     TariffEntity,
     TariffsTable,
     properties={
-        "transactions": relationship(TariffEntity, back_populates="tariff")
+        "transactions": relationship(TranscationEntity, back_populates="tariff")
     }
 )
 
