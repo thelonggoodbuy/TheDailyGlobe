@@ -83,6 +83,7 @@ class ReceivePaymentRequestInteractor():
     def __init__(self,
         db_session: IDatabaseSession,
         transaction_repository: BaseTransactionsRepository,
+        subscription_repository: BaseSubscribtionRepository,
         # notification_service: INotificationService,
         # category_repository: BaseCategoryRepository, 
         # token_service: ITokenService,
@@ -90,6 +91,7 @@ class ReceivePaymentRequestInteractor():
 
         self.db_session = db_session
         self.transaction_repository = transaction_repository
+        self.subscription_repository = subscription_repository
         # self.notification_service = notification_service
         # self.category_repository = category_repository
         # self.token_service = token_service
@@ -120,8 +122,14 @@ class ReceivePaymentRequestInteractor():
         if response['status'] == 'sandbox':
             order_id = response['order_id']
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
+            subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id)
+
+
             print('====NEW TRANSACTION=====')
             print(transaction)
+            print('=====update transaction=====')
+            print(subscription)
+            print('====================================')
 
         print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
 

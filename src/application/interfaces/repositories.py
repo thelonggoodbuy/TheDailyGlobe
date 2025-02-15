@@ -83,6 +83,10 @@ class BaseSubscribtionRepository(ABC):
     @abstractmethod
     async def create_subscription():
         raise NotImplementedError
+    
+    @abstractmethod
+    async def update_subscription_by_subscription_id_and_period():
+        raise NotImplementedError
 
 
 
