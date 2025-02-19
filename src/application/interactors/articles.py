@@ -148,7 +148,7 @@ class GetArticlesDetailInteractor(BaseInteractor):
 
     async def return_article_for_registered_user(self, get_detail_article_schema, subscription):
         article = await self.article_repository.return_detail_article(get_detail_article_schema)
-        if not article.data.is_premium:
+        if not article.data.is_premium or (subscription.is_active == True and subscription.expiration_date < datetime.now()):
             await self.article_repository.update_reading_status(article.data.id)
             result = article.model_dump(by_alias=True)
         else:
@@ -158,6 +158,7 @@ class GetArticlesDetailInteractor(BaseInteractor):
             if subscription.expiration_date and subscription.expiration_date >= datetime.now():
                 demo_article = await self.transform_to_demo(article, demo_cause=DemoCauseSchema.subscription_expired.value)
                 result = demo_article.model_dump(by_alias=True)
+
 
         return result 
 
