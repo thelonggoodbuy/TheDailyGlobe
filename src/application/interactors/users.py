@@ -117,7 +117,7 @@ class LogOutRegularInteractor(BaseInteractor):
             return JSONResponse(status_code=401, content=result.model_dump())
         
         black_list_entity = await self.user_repository.add_to_blacklist(logout_data)
-        await self.notification_service.stop_notification(logout_data.registration_id, user_obj.user_id)
+        await self.notification_service.stop_notification(logout_data.registration_id, user_obj.id)
         print('=========================================')
         print(black_list_entity)
         print('=========================================')
