@@ -39,6 +39,16 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         notification_credential = notification_credential_query_obj.scalar()
         return notification_credential
 
+    async def get_notification_by_user_id(self, user_id):
+        query = select(NotificationCredentialEntity).options(
+                                                    selectinload(NotificationCredentialEntity.choosen_categories)
+                                                    ).where(
+                                                        NotificationCredentialEntity.user_id == user_id,
+                                                        NotificationCredentialEntity.is_active == True
+                                                    )
+        notification_credential_query_obj = await self._session.execute(query)
+        notification_credential = notification_credential_query_obj.scalar()
+        return notification_credential
 
 
     async def update_notifications_status(self, update_notification_data, category, user_id, notification_credential):

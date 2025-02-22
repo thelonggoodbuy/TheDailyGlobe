@@ -435,6 +435,12 @@ class SubscriptionProvider(Provider):
         provides=ITokenService,
     )
 
+    notification_service = provide(
+        source=NotificationFirebaseService,
+        scope=Scope.APP,
+        provides=INotificationService,
+    )
+
     # repositories
     tariff_alchemy_repository = provide(
         source=TariffRepository,
@@ -453,6 +459,13 @@ class SubscriptionProvider(Provider):
         scope=Scope.APP,
         provides=AnyOf[BaseTransactionsRepository, IAlchemyRepository]
     )
+
+    user_repository = provide(
+        source=UserAlchemyRepository,
+        scope=Scope.APP,
+        provides=AnyOf[BaseUserRepository, IAlchemyRepository]
+    )
+
 
 
     @provide(scope=Scope.APP)

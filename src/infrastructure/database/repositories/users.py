@@ -22,6 +22,14 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         user = await self._session.execute(query)
         result = user.scalar_one_or_none()
         return result
+    
+    
+    async def get_user_by_id(self, id: str):
+        """get user from db using id"""
+        query = select(UserEntity).options(selectinload(UserEntity.subscription)).filter(UserEntity.id == id)
+        user = await self._session.execute(query)
+        result = user.scalar_one_or_none()
+        return result
 
 
     async def register_user(self, register_data: RegisterData):

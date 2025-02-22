@@ -3,9 +3,9 @@ from urllib.parse import parse_qs, urlencode
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from src.domain.enums.database import TransactionsStatusEnum
-from src.application.interfaces.services import ITokenService
+from src.application.interfaces.services import INotificationService, ITokenService
 from src.presentation.schemas.base_schemas import BaseResponseSchema
-from src.application.interfaces.repositories import BaseSubscribtionRepository, BaseTariffRepository, BaseTransactionsRepository
+from src.application.interfaces.repositories import BaseSubscribtionRepository, BaseTariffRepository, BaseTransactionsRepository, BaseUserRepository
 from src.presentation.schemas.subscriptions import AllTariffResponseSchema
 from src.infrastructure.interfaces.uow import IDatabaseSession
 from src.main.config.settings import Settings
@@ -13,6 +13,10 @@ from liqpay_lib.liqpay import LiqPay
 import hashlib
 import os
 from src.application.tasks.notification_tasks import send_notification, send_success_notification
+from babel.dates import format_date
+from datetime import datetime
+import locale
+
 
 
 
@@ -85,7 +89,8 @@ class ReceivePaymentRequestInteractor():
         db_session: IDatabaseSession,
         transaction_repository: BaseTransactionsRepository,
         subscription_repository: BaseSubscribtionRepository,
-        # notification_service: INotificationService,
+        users_repository: BaseUserRepository,
+        notification_service: INotificationService,
         # category_repository: BaseCategoryRepository, 
         # token_service: ITokenService,
         settings: Settings):
@@ -93,7 +98,8 @@ class ReceivePaymentRequestInteractor():
         self.db_session = db_session
         self.transaction_repository = transaction_repository
         self.subscription_repository = subscription_repository
-        # self.notification_service = notification_service
+        self.users_repository = users_repository
+        self.notification_service = notification_service
         # self.category_repository = category_repository
         # self.token_service = token_service
         self.settings = settings
@@ -116,18 +122,31 @@ class ReceivePaymentRequestInteractor():
 
         if response['status'] == 'sandbox':
             order_id = response['order_id']
+
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
             subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id, period=transaction.tariff.subscription_period)
-            send_success_notification.delay()
+            user = await self.users_repository.get_user_by_id(user_id=subscription.user_id)
+            notification_obj = await self.notification_service.get_notification_by_user_id(user_id=subscription.user_id)
+
+            finished_date = await self.format_date(subscription.expiration_date)
+
+            send_success_notification.delay(user_email=user.email, 
+                                            subscription_exp_date=finished_date,
+                                            registration_token=notification_obj.registraion_token)
 
 
-            print('====NEW TRANSACTION=====')
-            print(transaction)
-            print('=====update transaction=====')
-            print(subscription)
-            print('====================================')
+            # print('====NEW TRANSACTION=====')
+            # print(transaction)
+            # print('=====update transaction=====')
+            # print(subscription)
+            # print('====================================')
 
         print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
+
+    async def format_date(date):
+        locale.setlocale(locale.LC_TIME, "uk_UA.UTF-8")
+        formatted_date = format_date(date, "d MMMM y 'року'", locale="uk")
+        return formatted_date
 
 
 

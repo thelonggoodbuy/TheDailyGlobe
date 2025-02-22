@@ -80,7 +80,9 @@ class NotificationFirebaseService(INotificationService):
         return notifications_status
 
 
-
+    async def get_notification_by_user_id(self, user_id):
+        notification_obj = await self.notifications_repository.get_notification_by_user_id(user_id=user_id)
+        return notification_obj
 
 
 
