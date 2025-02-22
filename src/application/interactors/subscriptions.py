@@ -128,6 +128,14 @@ class ReceivePaymentRequestInteractor():
             user = await self.users_repository.get_user_by_id(id=subscription.user_id)
             notification_obj = await self.notification_service.get_notification_by_user_id(user_id=subscription.user_id)
 
+            print("--->test data<---")
+            print(transaction)
+            print(subscription)
+            print(user)
+            print(notification_obj)
+            print("-----------------")
+
+
             finished_date = await self.format_date(subscription.expiration_date)
 
             send_success_notification.delay(user_email=user.email, 
@@ -143,7 +151,7 @@ class ReceivePaymentRequestInteractor():
 
         print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
 
-    async def format_date(date):
+    async def format_date(self, date):
         locale.setlocale(locale.LC_TIME, "uk_UA.UTF-8")
         formatted_date = format_date(date, "d MMMM y 'року'", locale="uk")
         return formatted_date
