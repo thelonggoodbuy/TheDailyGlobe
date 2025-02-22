@@ -152,7 +152,14 @@ class ReceivePaymentRequestInteractor():
         print({"result": "Success", "interactor": "ReceivePaymentRequestInteractor"})
 
     async def format_date(self, date):
-        locale.setlocale(locale.LC_TIME, "uk_UA.UTF-8")
+
+        try:
+            locale.setlocale(locale.LC_TIME, "uk_UA.UTF-8")
+        except locale.Error:
+            print("Ошибка: Локаль uk_UA.UTF-8 недоступна. Используется системная локаль.")
+            locale.setlocale(locale.LC_TIME, "")
+        # locale.setlocale(locale.LC_TIME, "uk_UA.UTF-8")
+        
         formatted_date = format_date(date, "d MMMM y 'року'", locale="uk")
         return formatted_date
 
