@@ -92,9 +92,12 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         return True
 
 
-    async def stop_notification(self, registration_token):
+    async def stop_notification(self, registration_token, user_id):
         query = select(NotificationCredentialEntity).options(
-                                                    ).where(NotificationCredentialEntity.registraion_token == registration_token)
+                                                    ).where(
+                                                        NotificationCredentialEntity.registraion_token == registration_token,
+                                                        NotificationCredentialEntity.user_id == user_id
+                                                    )
         notification_credential_query_obj = await self._session.execute(query)
         notification_credential = notification_credential_query_obj.scalar()
         notification_credential.is_active = False

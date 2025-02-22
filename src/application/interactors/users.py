@@ -106,8 +106,18 @@ class LogOutRegularInteractor(BaseInteractor):
     async def __call__(self,
                     logout_data: LogOutRequestData) -> BaseResponseSchema:
 
+        token = logout_data.refresh_token
+        user_obj = await self.token_service.get_user_by_token(token)
+        if not user_obj.is_valid:
+            result = BaseResponseSchema(
+                error=True,
+                message=user_obj.error_text,
+                data=None
+            )
+            return JSONResponse(status_code=401, content=result.model_dump())
+        
         black_list_entity = await self.user_repository.add_to_blacklist(logout_data)
-        await self.notification_service.stop_notification(logout_data.registration_id)
+        await self.notification_service.stop_notification(logout_data.registration_id, user_obj.user_id)
         print('=========================================')
         print(black_list_entity)
         print('=========================================')
