@@ -32,5 +32,15 @@ def send_notification(category_title, article_title, article_author, article_id,
         response = messaging.send(message, app=firebase_app)
 
 
-# @celery_app.task
-# def send_success_notification(category_title, article_title, article_author, article_id, tokens):
+@celery_app.task
+def send_success_notification():
+
+    cred = credentials.Certificate("./serviceAccountKey.json")
+    # data_payload = json.dumps({"articleId": str(article_id)})
+
+    try:
+        firebase_app = firebase_admin.get_app(name="firebase_app")
+    except ValueError:
+        firebase_app = firebase_admin.initialize_app(cred, name="firebase_app")
+
+    print('send notification task from liqpay callback work and create or use firebase app!')

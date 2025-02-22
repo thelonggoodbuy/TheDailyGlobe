@@ -12,7 +12,7 @@ from src.main.config.settings import Settings
 from liqpay_lib.liqpay import LiqPay
 import hashlib
 import os
-from src.application.tasks.notification_tasks import send_notification
+from src.application.tasks.notification_tasks import send_notification, send_success_notification
 
 
 
@@ -118,7 +118,7 @@ class ReceivePaymentRequestInteractor():
             order_id = response['order_id']
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
             subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id, period=transaction.tariff.subscription_period)
-            
+            send_success_notification.delay()
 
 
             print('====NEW TRANSACTION=====')
