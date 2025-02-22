@@ -181,7 +181,7 @@ class UpdateNotificationsStatusInteractor():
             return result
 
         category = await self.category_repository.get_one_by_id(update_notification_data.category_id)
-        get_notification_credential = await self.notifications_repository.get_notification_credential(update_notification_data)
+        get_notification_credential = await self.notifications_repository.get_notification_credential(update_notification_data, user_obj.id)
 
         if get_notification_credential != None:
             print('1')

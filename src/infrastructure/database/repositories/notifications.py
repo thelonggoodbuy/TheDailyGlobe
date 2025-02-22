@@ -28,10 +28,13 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
             print("=================================")
     
 
-    async def get_notification_credential(self, update_notification_data):
+    async def get_notification_credential(self, update_notification_data, user_id):
         query = select(NotificationCredentialEntity).options(
                                                     selectinload(NotificationCredentialEntity.choosen_categories)
-                                                    ).where(NotificationCredentialEntity.registraion_token == update_notification_data.registration_token)
+                                                    ).where(
+                                                        NotificationCredentialEntity.registraion_token == update_notification_data.registration_token,
+                                                        NotificationCredentialEntity.user_id == user_id
+                                                    )
         notification_credential_query_obj = await self._session.execute(query)
         notification_credential = notification_credential_query_obj.scalar()
         return notification_credential
