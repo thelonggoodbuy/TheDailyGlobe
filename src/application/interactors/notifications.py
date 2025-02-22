@@ -100,10 +100,7 @@ class GetNotificationsStatusInteractor():
         self.settings = settings
 
     async def __call__(self, registration_token_data, jwt_token):
-        total_categories = await self.category_repository.get_all()
-        notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
-
-
+        
         user_obj = await self.token_service.get_user_by_token(jwt_token)
         if user_obj.is_valid is False:
             result = BaseResponseSchema(
@@ -113,6 +110,8 @@ class GetNotificationsStatusInteractor():
             )
             return result
 
+        total_categories = await self.category_repository.get_all()
+        notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token, user_obj.id)
 
         if not notification_statuses:
             result = BaseResponseSchema(error=True, message="token isnt saved in DB", data={})

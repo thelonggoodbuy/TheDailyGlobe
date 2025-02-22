@@ -54,10 +54,14 @@ class NotificationsAlchemyRepository(BaseNotificationsRepository, IAlchemyReposi
         return update_notification_data
     
 
-    async def return_all_notification_objects_per_registration_token(self, registration_token):
+    async def return_all_notification_objects_per_registration_token(self, registration_token, user_id):
         query = select(NotificationCredentialEntity).options(
                                                     selectinload(NotificationCredentialEntity.choosen_categories)
-                                                    ).where(NotificationCredentialEntity.registraion_token == registration_token)
+                                                    ).where(
+                                                        NotificationCredentialEntity.registraion_token == registration_token, 
+                                                        NotificationCredentialEntity.is_active == True,
+                                                        NotificationCredentialEntity.user_id == user_id
+                                                    )
         notification_credential_query_obj = await self._session.execute(query)
         notification_credential = notification_credential_query_obj.scalar()
 

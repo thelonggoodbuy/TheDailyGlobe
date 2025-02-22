@@ -30,3 +30,7 @@ def send_notification(category_title, article_title, article_author, article_id,
     )
 
         response = messaging.send(message, app=firebase_app)
+
+
+# @celery_app.task
+# def send_success_notification(category_title, article_title, article_author, article_id, tokens):

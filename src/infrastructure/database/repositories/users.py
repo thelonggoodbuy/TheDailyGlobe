@@ -87,6 +87,9 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         print('===is_token_compromised result===')
         print(is_token_compromised)
         print('=================================')
+
+        await self.test_return_all_compromised_tokens()
+        
         if len(is_token_compromised) > 0:
             print('111111111111111111111111111111111')
             result = True
@@ -94,3 +97,12 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
             print('222222222222222222222222222222222')
             result = False
         return result
+    
+    async def test_return_all_compromised_tokens(self):
+        query = select(TokenBlacklistEntity).filter()
+        compromised_tokens_rows = await self._session.execute(query)
+        compromised_tokens = compromised_tokens_rows.scalars().all()
+        print('-->All compromised tokens:<---')
+        print(compromised_tokens)
+        print('------------------------------')
+

@@ -12,6 +12,7 @@ from src.main.config.settings import Settings
 from liqpay_lib.liqpay import LiqPay
 import hashlib
 import os
+from src.application.tasks.notification_tasks import send_notification
 
 
 
@@ -98,8 +99,7 @@ class ReceivePaymentRequestInteractor():
         self.settings = settings
 
     async def __call__(self, request: Request):
-        # total_categories = await self.category_repository.get_all()
-        # notification_statuses = await self.notification_service.get_notifications_status(registration_token_data.registration_token)
+
         print('================***YOU HAVE RECEIVE MESSAGE***================')
         liqpay = LiqPay(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY, self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
         raw_body = await request.body()
@@ -107,12 +107,7 @@ class ReceivePaymentRequestInteractor():
 
         data = parsed_data.get("data", [""])[0]
         signature = parsed_data.get("signature", [""])[0]
-        # print('request data:')
-        # print(request)
-        # print(request.json())
-        # print(await request.body())
-        # data = request.POST.get('data')
-        # signature = request.POST.get('signature')
+
         sign = liqpay.str_to_sign(self.settings.payment_settings.LIQ_PAY_PUBLIC_KEY + data + self.settings.payment_settings.LIQ_PAY_PRIVATE_KEY)
         if sign == signature:
             print('callback is valid')
@@ -122,8 +117,8 @@ class ReceivePaymentRequestInteractor():
         if response['status'] == 'sandbox':
             order_id = response['order_id']
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
-
             subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id, period=transaction.tariff.subscription_period)
+            
 
 
             print('====NEW TRANSACTION=====')

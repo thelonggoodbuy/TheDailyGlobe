@@ -75,8 +75,8 @@ class NotificationFirebaseService(INotificationService):
     async def stop_notification(self, registration_token):
         await self.notifications_repository.stop_notification(registration_token)
 
-    async def get_notifications_status(self, registration_token):
-        notifications_status = await self.notifications_repository.return_all_notification_objects_per_registration_token(registration_token)
+    async def get_notifications_status(self, registration_token, user_id):
+        notifications_status = await self.notifications_repository.return_all_notification_objects_per_registration_token(registration_token, user_id)
         return notifications_status
 
 
