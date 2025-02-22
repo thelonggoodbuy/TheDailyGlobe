@@ -125,7 +125,7 @@ class ReceivePaymentRequestInteractor():
 
             transaction = await self.transaction_repository.update_transaction_status_by_order_id(order_id=order_id, new_status=TransactionsStatusEnum.SUCCESS)
             subscription = await self.subscription_repository.update_subscription_by_subscription_id_and_period(subscription_id=transaction.subscription_id, period=transaction.tariff.subscription_period)
-            user = await self.users_repository.get_user_by_id(user_id=subscription.user_id)
+            user = await self.users_repository.get_user_by_id(id=subscription.user_id)
             notification_obj = await self.notification_service.get_notification_by_user_id(user_id=subscription.user_id)
 
             finished_date = await self.format_date(subscription.expiration_date)
