@@ -9,7 +9,9 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 # from .views import ArticleUpdateView, ArticleCreateView
 from unfold.contrib.forms.widgets import WysiwygWidget
 from ckeditor.widgets import CKEditorWidget
+from django.db.models import Count
 
+from unfold.admin import StackedInline, TabularInline
 
 from django import forms
 
@@ -22,7 +24,14 @@ from admin_panel.core.models import ArticlesUnfold, \
                         ArticleSectionsWithPlainTextUnfold, \
                         ArticleSectionWithSlideShowUnfold, \
                         ArticleSectionWithVideoUnfold, \
-                        CategoryUnfold
+                        CategoryUnfold, UsersUnfold
+
+
+from unfold.contrib.filters.admin import TextFilter, FieldTextFilter
+from unfold.contrib.filters.admin import RangeDateFilter, RangeDateTimeFilter, RangeNumericFilter
+from django.contrib.admin.filters import ChoicesFieldListFilter
+
+
 
 
 
@@ -33,72 +42,53 @@ class CategoryAdminClass(ModelAdmin):
 
 
 
-class ArticleSectionsWithPlainTextInline(NonrelatedStackedInline):
+class ArticleSectionsWithPlainTextInline(StackedInline):
     model = ArticleSectionsWithPlainTextUnfold
     extra = 1
-    exclude = ['article', ]
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        }
-    }
-
-    def get_form_queryset(self, obj):
-        return self.model.objects.filter(article_id=obj.id).distinct()
-
-    def save_new_instance(self, parent, instance):
-        last_obj = self.model.objects.order_by('id').last()
-        next_id = last_obj.id + 1 if last_obj else 1
-        instance.id = next_id
-        instance.article_id = parent.id
+    exclude = ['section_type',]
 
 
 
 
-class ArticleSectionWithSlideShowInline(NonrelatedStackedInline):
+class ArticleSectionWithSlideShowInline(StackedInline):
     model = ArticleSectionWithSlideShowUnfold
     extra = 1
-    exclude = ['article', ]
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        }
-    }
-
-    def get_form_queryset(self, obj):
-        return self.model.objects.filter(article_id=obj.id).distinct()
-
-    def save_new_instance(self, parent, instance):
-        last_obj = self.model.objects.order_by('id').last()
-        next_id = last_obj.id + 1 if last_obj else 1
-        instance.id = next_id
-        instance.article_id = parent.id
+    exclude = ['section_type',]
 
 
-class ArticleSectionWithVideoInline(NonrelatedStackedInline):
+class ArticleSectionWithVideoInline(StackedInline):
     model = ArticleSectionWithVideoUnfold
     extra = 1
-    exclude = ['article', ]
-    
-    def get_form_queryset(self, obj):
-        return self.model.objects.filter(article_id=obj.id).distinct()
+    exclude = ['section_type',]
 
-    def save_new_instance(self, parent, instance):
-        last_obj = self.model.objects.order_by('id').last()
-        next_id = last_obj.id + 1 if last_obj else 1
-        instance.id = next_id
-        instance.article_id = parent.id
 
+
+class HorizontalChoicesFieldListFilter(ChoicesFieldListFilter):
+    horizontal = True
 
 
 @admin.register(ArticlesUnfold)
 class ArticlesAdmin(ModelAdmin):
-    compressed_fields = True
-    # inlines = [ArticleSectionsWithPlainTextInline,]
-    # formfield_overrides = {
-    #         models.TextField: {
-    #             "widget": WysiwygWidget,
-    #         }
-    #     }
+    list_display = (
+        "title",
+        "category",
+        "is_premium",
+
+    )
+    list_filter = ("is_premium", 
+                   ("publication_date", RangeDateFilter), 
+                   ("id", RangeNumericFilter),
+                   "author",)
+    search_fields = ("lead", "author",)
+    
+
     inlines = [ArticleSectionsWithPlainTextInline, ArticleSectionWithSlideShowInline, ArticleSectionWithVideoInline]
+
+
+@admin.register(UsersUnfold)
+class ArticlesAdmin(ModelAdmin):
+    model = UsersUnfold
+    extra = 1
+
+
     

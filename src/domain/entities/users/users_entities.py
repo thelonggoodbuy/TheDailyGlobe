@@ -11,10 +11,11 @@ from typing import Optional
 class UserEntity(Entity):
     """User model."""
     email: str
-    password: str
+    password: Optional[str] = None
     id: str = None
     is_staff: bool = False
     is_active: bool = True
+    is_registered_throw_google: bool = False
 
 
 @dataclass

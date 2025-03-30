@@ -28,12 +28,14 @@ UserTable = Table(
     # users email
     Column("email", String(length=255), nullable=False, unique=True),
     # users password
-    Column("password", String(length=255), nullable=False),
+    Column("password", String(length=255), nullable=True),
     # is_staff field (default False)
     Column("is_staff", Boolean, default=False, nullable=False),
     # is_active field (default False)
-    Column("is_active", Boolean, default=False, nullable=False)
+    Column("is_active", Boolean, default=False, nullable=False),
+    Column("is_registered_throw_google", Boolean, default=False, nullable=False)
     )
+    
 
 
 mapper_registry.map_imperatively(

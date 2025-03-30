@@ -93,7 +93,12 @@ class RegisterData(BaseSchema):
             )
         else:
             return data
-        
+
+
+class RegisterGoogleData(BaseSchema):
+    email: str
+    is_registered_throw_google: bool = True
+
 
 class UserRegisterResponse(BaseResponseSchema):
     result: str

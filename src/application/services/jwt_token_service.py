@@ -73,14 +73,14 @@ class JWTTokenService(ITokenService):
 
     async def validate_token(self, token: str):
         is_token_in_black_list = await self.user_repository.check_if_token_in_blacklist(token)
-        print('***is_token_in_black_list***')
-        print(is_token_in_black_list)
-        print('***')
+        # print('***is_token_in_black_list***')
+        # print(is_token_in_black_list)
+        # print('***')
         if is_token_in_black_list:
-            print('***1***')
+            # print('***1***')
             response = TokenResponse(is_valid=False, error_text="Токен не валідний")
         else:
-            print('***2***')
+            # print('***2***')
             try:
                 payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
                 if int(payload['exp']) < int(time.time()):
@@ -97,13 +97,18 @@ class JWTTokenService(ITokenService):
 
     async def get_user_by_token(self, token: str):
         token_status = await self.validate_token(token)
-        print('****')
-        print(token_status)
-        print('****')
+
         match token_status.is_valid:
             case True:
                 user = await self.get_user_by_payload(token_status.user_email)
-                response = TokenResponse(is_valid=True, user_email=user.email, user_password=user.password, id=user.id)
+                print('_______')
+                print(user)
+                print('_______')
+                if user.is_registered_throw_google:
+                    response = TokenResponse(is_valid=True, user_email=user.email, id=user.id)
+                else:
+                    response = TokenResponse(is_valid=True, user_email=user.email, id=user.id, user_password=user.password)
+                # if user.password: response.password = user.password
                 return response
 
             case False:

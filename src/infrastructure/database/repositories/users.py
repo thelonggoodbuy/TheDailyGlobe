@@ -5,7 +5,7 @@ from src.infrastructure.database.tables.users import UserTable
 from src.domain.entities.users.users_entities import UserEntity, TokenBlacklistEntity
 from src.application.interfaces.repositories import IAlchemyRepository, BaseUserRepository
 from abc import ABC, abstractmethod
-from src.presentation.schemas.users import LogOutRequestData, RegisterData
+from src.presentation.schemas.users import LogOutRequestData, RegisterData, RegisterGoogleData
 from src.infrastructure.database.utilities.get_password_hash import get_password_hash
 from fastapi import HTTPException
 from sqlalchemy.orm import selectinload
@@ -43,6 +43,15 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         await self._session.commit()
         return new_user
     
+    async def register_google_user(self, register_data: RegisterGoogleData):
+        new_user = UserEntity(
+                email=register_data.email,   
+                is_registered_throw_google=True,
+            )
+        self._session.add(new_user)
+        await self._session.commit()
+        return new_user
+    
 
     async def delete_user(self, email):
         user = await self.get_user_by_email(user_email=email)
@@ -68,12 +77,12 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
 
         token_is_compromised = await self.check_if_token_in_blacklist(logout_data.access_token)
 
-        print('===token_is_compromised===')
-        print(token_is_compromised)
-        print('==========================')
+        # print('===token_is_compromised===')
+        # print(token_is_compromised)
+        # print('==========================')
 
         if token_is_compromised == False:
-            print('NOT COMPROMISSED~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+            # print('NOT COMPROMISSED~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
             new_black_list_token = TokenBlacklistEntity(
                 access_token=logout_data.access_token,
                 refresh_token=logout_data.refresh_token,
@@ -92,17 +101,17 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         # print(compromised_token.scalars().all())
         # print('=======================')
         is_token_compromised = compromised_token.scalars().all()
-        print('===is_token_compromised result===')
-        print(is_token_compromised)
-        print('=================================')
+        # print('===is_token_compromised result===')
+        # print(is_token_compromised)
+        # print('=================================')
 
         await self.test_return_all_compromised_tokens()
         
         if len(is_token_compromised) > 0:
-            print('111111111111111111111111111111111')
+            # print('111111111111111111111111111111111')
             result = True
         else:
-            print('222222222222222222222222222222222')
+            # print('222222222222222222222222222222222')
             result = False
         return result
     
@@ -110,7 +119,7 @@ class UserAlchemyRepository(BaseUserRepository, IAlchemyRepository):
         query = select(TokenBlacklistEntity).filter()
         compromised_tokens_rows = await self._session.execute(query)
         compromised_tokens = compromised_tokens_rows.scalars().all()
-        print('-->All compromised tokens:<---')
-        print(compromised_tokens)
-        print('------------------------------')
+        # print('-->All compromised tokens:<---')
+        # print(compromised_tokens)
+        # print('------------------------------')
 

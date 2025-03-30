@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'unfold',
     'unfold.contrib.forms',
     'unfold.contrib.inlines',
+    "unfold.contrib.filters",
     'ckeditor',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -191,3 +192,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'auth.User'
+# AUTH_USER_MODEL = "core.UsersUnfold"

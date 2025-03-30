@@ -6,7 +6,7 @@ from sqlalchemy import Column, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from advanced_alchemy.base import orm_registry
-
+import os
 
 from alembic import context
 from alembic.autogenerate import rewriter
@@ -16,56 +16,31 @@ from advanced_alchemy.alembic.commands import AlembicCommandConfig
 from alembic.runtime.environment import EnvironmentContext
 from sqlalchemy.ext.asyncio import create_async_engine
 
-
-import pprint
-
-
 from src.infrastructure.database.metadata import metadata
 
-
-import os
 from dotenv import load_dotenv
 from sqlalchemy.engine.url import URL
+
+
+
+
+load_dotenv()
 
 config: AlembicCommandConfig = context.config  # noqa
 
 
+def get_db_url():
 
-
-# Загружаем переменные окружения из .env
-load_dotenv()
-
-# config.set_main_option(
-#     'sqlalchemy.url',
-#     str(URL.create(
-#         drivername="postgresql+asyncpg",
-#         username=os.getenv("POSTGRES_USER"),
-#         password=os.getenv("POSTGRES_PASSWORD"),
-#         host=os.getenv("POSTGRES_HOST"),
-#         port=os.getenv("POSTGRES_PORT"),
-#         database=os.getenv("POSTGRES_DB")
-#     ))
-# )
-
-
-
-
-
-# for key, value in config.get_section(config.config_ini_section).items():
-#     print('Context value:')
-#     print(f"{key}: {value}")
+    return URL.create(
+            drivername="postgresql+asyncpg",
+            username=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=os.getenv("POSTGRES_HOST"),
+            database=os.getenv("POSTGRES_DB")
+        )
 
 
 target_metadata=metadata
-
-
-
-# print("---> Registered Tables in Metadata <---")
-# pprint.pprint(target_metadata.tables.keys())
-# print("====config=====")
-# print(config)
-# print('===============')
-
 
 
 writer = rewriter.Rewriter()
@@ -93,7 +68,6 @@ def run_migrations_offline() -> None:
 def do_run_migrations(connection: Connection) -> None:
     """Run migrations."""
 
-    # print(f"Registered tables: {target_metadata.tables.keys()}")
 
     context.configure(
         connection=connection,
@@ -112,12 +86,7 @@ async def run_migrations_online() -> None:
     """
     configuration = config.get_section(config.config_ini_section) or {}
 
-    # TODO если заработает - убрать колхоз со ссылкой
-    
-    # configuration["sqlalchemy.url"] = config.db_url
-    configuration["sqlalchemy.url"] = config.get_main_option("sqlalchemy.url")
-
-    engine = create_async_engine(url=configuration["sqlalchemy.url"])
+    engine = create_async_engine(get_db_url())
 
     connectable = cast(
         "AsyncEngine",
@@ -147,9 +116,3 @@ if context.is_offline_mode():
 else:
     asyncio.run(run_migrations_online())
 
-
-# print('===================================================================')
-
-# print('MIGRATION SCIPT FINISHED!!!!!!!!!!!!')
-
-# print('===================================================================')

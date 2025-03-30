@@ -98,12 +98,15 @@ async def change_password(change_password_user_data: ChangePasswordUsersData,
                       interactor: FromDishka[UpdatePasswordUserInteractor]):
 
     result_unformated = await interactor(change_password_user_data, token.credentials)
-    result = result_unformated.model_dump(by_alias=True)
-    # return result
-    if result_unformated.error:
-        return JSONResponse(content=result, status_code=status.HTTP_400_BAD_REQUEST)
+    if type(result_unformated) == JSONResponse:
+        return result_unformated
+    else:
+        result = result_unformated.model_dump(by_alias=True)
+        # return result
+        if result_unformated.error:
+            return JSONResponse(content=result, status_code=status.HTTP_400_BAD_REQUEST)
 
-    return JSONResponse(content=result, status_code=status.HTTP_200_OK)
+        return JSONResponse(content=result, status_code=status.HTTP_200_OK)
 
 
 

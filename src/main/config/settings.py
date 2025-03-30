@@ -34,6 +34,7 @@ class DatabaseSettings(FastAPISettings):
 
     @property
     def URL(self) -> str:
+        # TODO: delete if
         if all([self.POSTGRES_USER, self.POSTGRES_PASSWORD, self.POSTGRES_DB]):
             return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         raise ValueError("Database URL is not set")

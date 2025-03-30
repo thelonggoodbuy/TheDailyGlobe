@@ -4,7 +4,7 @@ from src.infrastructure.interfaces.uow import IDatabaseSession
 
 from starlette.requests import Request
 
-from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema
+from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema, RegisterGoogleData
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 
 from sqlalchemy.exc import IntegrityError
@@ -142,9 +142,7 @@ class LoginGmailRequestToCloudInteractor(BaseInteractor):
                        request: Request) -> UserLoginResponse:
        
         auth_obj = self.settings.google_auth.google_auth_object
-        print('***1***')
         print(request.session)
-        print('***2***')
 
         redirect_uri = os.environ.get('GOOGLE_REDIRECT_URL')
 
@@ -164,6 +162,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
     def __init__(self,
                 db_session: IDatabaseSession,
                 user_repository: BaseUserRepository,
+                subscription_repository: BaseSubscribtionRepository,
                 settings: Settings,
                  token_service: ITokenService
                 ):
@@ -171,6 +170,7 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
         self.db_session = db_session
         self.settings = settings
         self.user_repository = user_repository
+        self.subscription_repository = subscription_repository
         self.token_service = token_service
 
 
@@ -179,25 +179,59 @@ class LoginGmailResponseFromCloudInteractor(BaseInteractor):
        
         auth_obj = self.settings.google_auth.google_auth_object
         
-        print('=======================GOOGLE AUTH RESP====================')
-        print(request.session)
-        print('===========================================================')
         token = await auth_obj.google.authorize_access_token(request)
         data = token.get('userinfo')
         user_email = data['email']
 
+
         user_obj = await self.user_repository.get_user_by_email(user_email=user_email)
+        print("==============================")
+        print(user_obj)
+        print("==============================")
         if user_obj is None:
-            result = {'error': True, 'message': 'Користувача з таким емейлом не існує', 'data': []}
-            return JSONResponse(status_code=401, content=result)
+            # TODO: make registration here
+            # self.user_repository.register_google_user(RegisterGoogleData(email=user_email))
+
+            # result = {'error': True, 'message': 'Користувача з таким емейлом не існує', 'data': []}
+            # return JSONResponse(status_code=401, content=result)
+
+            user_obj = await self.user_repository.register_google_user(RegisterGoogleData(email=user_email))
+            await self.subscription_repository.create_subscription(user_id=user_obj.id)
+            access_token = await self.token_service.create_access_token(user_obj.email)
+            refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
+            subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user_id=user_obj.id)
+
+            if subscription:
+                subscription_data = SubscriptionResponseSchema(expiration_date=subscription.expiration_date, 
+                                                                is_active=subscription.is_active)
+            else:
+                subscription_data = None
+
+            user_data = LoginUserSuccessData(id=user_obj.id,
+                                                email=user_obj.email)
+
+            data = LoginSuccessDataSchema(
+                    access_token=access_token, 
+                    refresh_token=refresh_token,
+                    user_data=user_data.model_dump(by_alias=True), 
+                    subscription_data=subscription_data)
+
+            result_data = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
+            result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_200_OK)
+
             
-        else:
+        elif user_obj and user_obj.is_registered_throw_google == True:
+            # authentication 
             jwt_token = await self.token_service.create_access_token(user_obj.email)
             refresh_token = await self.token_service.create_access_token(user_obj.email, is_refresh=True)
 
             data = {'error': False, 'message': '', 'data': {'access_token': jwt_token, 'refresh_token': refresh_token}}
             result = JSONResponse(status_code=200, content=data)
-        # result = JSONResponse(status_code=200, content="test data")
+        
+        else:
+            result = {'error': True, 'message': 'Користувача з таким емейлом зареєструвався через емейл та пароль. Аутентифікуйтеся в такий спосіб, будь ласка.', 'data': []}
+            return JSONResponse(status_code=401, content=result)
+
         return result
 
 
@@ -224,7 +258,15 @@ class RegistrationInteractor(BaseInteractor):
     async def __call__(self,
                     register_data: RegisterData) -> BaseResponseSchema:
         
-        try:
+
+        user_obj = await self.user_repository.get_user_by_email(user_email=register_data.email)
+        if user_obj and user_obj.is_registered_throw_google == False:
+            result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})
+            result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
+        elif user_obj and user_obj.is_registered_throw_google == True:
+            result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом зареєструвався через гугл аккаунт. аутентифікуйтеся через нього..', data={})
+            result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
+        else:
             user_obj = await self.user_repository.register_user(register_data)
             await self.subscription_repository.create_subscription(user_id=user_obj.id)
             access_token = await self.token_service.create_access_token(user_obj.email)
@@ -233,7 +275,7 @@ class RegistrationInteractor(BaseInteractor):
 
             if subscription:
                 subscription_data = SubscriptionResponseSchema(expiration_date=subscription.expiration_date, 
-                                                               is_active=subscription.is_active)
+                                                                is_active=subscription.is_active)
             else:
                 subscription_data = None
 
@@ -248,14 +290,6 @@ class RegistrationInteractor(BaseInteractor):
 
             result_data = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
             result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_200_OK)
-
-        except IntegrityError as e:
-
-            if 'duplicate key value violates unique constraint "users_email_key"' in str(e.orig):
-                # TODO глючит
-                await self.db_session.rollback()
-                result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом існує.', data={})
-                result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
 
         return result
     
@@ -323,9 +357,21 @@ class UpdatePasswordUserInteractor(BaseInteractor):
                        token):
 
         user_obj = await self.token_service.get_user_by_token(token)
+        
+        print('=========================')
+        print(user_obj)
+        print('=========================')
+
+        # if user_obj and user_obj.is_registered_throw_google == True:
+        #     result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом зареєструвався через гугл аккаунт. аутентифікуйтеся через нього..', data={})
+        #     result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
+
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
+            print('==================!!!!!!!!!!!!!========================================================')
+            print(result)
             return JSONResponse(status_code=401, content=result.model_dump())
+        
         password_valid = self.verify_password(plain_password=update_password_users_data.old_password, 
                                    hashed_password=user_obj.user_password)
         if not password_valid:
@@ -338,6 +384,11 @@ class UpdatePasswordUserInteractor(BaseInteractor):
         return result
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        print("==>plain_password<===")
+        print(plain_password)
+        print("===>hashed_password<===")
+        print(hashed_password)
+        print("===========================")
         return self.pwd_context.verify(plain_password, hashed_password)
 
 
@@ -366,6 +417,9 @@ class RefreshTokendUserInteractor(BaseInteractor):
                        refresh_token_obj):
 
         user_obj = await self.token_service.get_user_by_token(refresh_token_obj.refresh_token)
+        print('=====!!!user_obj!!!======')
+        print(type(user_obj))
+        print('===================')
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
             return JSONResponse(status_code=401, content=result.model_dump())

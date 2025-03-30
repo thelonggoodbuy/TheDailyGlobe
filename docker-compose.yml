@@ -17,7 +17,7 @@ services:
       - db_api:/var/lib/postgresql/data/
     restart: always
     env_file:
-      - ./.env
+      - ./.env.docker
 
 
   admin_db:
@@ -38,7 +38,7 @@ services:
     restart: always
     command: make run-docker
     env_file:
-      - ./.env
+      - ./.env.docker
     volumes:
       - media_volume:/usr/src/app/media
 
@@ -48,7 +48,7 @@ services:
       dockerfile: ./Dockerfile
     command: make unfold-docker
     env_file:
-      ./.env
+      ./.env.docker
     volumes:
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/media
@@ -69,7 +69,7 @@ services:
       dockerfile: ./Dockerfile
     command: make worker
     env_file:
-      - ./.env
+      - ./.env.docker
     depends_on:
       - api
       - redis
@@ -100,5 +100,5 @@ services:
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/media
     env_file:
-      - ./.env
+      - ./.env.docker
 

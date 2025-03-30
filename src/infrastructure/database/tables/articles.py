@@ -7,10 +7,12 @@ from advanced_alchemy.types import DateTimeUTC
 from src.domain.entities.articles.articles_entities import ArticleEntity
 from sqlalchemy_file import FileField
 
-from src.domain.entities.articles.articles_entities import ArticleWithPlainTextSectionEntity,\
-                                ArticleSectionSlideShowEntity,\
-                                ArticleWithVideoSectionEntity,\
-                                CategoryEntity, ArticleSectionEntity
+from src.domain.entities.articles.articles_entities import(
+                                                ArticleWithPlainTextSectionEntity,
+                                                ArticleSectionSlideShowEntity,
+                                                ArticleWithVideoSectionEntity,
+                                                CategoryEntity
+                                                    )
 
 from src.domain.entities.comments.comments_entities import CommentEntity
 
