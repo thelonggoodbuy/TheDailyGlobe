@@ -78,8 +78,9 @@ class SendPaymentRequestInteractor():
         data = liqpay.cnb_data(params)
         payment_url = f"https://www.liqpay.ua/api/3/checkout/?{urlencode({'data': data, 'signature': signature})}"
 
-
-        return {"result": payment_url}
+        result = BaseResponseSchema(error=True, message=user_obj.error_text, data={"result": payment_url})
+        return result
+        
     
         # return {"result": "success"}
         
@@ -178,4 +179,5 @@ class ReturnAllTariffsInteractor():
     async def __call__(self):
         all_tariffs = await self.tariff_repository.return_all()
         result = AllTariffResponseSchema(tariff_list=all_tariffs)
+        result = BaseResponseSchema(error=False, message="", data=result.model_dump())
         return result

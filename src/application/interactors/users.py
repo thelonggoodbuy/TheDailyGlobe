@@ -368,8 +368,7 @@ class UpdatePasswordUserInteractor(BaseInteractor):
 
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
-            print('==================!!!!!!!!!!!!!========================================================')
-            print(result)
+
             return JSONResponse(status_code=401, content=result.model_dump())
         
         password_valid = self.verify_password(plain_password=update_password_users_data.old_password, 
@@ -384,11 +383,6 @@ class UpdatePasswordUserInteractor(BaseInteractor):
         return result
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        print("==>plain_password<===")
-        print(plain_password)
-        print("===>hashed_password<===")
-        print(hashed_password)
-        print("===========================")
         return self.pwd_context.verify(plain_password, hashed_password)
 
 
