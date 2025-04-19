@@ -74,7 +74,7 @@ class LoginRegularInteractor(BaseInteractor):
                     access_token=jwt_token, 
                     refresh_token=refresh_token,
                     user_data=user_data.model_dump(by_alias=True), 
-                    subscription_data=subscription_data)
+                    subscription_data=str(subscription_data))
             result = BaseResponseSchema(error=False, message='', data=data.model_dump(by_alias=True))
 
         return result
