@@ -179,5 +179,5 @@ class ReturnAllTariffsInteractor():
     async def __call__(self):
         all_tariffs = await self.tariff_repository.return_all()
         result = AllTariffResponseSchema(tariff_list=all_tariffs)
-        result = BaseResponseSchema(error=False, message="", data=result.model_dump())
+        result = BaseResponseSchema(error=False, message="", data=result.model_dump(by_alias=True))
         return result

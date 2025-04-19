@@ -26,6 +26,7 @@ async def send_payment_request(token: Annotated[str, Depends(bearer_scheme)],
 @inject
 async def receive_payment_callback(request: Request, 
                                     interactor: FromDishka[ReceivePaymentRequestInteractor]):
+    print('======PAYMENT CALLBACK======')
     result = await interactor(request)
     return result
 

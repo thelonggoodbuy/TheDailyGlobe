@@ -16,6 +16,9 @@ class TariffRepository(BaseTariffRepository, IAlchemyRepository):
         query = select(TariffEntity).filter()
         tariffs_rows = await self._session.execute(query)
         result = tariffs_rows.scalars().all()
+        print('---result---')
+        print(result)
+        print('-----------')
         return result
     
 

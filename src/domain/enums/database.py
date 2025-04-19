@@ -19,9 +19,9 @@ class CurencyType(Enum):
     UAH = "UAH"
 
 class PeriodTypeEnum(Enum):
-    WEEK = "WEEK"
-    MONTH = "MONTH"
-    YEAR = "YEAR"
+    WEEK = "week"
+    MONTH = "month"
+    YEAR = "year"
 
 
 class TransactionsStatusEnum(Enum):
