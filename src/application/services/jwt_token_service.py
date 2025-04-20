@@ -101,9 +101,9 @@ class JWTTokenService(ITokenService):
         match token_status.is_valid:
             case True:
                 user = await self.get_user_by_payload(token_status.user_email)
-                print('_______')
-                print(user)
-                print('_______')
+                # print('_______')
+                # print(user)
+                # print('_______')
                 if user.is_registered_throw_google:
                     response = TokenResponse(is_valid=True, user_email=user.email, id=user.id)
                 else:
