@@ -453,6 +453,10 @@ class GetUserDataInteractor(BaseInteractor):
         user = await self.user_repository.get_user_by_email(user_obj.user_email)
         subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user.id)
 
+        print('============subscription===============')
+        print(subscription)
+        print('=======================================')
+
         user_data = UserDataSchema(
             email = user.email,
             is_registered_throw_google=user.is_registered_throw_google,
