@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import FromDishka, DishkaRoute, inject
-from src.application.interactors.users import LogOutRegularInteractor, LoginRegularInteractor,\
+from src.application.interactors.users import GetUserDataInteractor, LogOutRegularInteractor, LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
@@ -75,6 +75,14 @@ async def registration(register_data: RegisterData,
     return result_unformatted
 
 
+# !!!
+@router.get("/users/get_user_data", tags=["users_profile"])
+@inject
+async def get_user_data(token: Annotated[str, Depends(bearer_scheme)],
+                        interactor: FromDishka[GetUserDataInteractor]) -> BaseResponseSchema:
+    
+    result = await interactor(token)
+    return result
 
 
 

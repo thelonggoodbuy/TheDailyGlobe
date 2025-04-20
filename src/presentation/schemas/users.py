@@ -6,6 +6,9 @@ from pydantic_core.core_schema import FieldValidationInfo
 
 from src.presentation.schemas.base_schemas import BaseResponseSchema, BaseSchema
 from src.presentation.schemas.subscriptions import SubscriptionResponseSchema
+from advanced_alchemy.types import DateTimeUTC
+
+
 
 class BaseModelWithCamelCase(BaseModel):
     model_config = ConfigDict(
@@ -171,3 +174,11 @@ class LogOutRequestData(BaseModelWithCamelCase):
     access_token: str = Field(alias='accessToken')
     refresh_token: str = Field(alias='refreshToken')
     registration_id: str = Field(alias='registrationId')
+
+
+
+class UserDataSchema(BaseModel):
+    email: str
+    is_registered_throw_google: bool
+    expiration_date: Optional[str] = Field(default=None, alias='expirationDate')
+    is_active_subscription: bool

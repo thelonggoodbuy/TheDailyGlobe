@@ -49,7 +49,7 @@ from src.application.interactors.notifications import TestNotificationThrowToken
                                                         UpdateNotificationsStatusInteractor
 
 
-from src.application.interactors.users import LogOutRegularInteractor, LoginRegularInteractor,\
+from src.application.interactors.users import GetUserDataInteractor, LogOutRegularInteractor, LoginRegularInteractor,\
                                             LoginGmailRequestToCloudInteractor,\
                                             LoginGmailResponseFromCloudInteractor,\
                                             RegistrationInteractor,\
@@ -321,6 +321,11 @@ class UserProvider(Provider):
 
     refresh_token_user_interactor = provide(
         source=RefreshTokendUserInteractor,
+        scope=Scope.REQUEST
+    )
+
+    get_user_data_interactor = provide(
+        source = GetUserDataInteractor,
         scope=Scope.REQUEST
     )
 

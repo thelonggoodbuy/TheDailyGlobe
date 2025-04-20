@@ -4,7 +4,7 @@ from src.infrastructure.interfaces.uow import IDatabaseSession
 
 from starlette.requests import Request
 
-from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema, RegisterGoogleData
+from src.presentation.schemas.users import LogOutRequestData, LoginRequestData, RegisterData, LoginUserSuccessData, LoginSuccessDataSchema, RegisterGoogleData, UserDataSchema
 from src.presentation.schemas.base_schemas import BaseResponseSchema
 
 from sqlalchemy.exc import IntegrityError
@@ -66,9 +66,6 @@ class LoginRegularInteractor(BaseInteractor):
             user_data = LoginUserSuccessData(id=user_obj.id,
                                              email=user_obj.email)
 
-            print('========================')
-            print(subscription_data)
-            print('========================')
 
             data = LoginSuccessDataSchema(
                     access_token=jwt_token, 
@@ -358,14 +355,6 @@ class UpdatePasswordUserInteractor(BaseInteractor):
 
         user_obj = await self.token_service.get_user_by_token(token)
         
-        print('=========================')
-        print(user_obj)
-        print('=========================')
-
-        # if user_obj and user_obj.is_registered_throw_google == True:
-        #     result_data = BaseResponseSchema(error=True, message='Користувач з таким емейлом зареєструвався через гугл аккаунт. аутентифікуйтеся через нього..', data={})
-        #     result = JSONResponse(content=result_data.model_dump(mode='json'), status_code=status.HTTP_400_BAD_REQUEST)
-
         if not user_obj.is_valid:
             result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
 
@@ -424,3 +413,53 @@ class RefreshTokendUserInteractor(BaseInteractor):
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password)
+    
+
+
+
+class GetUserDataInteractor(BaseInteractor):
+    """
+    Interactor for get user data
+    """ 
+    def __init__(self,
+                db_session: IDatabaseSession,
+                user_repository: BaseUserRepository,
+                # settings: Settings,
+                subscription_repository: BaseSubscribtionRepository,
+                token_service: ITokenService
+                ):
+        """initialize interactor"""
+        self.db_session = db_session
+        # self.settings = settings
+        self.subscription_repository = subscription_repository
+        self.user_repository = user_repository
+        self.token_service = token_service
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    async def __call__(self,
+                       token):
+
+        print('===========TOKEN==================')
+        print(token)
+        print('==================================')
+
+        user_obj = await self.token_service.get_user_by_token(token.credentials)
+        
+        if not user_obj.is_valid:
+            result = BaseResponseSchema(error=True, message=user_obj.error_text, data={})
+
+            return JSONResponse(status_code=401, content=result.model_dump())
+        
+        user = await self.user_repository.get_user_by_email(user_obj.user_email)
+        subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user.id)
+
+        user_data = UserDataSchema(
+            email = user.email,
+            is_registered_throw_google=user.is_registered_throw_google,
+            expiration_date = str(subscription.expiration_date) if subscription else None,
+            is_active_subscription = subscription.is_active if subscription else None,
+        )
+        
+        result = BaseResponseSchema(error=False, message="", data=user_data.model_dump(by_alias=True))
+
+        return result
