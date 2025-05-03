@@ -456,13 +456,21 @@ class GetUserDataInteractor(BaseInteractor):
         print('--->subscription<----')
         print(subscription)
         # print(subscription.expiration_date.strftime("%m/%d/%Y, %H:%M:%S"))
+        if subscription.expiration_date:
+            print('subscription exist')
+            expiration_date = subscription.expiration_date
+            print(expiration_date)
+        else:
+            print('subscription NOT exist')
+            expiration_date = None
+            print(expiration_date)
         print('---------------------')
 
         
         data = {
             "email": user.email,
             "is_registered_throw_google": user.is_registered_throw_google,
-            "expiration_date": subscription.expiration_date.strftime("%m/%d/%Y, %H:%M:%S") if subscription else None,
+            "expiration_date": expiration_date,
             "is_active_subscription": subscription.is_active if subscription else None,
         }
 
