@@ -457,13 +457,13 @@ class GetUserDataInteractor(BaseInteractor):
         print(subscription)
         # print(subscription.expiration_date.strftime("%m/%d/%Y, %H:%M:%S"))
         if subscription.expiration_date:
-            print('subscription exist')
+            # print('subscription exist')
             expiration_date = subscription.expiration_date
-            print(expiration_date)
+            # print(expiration_date)
         else:
-            print('subscription NOT exist')
+            # print('subscription NOT exist')
             expiration_date = None
-            print(expiration_date)
+            # print(expiration_date)
         print('---------------------')
 
         
@@ -480,6 +480,8 @@ class GetUserDataInteractor(BaseInteractor):
         print('=================user_data===============')
         print(user_data)
         print(type(user_data))
+        print('-----dictionary date-------')
+        print(data)
         print('=========================================')
         
         result = BaseResponseSchema(error=False, message="", data=user_data.model_dump(by_alias=True))
