@@ -455,6 +455,7 @@ class GetUserDataInteractor(BaseInteractor):
 
         print('--->subscription<----')
         print(subscription)
+        print(subscription.expiration_date)
         print('---------------------')
 
         
