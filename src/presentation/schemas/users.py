@@ -51,6 +51,7 @@ from pydantic import BaseModel, ConfigDict, AliasGenerator
 from pydantic.alias_generators import to_camel, to_snake
 from typing import Any, Dict, Optional
 from typing import Type
+from src.presentation.schemas.base_schemas import BaseSchema
 
 
 
@@ -177,7 +178,7 @@ class LogOutRequestData(BaseModelWithCamelCase):
 
 
 
-class UserDataSchema(BaseModel):
+class UserDataSchema(BaseSchema):
     email: str
     is_registered_throw_google: Optional[bool] = Field(default=False, alias='isRegisteredThrowGoogle')
     expiration: Optional[str]
