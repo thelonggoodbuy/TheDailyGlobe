@@ -458,7 +458,7 @@ class GetUserDataInteractor(BaseInteractor):
         # print(subscription.expiration_date.strftime("%m/%d/%Y, %H:%M:%S"))
         if subscription.expiration_date:
             # print('subscription exist')
-            expiration_date = subscription.expiration_date
+            expiration_date = subscription.expiration_date.strftime("%m/%d/%Y, %H:%M:%S")
             # print(expiration_date)
         else:
             # print('subscription NOT exist')
