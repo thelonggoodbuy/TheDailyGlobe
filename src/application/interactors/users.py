@@ -462,7 +462,7 @@ class GetUserDataInteractor(BaseInteractor):
         data = {
             "email": user.email,
             "is_registered_throw_google": user.is_registered_throw_google,
-            "expiration_date": str(subscription.expiration_date if subscription else None),
+            "expiration_date": subscription.expiration_date if subscription else None,
             "is_active_subscription": subscription.is_active if subscription else None,
         }
 
