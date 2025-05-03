@@ -17,6 +17,11 @@ class SubscriptionRepository(BaseSubscribtionRepository, IAlchemyRepository):
         query = select(SubscriptionEntity).filter(SubscriptionEntity.user_id == user_id)
         subscription = await self._session.execute(query)
         result = subscription.scalar_one_or_none()
+        print('---user_id---in---subscription---')
+        print(user_id)
+        print('---------------------------------')
+        print(result)
+        print('---------------------------------')
         return result
     
 
