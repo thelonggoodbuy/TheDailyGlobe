@@ -179,6 +179,10 @@ class LogOutRequestData(BaseModelWithCamelCase):
 
 class UserDataSchema(BaseModel):
     email: str
-    is_registered_throw_google: bool = Field(default=None, alias='isRegisteredThrowGoogle')
+    is_registered_throw_google: Optional[bool] = Field(default=False, alias='isRegisteredThrowGoogle')
     expiration_date: Optional[str] = Field(default=None, alias='expirationDate')
-    is_active_subscription: bool = Field(default=None, alias='isActiveSubscription')
+    is_active_subscription: Optional[bool] = Field(default=False, alias='isActiveSubscription')
+
+
+
+    

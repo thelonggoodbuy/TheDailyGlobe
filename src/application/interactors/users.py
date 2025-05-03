@@ -439,9 +439,9 @@ class GetUserDataInteractor(BaseInteractor):
     async def __call__(self,
                        token):
 
-        print('===========TOKEN==================')
-        print(token)
-        print('==================================')
+        # print('===========TOKEN==================')
+        # print(token)
+        # print('==================================')
 
         user_obj = await self.token_service.get_user_by_token(token.credentials)
         
@@ -453,16 +453,21 @@ class GetUserDataInteractor(BaseInteractor):
         user = await self.user_repository.get_user_by_email(user_obj.user_email)
         subscription = await self.subscription_repository.return_user_subscribtion_by_user_id(user.id)
 
-        print('============subscription===============')
-        print(subscription)
-        print('=======================================')
+        
+        data = {
+            "email": user.email,
+            "is_registered_throw_google": user.is_registered_throw_google,
+            "expiration_date": str(subscription.expiration_date) if subscription else None,
+            "is_active_subscription": subscription.is_active if subscription else None,
+        }
 
-        user_data = UserDataSchema(
-            email = user.email,
-            is_registered_throw_google=user.is_registered_throw_google,
-            expiration_date = str(subscription.expiration_date) if subscription else None,
-            is_active_subscription = subscription.is_active if subscription else None,
-        )
+
+        user_data = UserDataSchema(**data)
+
+        print('=================user_data===============')
+        print(user_data)
+        print(type(user_data))
+        print('=========================================')
         
         result = BaseResponseSchema(error=False, message="", data=user_data.model_dump(by_alias=True))
 
